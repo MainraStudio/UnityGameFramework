@@ -2,7 +2,7 @@
   "name": "com.mainra.framework",
   "displayName": "Game Framework",
   "version": "1.0.0",
-  "unity": "2021.1",
+  "unity": "2022.1",
   "description": "A foundational framework for creating Unity games, including essential systems and utilities.",
   "keywords": [
     "framework",

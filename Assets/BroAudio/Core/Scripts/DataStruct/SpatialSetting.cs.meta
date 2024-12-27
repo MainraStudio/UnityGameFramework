@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5f5e789e903b0f24ca09610c5f7c5f3b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/DataStruct/SpatialSetting.cs
+  uploadId: 711158

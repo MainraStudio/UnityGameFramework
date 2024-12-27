@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6a2db58eba01aa84cbb7b3318e418ae4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/UnityCalls/AssetPostprocessorEditor.cs
+  uploadId: 711158

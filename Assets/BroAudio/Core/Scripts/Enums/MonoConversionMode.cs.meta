@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cb7d079a24eaa584f85184db59340edd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Enums/MonoConversionMode.cs
+  uploadId: 711158

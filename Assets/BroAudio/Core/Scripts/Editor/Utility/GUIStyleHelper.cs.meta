@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: db6fa0265306f7940869003efa90d5ca
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Utility/GUIStyleHelper.cs
+  uploadId: 711158

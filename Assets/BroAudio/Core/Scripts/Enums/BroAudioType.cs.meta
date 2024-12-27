@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c7eb1fd4e8a3ddb469cb7922c247dc1e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Enums/BroAudioType.cs
+  uploadId: 711158

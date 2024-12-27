@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7c95e5564af461a4f80288a498ca13ad
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/AudioAssets/SpatialSettings/SpaceShipCube_Spatial.asset
+  uploadId: 711158

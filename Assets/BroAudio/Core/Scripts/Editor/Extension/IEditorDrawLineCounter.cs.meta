@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c23989f0923a31545889e06f7de7ac67
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Extension/IEditorDrawLineCounter.cs
+  uploadId: 711158

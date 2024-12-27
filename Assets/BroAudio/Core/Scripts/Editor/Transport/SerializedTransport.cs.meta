@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8a1fb329a5ba8314b84c32b6409b00fd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Transport/SerializedTransport.cs
+  uploadId: 711158

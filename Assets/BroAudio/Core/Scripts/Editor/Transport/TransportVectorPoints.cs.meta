@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 53c07cf0df2bc9d4a8b02bb66f43b1fe
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Transport/TransportVectorPoints.cs
+  uploadId: 711158

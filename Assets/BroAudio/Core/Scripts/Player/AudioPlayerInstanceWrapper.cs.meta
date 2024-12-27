@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2be90cab91a920547a309ca33772c9ec
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Player/AudioPlayerInstanceWrapper.cs
+  uploadId: 711158

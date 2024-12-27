@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f849b0440cba2d44fb976a8bcf082673
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Extension/EditorTemplate/ReflectedClass.cs
+  uploadId: 711158

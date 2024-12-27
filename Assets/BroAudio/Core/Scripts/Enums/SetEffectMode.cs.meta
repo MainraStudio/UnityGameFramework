@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3d21e9a3b951470408ce87e8750ac130
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Enums/SetEffectMode.cs
+  uploadId: 711158

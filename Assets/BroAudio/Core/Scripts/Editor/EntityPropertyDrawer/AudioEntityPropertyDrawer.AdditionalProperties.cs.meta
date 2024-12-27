@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3bb2e5960ebf5e546bd8e55b9d9bfa93
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/EntityPropertyDrawer/AudioEntityPropertyDrawer.AdditionalProperties.cs
+  uploadId: 711158

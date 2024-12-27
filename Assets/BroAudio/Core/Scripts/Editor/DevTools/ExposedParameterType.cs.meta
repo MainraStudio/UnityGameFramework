@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 23ad4d3bd18caf241936e8de8eb689a6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/DevTools/ExposedParameterType.cs
+  uploadId: 711158

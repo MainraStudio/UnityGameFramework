@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1668b4066dbd9074781b9947bb32e2a1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Interface/AudioPlayer/IPlayable.cs
+  uploadId: 711158

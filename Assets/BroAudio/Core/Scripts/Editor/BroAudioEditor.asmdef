@@ -1,0 +1,18 @@
+{
+    "name": "BroAudioEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:111d4e39aeddad44898002abada9c174"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

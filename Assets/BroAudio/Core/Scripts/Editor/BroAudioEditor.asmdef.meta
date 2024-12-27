@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3aec8f720e94af547ac266c12aac8446
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/BroAudioEditor.asmdef
+  uploadId: 711158

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 861ab5778322a8f42ada9413dc6c9f01
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 24100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 1.14
+  assetPath: Assets/BroAudio/Core/BroAudioMixer.mixer
+  uploadId: 711158

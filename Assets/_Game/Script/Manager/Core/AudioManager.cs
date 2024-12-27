@@ -53,6 +53,31 @@ public class AudioManager : PersistentSingleton<AudioManager>
         SetSFXVolume(sfxVolume);
         Debug.Log("Audio Manager Initialized");
     }
+    private void OnEnable()
+    {
+        UIManager.OnButtonClicked += PlayButtonClickSound;
+    }
+
+    private void OnDisable()
+    {
+        UIManager.OnButtonClicked -= PlayButtonClickSound;
+    }
+
+    public void PlayButtonClickSound()
+    {
+        if (audioClipLibrary != null && sfxSource != null)
+        {
+            var clip = audioClipLibrary.GetAudioClip("ButtonClick", false);
+            if (clip != null)
+            {
+                sfxSource.PlayOneShot(clip);
+            }
+            else
+            {
+                Debug.LogWarning("ButtonClick sound not found in AudioClipLibrary!");
+            }
+        }
+    }
 
     protected override void Awake()
     {

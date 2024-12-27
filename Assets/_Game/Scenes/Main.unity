@@ -855,15 +855,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9620c2a390d5590418aa7df95f9e0bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiPrefabs:
-  - {fileID: 4043970871218536007, guid: 22acad7e956b0ac488c984162761f189, type: 3}
+  uiPrefabs: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1384386090}
   - {fileID: 760278686}
-  - {fileID: 892412099}
-  - {fileID: 1370903353}
-  - {fileID: 1805248972}
   - {fileID: 966554488}
+  - {fileID: 1805248972}
+  - {fileID: 1370903353}
+  - {fileID: 892412099}

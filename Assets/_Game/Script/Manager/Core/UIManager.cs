@@ -1,10 +1,14 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+    
+    public static event Action OnButtonClicked;
 
     [FoldoutGroup("UI Prefabs"), SerializeField]
     private List<BaseUI> uiPrefabs;
@@ -85,5 +89,14 @@ public class UIManager : MonoBehaviour
                 ui.Hide(useTransition);
             }
         }
+    }
+    
+    public void AddButtonListenerWithSFX(Button button, UnityEngine.Events.UnityAction action)
+    {
+        button.onClick.AddListener(() =>
+        {
+            OnButtonClicked?.Invoke();
+            action.Invoke();
+        });
     }
 }

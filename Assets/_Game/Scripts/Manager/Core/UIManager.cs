@@ -11,6 +11,9 @@ public class UIManager : PersistentSingleton<UIManager>
     [FoldoutGroup("UI Prefabs"), SerializeField]
     private List<BaseUI> uiPrefabs;
 
+    [FoldoutGroup("UI Prefabs"), SerializeField]
+    private List<BaseUI> popupPrefabs;
+
     [FoldoutGroup("Canvas Settings"), SerializeField, Required]
     private Canvas persistentCanvas;
 
@@ -32,17 +35,14 @@ public class UIManager : PersistentSingleton<UIManager>
         HideOtherUI<T>(useTransition);
     }
 
-    public void ShowPopupUI(BaseUI popupPrefab, bool useTransition = true)
+    public void ShowPopupUI<T>(bool useTransition = true) where T : BaseUI
     {
-        if (popupPrefab == null)
-        {
-            Debug.LogError("Popup Prefab is null!");
-            return;
-        }
-
         EnableCanvas(popupCanvas);
-        var popupInstance = Instantiate(popupPrefab, popupCanvas.transform);
-        popupInstance.Show(useTransition);
+        var popup = GetOrCreatePopupInstance<T>(popupCanvas.transform);
+        if (popup != null)
+        {
+            popup.Show(useTransition);
+        }
     }
 
     public void HideAllUI(bool useTransition = true)
@@ -154,6 +154,27 @@ public class UIManager : PersistentSingleton<UIManager>
         }
 
         Debug.LogError($"UI Prefab of type {type.Name} not found!");
+        return null;
+    }
+
+    private T GetOrCreatePopupInstance<T>(Transform parent) where T : BaseUI
+    {
+        var type = typeof(T);
+
+        if (uiInstances.ContainsKey(type))
+        {
+            return uiInstances[type] as T;
+        }
+
+        var prefab = popupPrefabs.Find(p => p is T);
+        if (prefab != null)
+        {
+            var instance = Instantiate(prefab, parent);
+            uiInstances[type] = instance;
+            return instance as T;
+        }
+
+        Debug.LogError($"Popup Prefab of type {type.Name} not found!");
         return null;
     }
 

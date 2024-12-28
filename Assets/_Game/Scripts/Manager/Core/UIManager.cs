@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : PersistentSingleton<UIManager>
 {
     public static UIManager Instance { get; private set; }
-    
+
     public static event Action OnButtonClicked;
 
     [FoldoutGroup("UI Prefabs"), SerializeField]
     private List<BaseUI> uiPrefabs;
 
     private Dictionary<System.Type, BaseUI> uiInstances = new Dictionary<System.Type, BaseUI>();
+    private HashSet<System.Type> persistentUI = new HashSet<System.Type>();
 
     private void Awake()
     {
@@ -38,6 +39,7 @@ public class UIManager : MonoBehaviour
 
         HideOtherUI<T>(useTransition);
     }
+
     public void ShowPopupUI(BaseUI popupPrefab, bool useTransition = true, int sortingOrder = 100)
     {
         if (popupPrefab == null)
@@ -55,7 +57,10 @@ public class UIManager : MonoBehaviour
     {
         foreach (var ui in uiInstances.Values)
         {
-            ui.Hide(useTransition);
+            if (!persistentUI.Contains(ui.GetType()))
+            {
+                ui.Hide(useTransition);
+            }
         }
     }
 
@@ -84,13 +89,13 @@ public class UIManager : MonoBehaviour
     {
         foreach (var ui in uiInstances.Values)
         {
-            if (!(ui is T))
+            if (!(ui is T) && !persistentUI.Contains(ui.GetType()))
             {
                 ui.Hide(useTransition);
             }
         }
     }
-    
+
     public void AddButtonListenerWithSFX(Button button, UnityEngine.Events.UnityAction action)
     {
         button.onClick.AddListener(() =>
@@ -98,5 +103,23 @@ public class UIManager : MonoBehaviour
             OnButtonClicked?.Invoke();
             action.Invoke();
         });
+    }
+
+    public void SetUIPersistent<T>() where T : BaseUI
+    {
+        var type = typeof(T);
+        if (!persistentUI.Contains(type))
+        {
+            persistentUI.Add(type);
+        }
+    }
+
+    public void RemoveUIPersistent<T>() where T : BaseUI
+    {
+        var type = typeof(T);
+        if (persistentUI.Contains(type))
+        {
+            persistentUI.Remove(type);
+        }
     }
 }

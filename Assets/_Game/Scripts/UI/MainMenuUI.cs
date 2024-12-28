@@ -1,6 +1,3 @@
-using Ami.BroAudio;
-using Ami.BroAudio.Data;
-using MainraFramework;
 using UnityEngine;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
@@ -12,9 +9,6 @@ public class MainMenuUI : BaseUI
     [FoldoutGroup("Main Buttons"), SerializeField] private Button quit;
 
     [FoldoutGroup("Settings Panel"), SerializeField] private GameObject settingsPanel;
-    [FoldoutGroup("Settings Panel"), SerializeField] private Slider masterVolumeSlider;
-    [FoldoutGroup("Settings Panel"), SerializeField] private Slider musicVolumeSlider;
-    [FoldoutGroup("Settings Panel"), SerializeField] private Slider sfxVolumeSlider;
     [FoldoutGroup("Settings Panel"), SerializeField] private Button backButton;
 
     private UIManager uIManager;
@@ -28,10 +22,6 @@ public class MainMenuUI : BaseUI
         settings.onClick.AddListener(OnSettingsClicked);
         quit.onClick.AddListener(OnQuitClicked);
         backButton.onClick.AddListener(OnBackClicked);
-        
-        masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
-        musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
-        sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
     }
     
     private void OnPlayClicked()
@@ -40,26 +30,6 @@ public class MainMenuUI : BaseUI
         Debug.Log("Play button clicked");
     }
     
-    private void OnMasterVolumeChanged(float value)
-    {
-        // Implement master volume slider functionality
-        Debug.Log("Master volume changed to: " + value);
-        BroAudio.SetVolume(value);
-    }
-    
-    private void OnMusicVolumeChanged(float value)
-    {
-        BroAudio.SetVolume(BroAudioType.Music, value);
-    }
-
-    
-    private void OnSFXVolumeChanged(float value)
-    {
-        // Implement SFX volume slider functionality
-        Debug.Log("SFX volume changed to: " + value);
-        BroAudio.SetVolume(BroAudioType.SFX, value);
-    }
-
     private void OnSettingsClicked()
     {
         // Show settings panel

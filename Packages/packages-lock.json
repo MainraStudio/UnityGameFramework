@@ -218,6 +218,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "games.carter.savemanager": {
+      "version": "https://github.com/CarterGames/SaveManager.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "df8d17910450f68c804f483ce5bcf5422d85505a"
+    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,

@@ -6,32 +6,24 @@ using UnityEngine.UI;
 
 public class UIManager : PersistentSingleton<UIManager>
 {
-    public static UIManager Instance { get; private set; }
-
     public static event Action OnButtonClicked;
 
     [FoldoutGroup("UI Prefabs"), SerializeField]
     private List<BaseUI> uiPrefabs;
 
+    [FoldoutGroup("Canvas Settings"), SerializeField, Required]
+    private Canvas persistentCanvas;
+
+    [FoldoutGroup("Canvas Settings"), SerializeField, Required]
+    private Canvas popupCanvas;
+
     private Dictionary<System.Type, BaseUI> uiInstances = new Dictionary<System.Type, BaseUI>();
     private HashSet<System.Type> persistentUI = new HashSet<System.Type>();
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-    }
-
     public void ShowUI<T>(bool useTransition = true) where T : BaseUI
     {
-        var ui = GetOrCreateUIInstance<T>();
+        EnableCanvas(persistentCanvas);
+        var ui = GetOrCreateUIInstance<T>(persistentCanvas.transform);
         if (ui != null)
         {
             ui.Show(useTransition);
@@ -40,7 +32,7 @@ public class UIManager : PersistentSingleton<UIManager>
         HideOtherUI<T>(useTransition);
     }
 
-    public void ShowPopupUI(BaseUI popupPrefab, bool useTransition = true, int sortingOrder = 100)
+    public void ShowPopupUI(BaseUI popupPrefab, bool useTransition = true)
     {
         if (popupPrefab == null)
         {
@@ -48,8 +40,8 @@ public class UIManager : PersistentSingleton<UIManager>
             return;
         }
 
-        var popupInstance = Instantiate(popupPrefab, transform);
-        popupInstance.SetSortingOrder(sortingOrder);
+        EnableCanvas(popupCanvas);
+        var popupInstance = Instantiate(popupPrefab, popupCanvas.transform);
         popupInstance.Show(useTransition);
     }
 
@@ -62,9 +54,89 @@ public class UIManager : PersistentSingleton<UIManager>
                 ui.Hide(useTransition);
             }
         }
+        DisableCanvas(persistentCanvas);
+        DisableCanvas(popupCanvas);
     }
 
-    private T GetOrCreateUIInstance<T>() where T : BaseUI
+    public void HideUI<T>(bool useTransition = true) where T : BaseUI
+    {
+        var ui = GetUIInstance<T>();
+        if (ui != null)
+        {
+            ui.Hide(useTransition);
+        }
+        DisableCanvasIfNoActiveUI(persistentCanvas);
+        DisableCanvasIfNoActiveUI(popupCanvas);
+    }
+
+    private void EnableCanvas(Canvas canvas)
+    {
+        if (canvas != null)
+        {
+            canvas.enabled = true;
+        }
+    }
+
+    private void DisableCanvas(Canvas canvas)
+    {
+        if (canvas != null)
+        {
+            canvas.enabled = false;
+        }
+    }
+
+    private void DisableCanvasIfNoActiveUI(Canvas canvas)
+    {
+        bool hasActiveUI = false;
+        foreach (var ui in uiInstances.Values)
+        {
+            if (ui.transform.parent == canvas.transform && ui.IsVisible())
+            {
+                hasActiveUI = true;
+                break;
+            }
+        }
+        if (!hasActiveUI)
+        {
+            DisableCanvas(canvas);
+        }
+    }
+
+    public void ToggleUI<T>(bool useTransition = true) where T : BaseUI
+    {
+        var ui = GetUIInstance<T>();
+        if (ui != null)
+        {
+            if (ui.IsVisible())
+            {
+                ui.Hide(useTransition);
+            }
+            else
+            {
+                EnableCanvas(persistentCanvas);
+                ui.Show(useTransition);
+            }
+        }
+        DisableCanvasIfNoActiveUI(persistentCanvas);
+    }
+
+    public bool IsUIVisible<T>() where T : BaseUI
+    {
+        var ui = GetUIInstance<T>();
+        return ui != null && ui.IsVisible();
+    }
+
+    public T GetUIInstance<T>() where T : BaseUI
+    {
+        var type = typeof(T);
+        if (uiInstances.ContainsKey(type))
+        {
+            return uiInstances[type] as T;
+        }
+        return null;
+    }
+
+    private T GetOrCreateUIInstance<T>(Transform parent) where T : BaseUI
     {
         var type = typeof(T);
 
@@ -76,7 +148,7 @@ public class UIManager : PersistentSingleton<UIManager>
         var prefab = uiPrefabs.Find(p => p is T);
         if (prefab != null)
         {
-            var instance = Instantiate(prefab, transform);
+            var instance = Instantiate(prefab, parent);
             uiInstances[type] = instance;
             return instance as T;
         }

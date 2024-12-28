@@ -3,11 +3,10 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using System;
 
-[RequireComponent(typeof(Canvas), typeof(CanvasGroup))]
+[RequireComponent(typeof(CanvasGroup))]
 public abstract class BaseUI : MonoBehaviour
 {
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private Canvas canvas;
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private CanvasGroup canvasGroup;
+    private CanvasGroup canvasGroup;
 
     [FoldoutGroup("Transition Settings"), SerializeField]
     private float fadeDuration = 0.5f;
@@ -23,16 +22,14 @@ public abstract class BaseUI : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (canvas == null) canvas = GetComponent<Canvas>();
-        if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
-
-        canvas.enabled = false;
+        canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = 0f;
     }
 
     public virtual void Show(bool useTransition = true)
     {
-        canvas.enabled = true;
+        gameObject.SetActive(true);
+        EnableInput();
 
         if (useTransition)
         {
@@ -61,7 +58,7 @@ public abstract class BaseUI : MonoBehaviour
                 .SetEase(fadeEase)
                 .OnComplete(() =>
                 {
-                    canvas.enabled = false;
+                    gameObject.SetActive(false);
                     EnableInput();
                     OnHideComplete?.Invoke();
                 });
@@ -69,21 +66,14 @@ public abstract class BaseUI : MonoBehaviour
         else
         {
             canvasGroup.alpha = 0f;
-            canvas.enabled = false;
+            gameObject.SetActive(false);
             OnHideComplete?.Invoke();
-        }
-    }
-    public void SetSortingOrder(int order)
-    {
-        if (canvas != null)
-        {
-            canvas.sortingOrder = order;
         }
     }
 
     public bool IsVisible()
     {
-        return canvas.enabled && canvasGroup.alpha > 0f;
+        return gameObject.activeSelf && canvasGroup.alpha > 0f;
     }
 
     private void DisableInput()

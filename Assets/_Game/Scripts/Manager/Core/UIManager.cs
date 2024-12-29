@@ -2,11 +2,15 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class UIManager : PersistentSingleton<UIManager>
 {
     public static event Action OnButtonClicked;
+    
+    [SerializeField] private GameObject loadingPanel;
+    [SerializeField] private Slider loadingBar;
 
     [FoldoutGroup("UI Prefabs"), SerializeField]
     private List<BaseUI> uiPrefabs;
@@ -43,6 +47,30 @@ public class UIManager : PersistentSingleton<UIManager>
         {
             popup.Show(useTransition);
         }
+    }
+    public void ShowConfirmationPopup(string message, UnityAction onConfirm, UnityAction onCancel)
+    {
+        var popup = GetOrCreatePopupInstance<ConfirmationPopup>(popupCanvas.transform);
+        if (popup != null)
+        {
+            popup.Setup(message, onConfirm, onCancel);
+            popup.Show(true);
+        }
+    }
+    
+    public void ShowLoadingUI()
+    {
+        loadingPanel.SetActive(true);
+    }
+
+    public void HideLoadingUI()
+    {
+        loadingPanel.SetActive(false);
+    }
+
+    public void UpdateLoadingProgress(float progress)
+    {
+        loadingBar.value = progress;
     }
 
     public void HideAllUI(bool useTransition = true)

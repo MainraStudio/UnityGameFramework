@@ -7,6 +7,13 @@ namespace MainraFramework
     public class GameManager : PersistentSingleton<GameManager>
     {
         private IGameState currentState;
+        public SceneManager SceneManager { get; private set; }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            SceneManager = new SceneManager(this);
+        }
 
         public void SetState(IGameState newState)
         {

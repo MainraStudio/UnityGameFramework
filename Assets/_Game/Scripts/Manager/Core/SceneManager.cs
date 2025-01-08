@@ -13,11 +13,11 @@ namespace MainraFramework
             this.gameManager = gameManager;
         }
 
-        public void LoadScene(string sceneName, bool showLoadingUI = false)
+        public void LoadScene(string sceneName, bool showLoadingScene = false, float fakeLoadingTime = 3f)
         {
-            if (showLoadingUI)
+            if (showLoadingScene)
             {
-                gameManager.StartCoroutine(LoadSceneAsync(sceneName));
+                gameManager.StartCoroutine(LoadSceneWithLoadingScreen(sceneName, fakeLoadingTime));
             }
             else
             {
@@ -25,11 +25,11 @@ namespace MainraFramework
             }
         }
 
-        public void LoadScene(int sceneIndex, bool showLoadingUI = false)
+        public void LoadScene(int sceneIndex, bool showLoadingScene = false, float fakeLoadingTime = 0f)
         {
-            if (showLoadingUI)
+            if (showLoadingScene)
             {
-                gameManager.StartCoroutine(LoadSceneAsync(sceneIndex));
+                gameManager.StartCoroutine(LoadSceneWithLoadingScreen(sceneIndex, fakeLoadingTime));
             }
             else
             {
@@ -37,34 +37,54 @@ namespace MainraFramework
             }
         }
 
-        private IEnumerator LoadSceneAsync(string sceneName)
+        private IEnumerator LoadSceneWithLoadingScreen(string sceneName, float fakeLoadingTime)
         {
-            UIManager.Instance.ShowLoadingUI();
-            AsyncOperation operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+            // Load the loading scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
 
+            // Wait for one frame to ensure the loading scene is fully loaded
+            yield return null;
+
+            // Start loading the target scene
+            AsyncOperation operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+            operation.allowSceneActivation = false;
+
+            float elapsedTime = 0f;
             while (!operation.isDone)
             {
-                float progress = Mathf.Clamp01(operation.progress / 0.9f);
-                UIManager.Instance.UpdateLoadingProgress(progress);
+                if (operation.progress >= 0.9f && elapsedTime >= fakeLoadingTime)
+                {
+                    operation.allowSceneActivation = true;
+                }
+
+                elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
-            UIManager.Instance.HideLoadingUI();
         }
 
-        private IEnumerator LoadSceneAsync(int sceneIndex)
+        private IEnumerator LoadSceneWithLoadingScreen(int sceneIndex, float fakeLoadingTime)
         {
-            UIManager.Instance.ShowLoadingUI();
-            AsyncOperation operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex);
+            // Load the loading scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
 
+            // Wait for one frame to ensure the loading scene is fully loaded
+            yield return null;
+
+            // Start loading the target scene
+            AsyncOperation operation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex);
+            operation.allowSceneActivation = false;
+
+            float elapsedTime = 0f;
             while (!operation.isDone)
             {
-                float progress = Mathf.Clamp01(operation.progress / 0.9f);
-                UIManager.Instance.UpdateLoadingProgress(progress);
+                if (operation.progress >= 0.9f && elapsedTime >= fakeLoadingTime)
+                {
+                    operation.allowSceneActivation = true;
+                }
+
+                elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
-            UIManager.Instance.HideLoadingUI();
         }
     }
 }

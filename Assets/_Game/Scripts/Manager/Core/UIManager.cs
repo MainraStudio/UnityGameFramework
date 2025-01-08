@@ -8,21 +8,12 @@ using UnityEngine.UI;
 public class UIManager : PersistentSingleton<UIManager>
 {
     public static event Action OnButtonClicked;
-    
-    [SerializeField] private GameObject loadingPanel;
-    [SerializeField] private Slider loadingBar;
 
-    [FoldoutGroup("UI Prefabs"), SerializeField]
-    private List<BaseUI> uiPrefabs;
+    [FoldoutGroup("UI Prefabs"), SerializeField] private List<BaseUI> uiPrefabs;
+    [FoldoutGroup("UI Prefabs"), SerializeField] private List<BaseUI> popupPrefabs;
 
-    [FoldoutGroup("UI Prefabs"), SerializeField]
-    private List<BaseUI> popupPrefabs;
-
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required]
-    private Canvas persistentCanvas;
-
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required]
-    private Canvas popupCanvas;
+    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private Canvas persistentCanvas;
+    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private Canvas popupCanvas;
 
     private Dictionary<System.Type, BaseUI> uiInstances = new Dictionary<System.Type, BaseUI>();
     private HashSet<System.Type> persistentUI = new HashSet<System.Type>();
@@ -48,6 +39,7 @@ public class UIManager : PersistentSingleton<UIManager>
             popup.Show(useTransition);
         }
     }
+
     public void ShowConfirmationPopup(string message, UnityAction onConfirm, UnityAction onCancel)
     {
         var popup = GetOrCreatePopupInstance<ConfirmationPopup>(popupCanvas.transform);
@@ -56,21 +48,6 @@ public class UIManager : PersistentSingleton<UIManager>
             popup.Setup(message, onConfirm, onCancel);
             popup.Show(true);
         }
-    }
-    
-    public void ShowLoadingUI()
-    {
-        loadingPanel.SetActive(true);
-    }
-
-    public void HideLoadingUI()
-    {
-        loadingPanel.SetActive(false);
-    }
-
-    public void UpdateLoadingProgress(float progress)
-    {
-        loadingBar.value = progress;
     }
 
     public void HideAllUI(bool useTransition = true)
@@ -82,6 +59,7 @@ public class UIManager : PersistentSingleton<UIManager>
                 ui.Hide(useTransition);
             }
         }
+
         DisableCanvas(persistentCanvas);
         DisableCanvas(popupCanvas);
     }
@@ -93,6 +71,7 @@ public class UIManager : PersistentSingleton<UIManager>
         {
             ui.Hide(useTransition);
         }
+
         DisableCanvasIfNoActiveUI(persistentCanvas);
         DisableCanvasIfNoActiveUI(popupCanvas);
     }
@@ -124,6 +103,7 @@ public class UIManager : PersistentSingleton<UIManager>
                 break;
             }
         }
+
         if (!hasActiveUI)
         {
             DisableCanvas(canvas);
@@ -145,6 +125,7 @@ public class UIManager : PersistentSingleton<UIManager>
                 ui.Show(useTransition);
             }
         }
+
         DisableCanvasIfNoActiveUI(persistentCanvas);
     }
 
@@ -161,6 +142,7 @@ public class UIManager : PersistentSingleton<UIManager>
         {
             return uiInstances[type] as T;
         }
+
         return null;
     }
 

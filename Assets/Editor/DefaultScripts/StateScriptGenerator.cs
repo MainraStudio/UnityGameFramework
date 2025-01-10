@@ -9,7 +9,7 @@ public class StateScriptGenerator : EditorWindow
     private string scriptName = "NewState";
     private string folderPath = "Assets/_Game/Scripts/Manager/Core/States";
 
-    [MenuItem("Tools/MainraFramework/Script Generator")]
+    [MenuItem("Tools/MainraFramework/State Script Generator")]
     public static void ShowWindow()
     {
         GetWindow<StateScriptGenerator>("Script Generator");

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class ParameterEditor : EditorWindow
 {
@@ -37,6 +38,7 @@ public class ParameterEditor : EditorWindow
     {
         LoadData();
         AddDefaultCategories();
+        SyncWithGeneratedScript(); // Sync with the generated script
     }
 
     // Main GUI layout
@@ -89,10 +91,22 @@ public class ParameterEditor : EditorWindow
             isDirty = false;
         }
 
+        // Sync with generated script button
+        if (GUILayout.Button("Sync with Generated Script"))
+        {
+            SyncWithGeneratedScript();
+        }
+
         // Backup option
         if (GUILayout.Button("Create Backup"))
         {
             CreateBackup();
+        }
+
+        // Import JSON button
+        if (GUILayout.Button("Import JSON"))
+        {
+            ImportJson();
         }
     }
 
@@ -122,12 +136,11 @@ public class ParameterEditor : EditorWindow
             // Items in the category
             for (int i = 0; i < category.Items.Count; i++)
             {
-                // Only highlight matching parameters if search is not empty
                 bool isMatch = !string.IsNullOrEmpty(searchFilter) && category.Items[i].ToLower().Contains(searchFilter.ToLower());
                 GUIStyle itemStyle = new GUIStyle(EditorStyles.textField);
                 if (isMatch)
                 {
-                    itemStyle.normal.textColor = Color.yellow; // Highlight color
+                    itemStyle.normal.textColor = Color.yellow; // Highlight matching items
                 }
 
                 GUILayout.BeginHorizontal();
@@ -135,7 +148,7 @@ public class ParameterEditor : EditorWindow
                 if (GUILayout.Button("-", GUILayout.Width(30)))
                 {
                     category.Items.RemoveAt(i);
-                    isDirty = true;
+                    isDirty = true;  // Data telah diubah
                 }
                 GUILayout.EndHorizontal();
             }
@@ -144,7 +157,7 @@ public class ParameterEditor : EditorWindow
             if (GUILayout.Button($"Add Item to {category.Name}"))
             {
                 category.Items.Add(string.Empty);
-                isDirty = true;
+                isDirty = true;  // Data telah diubah
             }
 
             GUILayout.EndVertical();
@@ -216,32 +229,43 @@ public class ParameterEditor : EditorWindow
             {
                 string json = File.ReadAllText(JsonFilePath);
                 parameterData = JsonUtility.FromJson<ParameterData>(json);
+                isDirty = false; // Data sudah dimuat, tidak ada perubahan
             }
             catch
             {
                 Debug.LogError("Failed to parse JSON file.");
                 parameterData = new ParameterData();
+                isDirty = true; // Menandakan bahwa data belum dimuat dengan benar
             }
         }
         else
         {
             parameterData = new ParameterData();
+            isDirty = true; // Menandakan bahwa data kosong dan perlu disimpan
         }
     }
 
     // Save parameter data to JSON
     private void SaveData()
     {
-        try
+        if (isDirty)
         {
-            string json = JsonUtility.ToJson(parameterData, true);
-            File.WriteAllText(JsonFilePath, json);
-            AssetDatabase.Refresh();
-            Debug.Log("Data saved successfully.");
+            try
+            {
+                string json = JsonUtility.ToJson(parameterData, true);
+                File.WriteAllText(JsonFilePath, json);
+                AssetDatabase.Refresh();
+                Debug.Log("Data saved successfully.");
+                isDirty = false;
+            }
+            catch
+            {
+                Debug.LogError("Failed to save data to JSON.");
+            }
         }
-        catch
+        else
         {
-            Debug.LogError("Failed to save data to JSON.");
+            Debug.Log("No changes to save.");
         }
     }
 
@@ -296,6 +320,95 @@ public class ParameterEditor : EditorWindow
         string backupPath = JsonFilePath.Replace(".json", $"_Backup_{System.DateTime.Now:yyyyMMddHHmmss}.json");
         File.Copy(JsonFilePath, backupPath, true);
         Debug.Log($"Backup created at {backupPath}");
+    }
+
+    // Sync data with the generated script
+    private void SyncWithGeneratedScript()
+    {
+        if (!File.Exists(ScriptFilePath))
+        {
+            Debug.LogWarning("Generated script not found. Sync skipped.");
+            return;
+        }
+
+        try
+        {
+            string scriptContent = File.ReadAllText(ScriptFilePath);
+            // Regex to match categories (e.g., "public static class Tags")
+            var categoryRegex = new Regex(@"public\s+static\s+class\s+(\w+)");
+            // Regex to match items within a category (e.g., "public const string PLAYER = "Player";")
+            var itemRegex = new Regex(@"public\s+const\s+string\s+\w+\s+=\s+""(.+?)"";");
+
+            var matches = categoryRegex.Matches(scriptContent);
+            var categories = new List<ParameterCategory>();
+
+            foreach (Match match in matches)
+            {
+                string categoryName = match.Groups[1].Value;
+                var categoryItems = new List<string>();
+
+                int startIndex = scriptContent.IndexOf($"public static class {categoryName}", System.StringComparison.Ordinal);
+                int endIndex = scriptContent.IndexOf("}", startIndex, System.StringComparison.Ordinal);
+                string categoryBlock = scriptContent.Substring(startIndex, endIndex - startIndex);
+
+                foreach (Match itemMatch in itemRegex.Matches(categoryBlock))
+                {
+                    categoryItems.Add(itemMatch.Groups[1].Value);
+                }
+
+                categories.Add(new ParameterCategory
+                {
+                    Name = categoryName,
+                    Items = categoryItems
+                });
+            }
+
+            foreach (var scriptCategory in categories)
+            {
+                var existingCategory = parameterData.Categories.FirstOrDefault(c => c.Name == scriptCategory.Name);
+                if (existingCategory == null)
+                {
+                    parameterData.Categories.Add(scriptCategory);
+                }
+                else
+                {
+                    foreach (var item in scriptCategory.Items)
+                    {
+                        if (!existingCategory.Items.Contains(item))
+                        {
+                            existingCategory.Items.Add(item);
+                        }
+                    }
+                }
+            }
+
+            Debug.Log("Data successfully synced with the generated script.");
+            isDirty = true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error syncing with generated script: {ex.Message}");
+        }
+    }
+
+    // Import JSON file
+    private void ImportJson()
+    {
+        string path = EditorUtility.OpenFilePanel("Import Parameter Data", "Assets", "json");
+        if (!string.IsNullOrEmpty(path))
+        {
+            try
+            {
+                string json = File.ReadAllText(path);
+                parameterData = JsonUtility.FromJson<ParameterData>(json);
+                isDirty = true;
+                Debug.Log("Data imported successfully.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to import JSON: {ex.Message}");
+            }
+        }
     }
 
     // Helper: Convert a string to a constant-friendly format

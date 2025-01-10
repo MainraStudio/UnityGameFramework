@@ -17,6 +17,11 @@ public abstract class BaseUI : MonoBehaviour
     [FoldoutGroup("Input Settings"), SerializeField]
     private bool disableInputDuringTransition = true;
 
+    [FoldoutGroup("Debug"), SerializeField]
+    private bool enableDebugLogs;
+
+    private bool isTransitioning;
+
     public event Action OnShowComplete;
     public event Action OnHideComplete;
 
@@ -28,38 +33,55 @@ public abstract class BaseUI : MonoBehaviour
 
     public virtual void Show(bool useTransition = true)
     {
-        gameObject.SetActive(true);
-        EnableInput();
+        if (isTransitioning) return;
+        isTransitioning = true;
 
+        Log("Show called.");
+        gameObject.SetActive(true);
+        SetInput(false);
+
+        canvasGroup.DOKill();
         if (useTransition)
         {
-            if (disableInputDuringTransition) DisableInput();
             canvasGroup.DOFade(1f, fadeDuration)
                 .SetEase(fadeEase)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
-                    EnableInput();
+                    SetInput(true);
+                    isTransitioning = false;
+                    Log("Show complete.");
                     OnShowComplete?.Invoke();
                 });
         }
         else
         {
             canvasGroup.alpha = 1f;
+            isTransitioning = false;
             OnShowComplete?.Invoke();
         }
     }
 
     public virtual void Hide(bool useTransition = true)
     {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        Log("Hide called.");
+        SetInput(false);
+
+        canvasGroup.DOKill();
         if (useTransition)
         {
-            if (disableInputDuringTransition) DisableInput();
             canvasGroup.DOFade(0f, fadeDuration)
                 .SetEase(fadeEase)
+                .SetUpdate(true)
                 .OnComplete(() =>
                 {
                     gameObject.SetActive(false);
-                    EnableInput();
+                    SetInput(true);
+                    isTransitioning = false;
+                    Log("Hide complete.");
                     OnHideComplete?.Invoke();
                 });
         }
@@ -67,6 +89,7 @@ public abstract class BaseUI : MonoBehaviour
         {
             canvasGroup.alpha = 0f;
             gameObject.SetActive(false);
+            isTransitioning = false;
             OnHideComplete?.Invoke();
         }
     }
@@ -76,15 +99,15 @@ public abstract class BaseUI : MonoBehaviour
         return gameObject.activeSelf && canvasGroup.alpha > 0f;
     }
 
-    private void DisableInput()
+    private void SetInput(bool state)
     {
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = state;
+        canvasGroup.blocksRaycasts = state;
     }
 
-    private void EnableInput()
+    private void Log(string message)
     {
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
+        if (enableDebugLogs)
+            Debug.Log($"[BaseUI] {message}");
     }
 }

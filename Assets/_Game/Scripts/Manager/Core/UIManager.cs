@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -9,11 +8,11 @@ public class UIManager : PersistentSingleton<UIManager>
 {
     public static event Action OnButtonClicked;
 
-    [FoldoutGroup("UI Prefabs"), SerializeField] private List<BaseUI> uiPrefabs;
-    [FoldoutGroup("UI Prefabs"), SerializeField] private List<BaseUI> popupPrefabs;
+    [SerializeField] private List<BaseUI> uiPrefabs;
+    [SerializeField] private List<BaseUI> popupPrefabs;
 
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private Canvas persistentCanvas;
-    [FoldoutGroup("Canvas Settings"), SerializeField, Required] private Canvas popupCanvas;
+    [SerializeField] private Canvas persistentCanvas;
+    [SerializeField] private Canvas popupCanvas;
 
     private Dictionary<System.Type, BaseUI> uiInstances = new Dictionary<System.Type, BaseUI>();
     private HashSet<System.Type> persistentUI = new HashSet<System.Type>();

@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -6,64 +5,23 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button), typeof(Image))]
 public class ButtonExtended : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    [Title("Sprite Settings")]
-    [PreviewField(50, ObjectFieldAlignment.Center)]
-    [LabelText("Disabled Sprite")]
-    public Sprite disabledSprite;
+    [SerializeField] private Sprite disabledSprite;
+    [SerializeField] private Sprite pressedSprite;
+    [SerializeField] private Sprite highlightedSprite;
 
-    [PreviewField(50, ObjectFieldAlignment.Center)]
-    [LabelText("Pressed Sprite")]
-    public Sprite pressedSprite;
+    [SerializeField] [Range(0, 1)] private float pressedOpacity = 1f;
+    [SerializeField] [Range(0, 1)] private float idleOpacity = 1f;
+    [SerializeField] [Range(0, 1)] private float disabledOpacity = 1f;
+    [SerializeField] [Range(0, 1)] private float hoverOpacity = 1f;
 
-    [PreviewField(50, ObjectFieldAlignment.Center)]
-    [LabelText("Highlighted Sprite")]
-    public Sprite highlightedSprite;
+    [SerializeField] [Min(0)] private float pressedFirstTimeDelay;
+    [SerializeField] [Min(0)] private float releasedDelay;
 
-    [Title("Opacity Settings")]
-    [Range(0, 1)]
-    [LabelText("Pressed Opacity")]
-    public float pressedOpacity = 1f;
-
-    [Range(0, 1)]
-    [LabelText("Idle Opacity")]
-    public float idleOpacity = 1f;
-
-    [Range(0, 1)]
-    [LabelText("Disabled Opacity")]
-    public float disabledOpacity = 1f;
-
-    [Range(0, 1)]
-    [LabelText("Hover Opacity")]
-    public float hoverOpacity = 1f;
-
-    [Title("Delays")]
-    [LabelText("Pressed Delay")]
-    [MinValue(0)]
-    public float pressedFirstTimeDelay;
-
-    [LabelText("Released Delay")]
-    [MinValue(0)]
-    public float releasedDelay;
-
-    [Title("Animation Settings")]
-    [LabelText("Animator")]
-    public Animator animator;
-
-    [VerticalGroup("Animation Parameters")]
-    [LabelText("Idle Parameter"), Tooltip("Parameter animasi untuk keadaan idle")]
-    public string idleAnimationParameter = "Idle";
-
-    [VerticalGroup("Animation Parameters")]
-    [LabelText("Disabled Parameter"), Tooltip("Parameter animasi untuk keadaan disabled")]
-    public string disabledAnimationParameter = "Disabled";
-
-    [VerticalGroup("Animation Parameters")]
-    [LabelText("Pressed Parameter"), Tooltip("Parameter animasi untuk keadaan pressed")]
-    public string pressedAnimationParameter = "Pressed";
-
-    [VerticalGroup("Animation Parameters")]
-    [LabelText("Highlighted Parameter"), Tooltip("Parameter animasi untuk keadaan highlighted")]
-    public string highlightedAnimationParameter = "Highlighted";
+    [SerializeField] private Animator animator;
+    [SerializeField] private string idleAnimationParameter = "Idle";
+    [SerializeField] private string disabledAnimationParameter = "Disabled";
+    [SerializeField] private string pressedAnimationParameter = "Pressed";
+    [SerializeField] private string highlightedAnimationParameter = "Highlighted";
 
     private Button button;
     private Image image;

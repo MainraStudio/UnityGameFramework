@@ -1,6 +1,5 @@
 using UnityEngine;
 using DG.Tweening;
-using Sirenix.OdinInspector;
 using System;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -8,16 +7,16 @@ public abstract class BaseUI : MonoBehaviour
 {
     private CanvasGroup canvasGroup;
 
-    [FoldoutGroup("Transition Settings"), SerializeField]
+    [SerializeField]
     private float fadeDuration = 0.5f;
 
-    [FoldoutGroup("Transition Settings"), SerializeField]
+    [SerializeField]
     private Ease fadeEase = Ease.InOutSine;
 
-    [FoldoutGroup("Input Settings"), SerializeField]
+    [SerializeField]
     private bool disableInputDuringTransition = true;
 
-    [FoldoutGroup("Debug"), SerializeField]
+    [SerializeField]
     private bool enableDebugLogs;
 
     private bool isTransitioning;

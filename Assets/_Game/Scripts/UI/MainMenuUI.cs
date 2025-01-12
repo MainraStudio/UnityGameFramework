@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Sirenix.OdinInspector;
 
 public class MainMenuUI : BaseUI
 {
-    [FoldoutGroup("Main Buttons"), SerializeField] private Button play;
-    [FoldoutGroup("Main Buttons"), SerializeField] private Button settings;
-    [FoldoutGroup("Main Buttons"), SerializeField] private Button quit;
+    [SerializeField] private Button play;
+    [SerializeField] private Button settings;
+    [SerializeField] private Button quit;
 
-    [FoldoutGroup("Settings Panel"), SerializeField] private GameObject settingsPanel;
-    [FoldoutGroup("Settings Panel"), SerializeField] private Button backButton;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private Button backButton;
 
     private UIManager uIManager;
 
@@ -23,13 +22,13 @@ public class MainMenuUI : BaseUI
         quit.onClick.AddListener(OnQuitClicked);
         backButton.onClick.AddListener(OnBackClicked);
     }
-    
+
     private void OnPlayClicked()
     {
         // Implement play button functionality
         Debug.Log("Play button clicked");
     }
-    
+
     private void OnSettingsClicked()
     {
         // Show settings panel

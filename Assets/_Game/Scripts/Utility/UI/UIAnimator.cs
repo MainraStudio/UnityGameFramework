@@ -1,52 +1,17 @@
 using UnityEngine;
 using DG.Tweening;
-using Sirenix.OdinInspector;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class UIAnimator : MonoBehaviour
 {
-    [Title("General Settings")]
-    [Tooltip("Choose whether the animation runs initially or manually triggered.")]
-    [EnumToggleButtons]
     public InitialRun initialRun = InitialRun.None;
-
-    [Tooltip("Choose the type of animation you want to apply.")]
-    [EnumToggleButtons]
     public AnimationType animationType;
-
-    [Tooltip("Enable looping for animations.")]
-    [ShowIf("@animationType != AnimationType.None")]
-    [EnumToggleButtons]
     public LoopType loopType = LoopType.Yoyo;
-
-    [FoldoutGroup("Animation Parameters")]
-    [MinValue(0.1f), MaxValue(5f), Tooltip("Duration of the animation in seconds.")]
-    [ShowIf("@animationType != AnimationType.None")]
     public float duration = 0.3f;
-
-    [FoldoutGroup("Animation Parameters")]
-    [MinValue(0f), MaxValue(10f), Tooltip("Intensity of the animation.")]
-    [ShowIf("ShowIntensity")]
     public float intensity = 1f;
-
-    [FoldoutGroup("Animation Parameters")]
-    [MinValue(0.1f), MaxValue(5f), Tooltip("Frequency for oscillating animations.")]
-    [ShowIf("ShowFrequency")]
     public float frequency = 2f;
-
-    [FoldoutGroup("Animation Parameters")]
-    [MinValue(0f), MaxValue(10f), Tooltip("Start time delay before animation begins.")]
-    [ShowIf("@animationType != AnimationType.None")]
     public float startTime = 0f;
-
-    [FoldoutGroup("Animation Parameters")]
-    [Tooltip("Custom curve for animation easing.")]
-    [ShowIf("@animationType != AnimationType.None")]
     public AnimationCurve animationCurve = AnimationCurve.Linear(0, 0, 1, 1);
-
-    [FoldoutGroup("Animation Parameters")]
-    [Tooltip("Direction of the animation.")]
-    [ShowIf("ShowDirection")]
     public Direction direction = Direction.Left;
 
     private CanvasGroup canvasGroup;
@@ -61,8 +26,6 @@ public class UIAnimator : MonoBehaviour
         }
     }
 
-    [Button("Play Animation", ButtonSizes.Large), GUIColor(0.4f, 0.8f, 1f)]
-    [Tooltip("Click to play the selected animation.")]
     public void PlayAnimation()
     {
         ResetAnimation();
@@ -120,8 +83,6 @@ public class UIAnimator : MonoBehaviour
         }
     }
 
-    [Button("Reset Animation", ButtonSizes.Medium), GUIColor(1f, 0.5f, 0.5f)]
-    [Tooltip("Click to reset the animation.")]
     public void ResetAnimation()
     {
         canvasGroup.DOKill();
@@ -186,25 +147,21 @@ public class UIAnimator : MonoBehaviour
             .SetDelay(startTime);
     }
 
-    [FoldoutGroup("Utility Functions"), Button("Fade In", ButtonSizes.Medium), GUIColor(0.6f, 1f, 0.6f)]
-    [Tooltip("Click to fade in the UI element.")]
     private void FadeIn()
     {
         ResetAnimation();
-        canvasGroup.alpha = 0; // Set initial alpha to 0
+        canvasGroup.alpha = 0;
         canvasGroup.DOFade(1, duration)
             .SetDelay(startTime)
-            .SetEase(Ease.InOutQuad); // Use a smoother easing function
+            .SetEase(Ease.InOutQuad);
     }
 
-    [FoldoutGroup("Utility Functions"), Button("Fade Out", ButtonSizes.Medium), GUIColor(1f, 0.6f, 0.6f)]
-    [Tooltip("Click to fade out the UI element.")]
     private void FadeOut()
     {
         ResetAnimation();
         canvasGroup.DOFade(0, duration)
             .SetDelay(startTime)
-            .SetEase(Ease.InOutQuad); // Use a smoother easing function
+            .SetEase(Ease.InOutQuad);
     }
 
     private void SlideIn()
@@ -218,7 +175,7 @@ public class UIAnimator : MonoBehaviour
             Direction.Down => new Vector3(0, -Screen.height, 0),
             _ => Vector3.zero
         };
-        canvasGroup.transform.localPosition = startPosition; // Start off-screen
+        canvasGroup.transform.localPosition = startPosition;
         canvasGroup.transform.DOLocalMove(Vector3.zero, duration)
             .SetDelay(startTime)
             .SetEase(animationCurve);
@@ -243,7 +200,7 @@ public class UIAnimator : MonoBehaviour
     private void ZoomIn()
     {
         ResetAnimation();
-        canvasGroup.transform.localScale = Vector3.zero; // Start from zero scale
+        canvasGroup.transform.localScale = Vector3.zero;
         canvasGroup.transform.DOScale(Vector3.one, duration)
             .SetDelay(startTime)
             .SetEase(animationCurve);

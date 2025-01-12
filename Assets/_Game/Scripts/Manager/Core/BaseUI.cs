@@ -7,17 +7,11 @@ public abstract class BaseUI : MonoBehaviour
 {
     private CanvasGroup canvasGroup;
 
-    [SerializeField]
-    private float fadeDuration = 0.5f;
+    [SerializeField] private float fadeDuration = 0.5f;
+    [SerializeField] private Ease fadeEase = Ease.InOutSine;
 
-    [SerializeField]
-    private Ease fadeEase = Ease.InOutSine;
-
-    [SerializeField]
-    private bool disableInputDuringTransition = true;
-
-    [SerializeField]
-    private bool enableDebugLogs;
+    [SerializeField] private bool disableInputDuringTransition = true;
+    [SerializeField] private bool enableDebugLogs;
 
     private bool isTransitioning;
 

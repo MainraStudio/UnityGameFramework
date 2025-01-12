@@ -1,14 +1,18 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using NaughtyAttributes;
 
 public class UIManager : PersistentSingleton<UIManager>
 {
     public static event Action OnButtonClicked;
 
+    [ReorderableList]
     [SerializeField] private List<BaseUI> uiPrefabs;
+    
+    [ReorderableList]
     [SerializeField] private List<BaseUI> popupPrefabs;
 
     [SerializeField] private Canvas persistentCanvas;
@@ -198,7 +202,7 @@ public class UIManager : PersistentSingleton<UIManager>
         }
     }
 
-    public void AddButtonListenerWithSFX(Button button, UnityEngine.Events.UnityAction action)
+    public void AddButtonListenerWithSFX(Button button, UnityAction action)
     {
         button.onClick.AddListener(() =>
         {

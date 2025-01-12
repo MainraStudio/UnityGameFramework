@@ -31,7 +31,10 @@ public abstract class BaseUI : MonoBehaviour
 
         Log("Show called.");
         gameObject.SetActive(true);
-        SetInput(false);
+        if (disableInputDuringTransition)
+        {
+            SetInput(false);
+        }
 
         canvasGroup.DOKill();
         if (useTransition)
@@ -41,7 +44,10 @@ public abstract class BaseUI : MonoBehaviour
                 .SetUpdate(true)
                 .OnComplete(() =>
                 {
-                    SetInput(true);
+                    if (disableInputDuringTransition)
+                    {
+                        SetInput(true);
+                    }
                     isTransitioning = false;
                     Log("Show complete.");
                     OnShowComplete?.Invoke();
@@ -61,7 +67,10 @@ public abstract class BaseUI : MonoBehaviour
         isTransitioning = true;
 
         Log("Hide called.");
-        SetInput(false);
+        if (disableInputDuringTransition)
+        {
+            SetInput(false);
+        }
 
         canvasGroup.DOKill();
         if (useTransition)
@@ -72,7 +81,10 @@ public abstract class BaseUI : MonoBehaviour
                 .OnComplete(() =>
                 {
                     gameObject.SetActive(false);
-                    SetInput(true);
+                    if (disableInputDuringTransition)
+                    {
+                        SetInput(true);
+                    }
                     isTransitioning = false;
                     Log("Hide complete.");
                     OnHideComplete?.Invoke();

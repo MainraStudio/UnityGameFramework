@@ -2,16 +2,16 @@ using UnityEngine;
 
 namespace MainraFramework.States
 {
-    public class MainMenuState : IGameState
+    public class MainMenuState : GameState
     {
-        public void EnterState()
+        public override void EnterState()
         {
             UIManager.Instance.ShowPopupUI<MainMenuUI>();
             Debug.Log("Entering Main Menu State");
             // Logika untuk memasuki menu utama, misalnya mengaktifkan UI
         }
 
-        public void UpdateState()
+        public override void UpdateState()
         {
             // Logika untuk interaksi di main menu
             if (Input.GetKeyDown(KeyCode.Space))
@@ -21,7 +21,7 @@ namespace MainraFramework.States
             }
         }
 
-        public void ExitState()
+        public override void ExitState()
         {
             Debug.Log("Exiting Main Menu State");
             // Logika keluar dari main menu, seperti menonaktifkan UI

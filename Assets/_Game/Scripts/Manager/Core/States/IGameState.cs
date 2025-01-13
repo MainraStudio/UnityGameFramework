@@ -1,6 +1,6 @@
-public interface IGameState
+public abstract class GameState
 {
-    void EnterState();
-    void UpdateState();
-    void ExitState();
+	public abstract void EnterState();
+	public abstract void UpdateState();
+	public abstract void ExitState();
 }

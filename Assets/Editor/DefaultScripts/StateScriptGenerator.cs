@@ -82,20 +82,20 @@ public class StateScriptGenerator : EditorWindow
 
 namespace MainraFramework.States
 {{
-    public class {scriptName}State : IGameState
+    public class {scriptName}State : GameState
     {{
-        public void EnterState()
+        public override void EnterState()
         {{
             Debug.Log(""Entering {scriptName} State"");
             // Logika untuk memasuki state
         }}
 
-        public void UpdateState()
+        public override void UpdateState()
         {{
             // Logika Update {scriptName}
         }}
 
-        public void ExitState()
+        public override void ExitState()
         {{
             Debug.Log(""Exiting {scriptName} State"");
             // Logika keluar dari {scriptName}

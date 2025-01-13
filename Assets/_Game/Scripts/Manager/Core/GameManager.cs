@@ -4,39 +4,39 @@ using UnityEngine;
 
 namespace MainraFramework
 {
-    public class GameManager : PersistentSingleton<GameManager>
-    {
-        private IGameState currentState;
-        public SceneManager SceneManager { get; private set; }
+	public class GameManager : PersistentSingleton<GameManager>
+	{
+		private GameState currentState;
+		public SceneManager SceneManager { get; private set; }
 
-        protected override void Awake()
-        {
-            base.Awake();
-            SceneManager = new SceneManager(this);
-        }
+		protected override void Awake()
+		{
+			base.Awake();
+			SceneManager = new SceneManager(this);
+		}
 
-        public void SetState(IGameState newState)
-        {
-            if (currentState != null)
-                currentState.ExitState(); // Keluar dari state saat ini
+		public void SetState(GameState newState)
+		{
+			if (currentState != null)
+				currentState.ExitState(); // Exit the current state
 
-            currentState = newState;
+			currentState = newState;
 
-            if (currentState != null)
-                currentState.EnterState(); // Masuk ke state baru
-        }
+			if (currentState != null)
+				currentState.EnterState(); // Enter the new state
+		}
 
-        private void Start()
-        {
-            SetState(new MainMenuState()); // Set state awal
-        }
+		private void Start()
+		{
+			SetState(new MainMenuState()); // Set initial state
+		}
 
-        private void Update()
-        {
-            if (currentState != null)
-            {
-                currentState.UpdateState(); // Update state saat ini
-            }
-        }
-    }
+		private void Update()
+		{
+			if (currentState != null)
+			{
+				currentState.UpdateState(); // Update the current state
+			}
+		}
+	}
 }

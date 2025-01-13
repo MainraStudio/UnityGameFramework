@@ -2,15 +2,15 @@ using UnityEngine;
 
 namespace MainraFramework.States
 {
-    public class GameplayState : IGameState
+    public class GameplayState : GameState
     {
-        public void EnterState()
+        public override void EnterState()
         {
             Debug.Log("Entering Gameplay State");
             // Mulai gameplay, seperti memulai timer atau musuh
         }
 
-        public void UpdateState()
+        public override void UpdateState()
         {
             // Logika gameplay, misalnya mendeteksi input atau mengelola musuh
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -20,7 +20,7 @@ namespace MainraFramework.States
             }
         }
 
-        public void ExitState()
+        public override void ExitState()
         {
             Debug.Log("Exiting Gameplay State");
             // Logika keluar dari gameplay, seperti menghentikan musuh atau menyimpan progres

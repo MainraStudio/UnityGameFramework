@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class PauseState : IGameState
+public class PauseState : GameState
 {
-    public void EnterState()
+    public override void EnterState()
     {
         Debug.Log("Entering Pause State");
         Time.timeScale = 0; // Pause game dengan menghentikan waktu
     }
 
-    public void UpdateState()
+    public override void UpdateState()
     {
         // Logika pause, misalnya mendeteksi input untuk melanjutkan permainan
         if (Input.GetKeyDown(KeyCode.P))
@@ -18,7 +18,7 @@ public class PauseState : IGameState
         }
     }
 
-    public void ExitState()
+    public override void ExitState()
     {
         Debug.Log("Exiting Pause State");
         Time.timeScale = 1; // Pastikan waktu kembali normal

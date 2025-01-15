@@ -1,0 +1,77 @@
+{
+    "Categories": [
+        {
+            "Name": "Tags",
+            "Items": [
+                "Player",
+                "Enemy",
+                "NPC",
+                "Item",
+                "Pickable",
+                "Ground"
+            ]
+        },
+        {
+            "Name": "Scenes",
+            "Items": [
+                "MainMenu",
+                "Gameplay",
+                "GameOver",
+                "Credits",
+                "Loading"
+            ]
+        },
+        {
+            "Name": "AnimParams",
+            "Items": [
+                "isRunning",
+                "isJumping",
+                "attackTrigger"
+            ]
+        },
+        {
+            "Name": "Layers",
+            "Items": [
+                "Ground",
+                "Water",
+                "PlayerLayer"
+            ]
+        },
+        {
+            "Name": "UI",
+            "Items": [
+                "StartButton",
+                "PauseButton",
+                "ScoreText",
+                "HealthBar"
+            ]
+        },
+        {
+            "Name": "AudioClips",
+            "Items": [
+                "gameplay",
+                "gameplay2",
+                "ButtonClick",
+                "VictorySound",
+                "coin",
+                "Win"
+            ]
+        },
+        {
+            "Name": "AudioMixer",
+            "Items": [
+                "MasterVolume",
+                "MusicVolume",
+                "SfxVolume"
+            ]
+        },
+        {
+            "Name": "PlayerPrefs",
+            "Items": [
+                "MasterVolume",
+                "MusicVolume",
+                "SfxVolume"
+            ]
+        }
+    ]
+}

@@ -6,7 +6,7 @@ namespace MainraFramework.States
     {
         public override void EnterState()
         {
-            UIManager.Instance.ShowPopupUI<MainMenuUI>();
+            GameManager.Instance.SceneManager.LoadScene(Parameter.Scenes.GAMEPLAY,true,10f);
             Debug.Log("Entering Main Menu State");
             // Logika untuk memasuki menu utama, misalnya mengaktifkan UI
         }

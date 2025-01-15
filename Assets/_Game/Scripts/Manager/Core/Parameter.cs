@@ -2,7 +2,6 @@ namespace MainraFramework
 {
     public static class Parameter
     {
-        // Tags
         public static class Tags
         {
             public const string PLAYER = "Player";
@@ -12,33 +11,26 @@ namespace MainraFramework
             public const string PICKABLE = "Pickable";
             public const string GROUND = "Ground";
         }
-
-        // Scene Names
         public static class Scenes
         {
             public const string MAINMENU = "MainMenu";
             public const string GAMEPLAY = "Gameplay";
             public const string GAMEOVER = "GameOver";
             public const string CREDITS = "Credits";
+            public const string LOADING = "Loading";
         }
-
-        // Animation Parameters
         public static class AnimParams
         {
             public const string ISRUNNING = "isRunning";
             public const string ISJUMPING = "isJumping";
             public const string ATTACKTRIGGER = "attackTrigger";
         }
-
-        // Layers
         public static class Layers
         {
             public const string GROUND = "Ground";
             public const string WATER = "Water";
             public const string PLAYERLAYER = "PlayerLayer";
         }
-
-        // UI Element Names
         public static class UI
         {
             public const string STARTBUTTON = "StartButton";
@@ -46,30 +38,26 @@ namespace MainraFramework
             public const string SCORETEXT = "ScoreText";
             public const string HEALTHBAR = "HealthBar";
         }
-
-        public static class AudioMixer
-        {
-            public const string MasterVolumeParameter = "MasterVolume";
-            public const string BGMVolumeParameter = "MusicVolume";
-            public const string SFXVolumeParameter = "SfxVolume";
-        }
-
-        // Audio Clip Names
         public static class AudioClips
         {
-            public const string BGM_MENU = "gameplay";
-            public const string BGM_PAUSE = "gameplay2";
-            public const string SFX_BUTTONCLICK = "ButtonClick";
-            public const string BGM_WIN = "VictorySound";
-            public const string SFX_COLLECTCOIN = "coin";
-            public const string SFX_WIN = "Win";
+            public const string GAMEPLAY = "gameplay";
+            public const string GAMEPLAY2 = "gameplay2";
+            public const string BUTTONCLICK = "ButtonClick";
+            public const string VICTORYSOUND = "VictorySound";
+            public const string COIN = "coin";
+            public const string WIN = "Win";
         }
-        
+        public static class AudioMixer
+        {
+            public const string MASTERVOLUME = "MasterVolume";
+            public const string MUSICVOLUME = "MusicVolume";
+            public const string SFXVOLUME = "SfxVolume";
+        }
         public static class PlayerPrefs
         {
-            public const string MASTER_VOLUME = "MasterVolume";
-            public const string MUSIC_VOLUME = "MusicVolume";
-            public const string SFX_VOLUME = "SfxVolume";
+            public const string MASTERVOLUME = "MasterVolume";
+            public const string MUSICVOLUME = "MusicVolume";
+            public const string SFXVOLUME = "SfxVolume";
         }
     }
 }

@@ -1,9 +1,9 @@
 using UnityEngine;
 using NaughtyAttributes;
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
-using DG.Tweening;
 using UnityEngine.UI;
 
 public class Tweener : MonoBehaviour
@@ -80,6 +80,10 @@ public class Tweener : MonoBehaviour
     [Tooltip("Apakah animasi dijalankan saat start.")]
     public bool runOnStart = true;
 
+    [BoxGroup("Global Settings")]
+    [Tooltip("Apakah animasi menggunakan unscaled time.")]
+    public bool useUnscaledTime = false;
+
     [ReorderableList]
     [BoxGroup("Tween Animations")]
     [Tooltip("List animasi yang akan dijalankan secara berurutan.")]
@@ -113,49 +117,9 @@ public class Tweener : MonoBehaviour
 
         if (debugMode)
         {
-            DebugAnimationStart(tween.tweenType, target);
+            Debug.Log($"Starting {tween.tweenType} tween on {target.name}");
         }
 
-        if (tween.isUIElement)
-        {
-            RunUITween(tween, target);
-        }
-        else
-        {
-            RunNonUITween(tween, target);
-        }
-    }
-
-    private void RunUITween(TweenSettings tween, GameObject target)
-    {
-        switch (tween.tweenType)
-        {
-            case TweenSettings.TweenType.Move:
-                RunMoveTweenUI(tween, target);
-                break;
-            case TweenSettings.TweenType.Scale:
-                RunScaleTweenUI(tween, target);
-                break;
-            case TweenSettings.TweenType.Rotate:
-                RunRotateTweenUI(tween, target);
-                break;
-            case TweenSettings.TweenType.Fade:
-                RunFadeTween(tween, target);
-                break;
-            case TweenSettings.TweenType.Color:
-                RunColorTween(tween, target);
-                break;
-            default:
-                if (debugMode)
-                {
-                    DebugAnimationFailed(tween.tweenType, target);
-                }
-                break;
-        }
-    }
-
-    private void RunNonUITween(TweenSettings tween, GameObject target)
-    {
         switch (tween.tweenType)
         {
             case TweenSettings.TweenType.Move:
@@ -176,7 +140,7 @@ public class Tweener : MonoBehaviour
             default:
                 if (debugMode)
                 {
-                    DebugAnimationFailed(tween.tweenType, target);
+                    Debug.LogWarning($"Failed to execute {tween.tweenType} tween on {target.name}");
                 }
                 break;
         }
@@ -184,123 +148,98 @@ public class Tweener : MonoBehaviour
 
     private void RunMoveTween(TweenSettings tween, GameObject target)
     {
-        target.transform.DOMove(tween.targetValue, tween.duration)
+        var tweenAction = target.transform.DOMove(tween.targetValue, tween.duration)
             .SetEase(tween.easeType)
             .SetDelay(tween.delay)
             .OnComplete(() => OnTweenComplete(tween))
             .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+
+        if (useUnscaledTime)
+        {
+            tweenAction.SetUpdate(true);
+        }
     }
 
     private void RunScaleTween(TweenSettings tween, GameObject target)
     {
-        target.transform.DOScale(tween.targetValue, tween.duration)
+        var tweenAction = target.transform.DOScale(tween.targetValue, tween.duration)
             .SetEase(tween.easeType)
             .SetDelay(tween.delay)
             .OnComplete(() => OnTweenComplete(tween))
             .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+
+        if (useUnscaledTime)
+        {
+            tweenAction.SetUpdate(true);
+        }
     }
 
     private void RunRotateTween(TweenSettings tween, GameObject target)
     {
-        target.transform.DORotate(tween.targetValue, tween.duration)
+        var tweenAction = target.transform.DORotate(tween.targetValue, tween.duration)
             .SetEase(tween.easeType)
             .SetDelay(tween.delay)
             .OnComplete(() => OnTweenComplete(tween))
             .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
-    }
 
-    private void RunMoveTweenUI(TweenSettings tween, GameObject target)
-    {
-        RectTransform rectTransform = target.GetComponent<RectTransform>();
-        if (rectTransform != null)
+        if (useUnscaledTime)
         {
-            rectTransform.DOAnchorPos(tween.targetValue, tween.duration)
-                .SetEase(tween.easeType)
-                .SetDelay(tween.delay)
-                .OnComplete(() => OnTweenComplete(tween))
-                .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
-        }
-        else
-        {
-            DebugAnimationFailed(TweenSettings.TweenType.Move, target);
-        }
-    }
-
-    private void RunScaleTweenUI(TweenSettings tween, GameObject target)
-    {
-        RectTransform rectTransform = target.GetComponent<RectTransform>();
-        if (rectTransform != null)
-        {
-            rectTransform.DOScale(tween.targetValue, tween.duration)
-                .SetEase(tween.easeType)
-                .SetDelay(tween.delay)
-                .OnComplete(() => OnTweenComplete(tween))
-                .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
-        }
-        else
-        {
-            DebugAnimationFailed(TweenSettings.TweenType.Scale, target);
-        }
-    }
-
-    private void RunRotateTweenUI(TweenSettings tween, GameObject target)
-    {
-        RectTransform rectTransform = target.GetComponent<RectTransform>();
-        if (rectTransform != null)
-        {
-            rectTransform.DORotate(tween.targetValue, tween.duration)
-                .SetEase(tween.easeType)
-                .SetDelay(tween.delay)
-                .OnComplete(() => OnTweenComplete(tween))
-                .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
-        }
-        else
-        {
-            DebugAnimationFailed(TweenSettings.TweenType.Rotate, target);
+            tweenAction.SetUpdate(true);
         }
     }
 
     private void RunFadeTween(TweenSettings tween, GameObject target)
     {
-        CanvasGroup canvasGroup = target.GetComponent<CanvasGroup>();
-        if (canvasGroup != null)
+        if (target.TryGetComponent(out CanvasGroup canvasGroup))
         {
-            canvasGroup.DOFade(tween.targetAlpha, tween.duration)
+            var tweenAction = canvasGroup.DOFade(tween.targetAlpha, tween.duration)
                 .SetEase(tween.easeType)
                 .SetDelay(tween.delay)
                 .OnComplete(() => OnTweenComplete(tween))
                 .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+
+            if (useUnscaledTime)
+            {
+                tweenAction.SetUpdate(true);
+            }
         }
         else
         {
-            DebugAnimationFailed(TweenSettings.TweenType.Fade, target);
+            Debug.LogWarning($"Failed to execute Fade tween on {target.name}");
         }
     }
 
     private void RunColorTween(TweenSettings tween, GameObject target)
     {
-        if (tween.isUIElement)
+        if (tween.isUIElement && target.TryGetComponent(out Graphic graphic))
         {
-            if (target.TryGetComponent(out Graphic graphic))
-            {
-                graphic.DOColor(tween.targetColor, tween.duration)
-                    .SetEase(tween.easeType)
-                    .SetDelay(tween.delay)
-                    .OnComplete(() => OnTweenComplete(tween))
-                    .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
-            }
-        }
-        else if (target.TryGetComponent(out Renderer renderer))
-        {
-            renderer.material.DOColor(tween.targetColor, tween.duration)
+            var tweenAction = graphic.DOColor(tween.targetColor, tween.duration)
                 .SetEase(tween.easeType)
                 .SetDelay(tween.delay)
                 .OnComplete(() => OnTweenComplete(tween))
                 .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+
+            if (useUnscaledTime)
+            {
+                tweenAction.SetUpdate(true);
+            }
+        }
+        else if (target.TryGetComponent(out Renderer renderer))
+        {
+            var tweenAction = renderer.material.DOColor(tween.targetColor, tween.duration)
+                .SetEase(tween.easeType)
+                .SetDelay(tween.delay)
+                .OnComplete(() => OnTweenComplete(tween))
+                .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+
+            if (useUnscaledTime)
+            {
+                tweenAction.SetUpdate(true);
+            }
         }
         else
         {
-            DebugAnimationFailed(TweenSettings.TweenType.Color, target);
+            Debug.LogWarning($"Failed to execute Color tween on {target.name}");
         }
     }
 
@@ -310,22 +249,6 @@ public class Tweener : MonoBehaviour
         if (debugMode)
         {
             Debug.Log($"Tween {tween.tweenType} completed for {tween.targetObject.name}");
-        }
-    }
-
-    private void DebugAnimationStart(TweenSettings.TweenType type, GameObject target)
-    {
-        if (debugMode)
-        {
-            Debug.Log($"Starting {type} tween on {target.name}");
-        }
-    }
-
-    private void DebugAnimationFailed(TweenSettings.TweenType type, GameObject target)
-    {
-        if (debugMode)
-        {
-            Debug.LogWarning($"Failed to execute {type} tween on {target.name}");
         }
     }
 }

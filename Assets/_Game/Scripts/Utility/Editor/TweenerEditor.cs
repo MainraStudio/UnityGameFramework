@@ -6,6 +6,7 @@ using DG.Tweening;
 public class TweenerEditor : Editor
 {
     private SerializedProperty useUnscaledTimeProp;
+    private SerializedProperty startFromInitialActiveStateProp;
     private SerializedProperty simultaneousTweensProp;
     private SerializedProperty sequentialTweensProp;
     private bool[] foldoutsSimultaneous;
@@ -14,6 +15,7 @@ public class TweenerEditor : Editor
     private void OnEnable()
     {
         useUnscaledTimeProp = serializedObject.FindProperty("useUnscaledTime");
+        startFromInitialActiveStateProp = serializedObject.FindProperty("startFromInitialActiveState");
         simultaneousTweensProp = serializedObject.FindProperty("simultaneousTweens");
         sequentialTweensProp = serializedObject.FindProperty("sequentialTweens");
         UpdateFoldoutsArray();
@@ -28,9 +30,9 @@ public class TweenerEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-
-        EditorGUILayout.LabelField("General Settings", EditorStyles.boldLabel);
+        
         EditorGUILayout.PropertyField(useUnscaledTimeProp, new GUIContent("Use Unscaled Time", "Use unscaled time for tweens"));
+        EditorGUILayout.PropertyField(startFromInitialActiveStateProp, new GUIContent("Start From Initial Active State", "Start tween from the initial active state of the object"));
 
         EditorGUILayout.Space();
         DrawTweensList("Simultaneous Tweens", simultaneousTweensProp, foldoutsSimultaneous);
@@ -66,11 +68,14 @@ public class TweenerEditor : Editor
         for (int i = 0; i < tweensProp.arraySize; i++)
         {
             SerializedProperty tween = tweensProp.GetArrayElementAtIndex(i);
+            SerializedProperty tweenName = tween.FindPropertyRelative("name");
             SerializedProperty tweenType = tween.FindPropertyRelative("tweenType");
 
-            foldouts[i] = EditorGUILayout.Foldout(foldouts[i], $"{label} {i + 1}", true);
+            foldouts[i] = EditorGUILayout.Foldout(foldouts[i], $"{label} {i + 1}: {tweenName.stringValue}", true);
+
             if (foldouts[i])
             {
+                EditorGUILayout.PropertyField(tweenName, new GUIContent("Name"));
                 EditorGUILayout.PropertyField(tweenType);
 
                 switch ((Tweener.TweenSettings.TweenType)tweenType.enumValueIndex)
@@ -87,7 +92,7 @@ public class TweenerEditor : Editor
                         EditorGUILayout.PropertyField(tween.FindPropertyRelative("targetColor"));
                         break;
                 }
-                
+
                 EditorGUILayout.PropertyField(tween.FindPropertyRelative("duration"));
                 EditorGUILayout.PropertyField(tween.FindPropertyRelative("delay"));
 
@@ -111,19 +116,29 @@ public class TweenerEditor : Editor
                     EditorGUILayout.PropertyField(tween.FindPropertyRelative("loopCount"));
                     EditorGUILayout.PropertyField(tween.FindPropertyRelative("pingpong"));
                 }
-                
+
                 EditorGUILayout.PropertyField(tween.FindPropertyRelative("OnTweenComplete"));
-
-                if (GUILayout.Button("Remove Tween Animation"))
-                {
-                    tweensProp.DeleteArrayElementAtIndex(i);
-                    serializedObject.ApplyModifiedProperties();
-                    UpdateFoldoutsArray();
-                    return;
-                }
-
-                EditorGUILayout.Space();
             }
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Move Up") && i > 0)
+            {
+                tweensProp.MoveArrayElement(i, i - 1);
+            }
+            if (GUILayout.Button("Move Down") && i < tweensProp.arraySize - 1)
+            {
+                tweensProp.MoveArrayElement(i, i + 1);
+            }
+            if (GUILayout.Button("Remove"))
+            {
+                tweensProp.DeleteArrayElementAtIndex(i);
+                serializedObject.ApplyModifiedProperties();
+                UpdateFoldoutsArray();
+                return;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
         }
 
         if (GUILayout.Button($"Add {label} Animation"))

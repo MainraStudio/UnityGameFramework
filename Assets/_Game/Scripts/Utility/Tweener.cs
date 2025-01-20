@@ -9,6 +9,7 @@ public class Tweener : MonoBehaviour
     [System.Serializable]
     public class TweenSettings
     {
+        public string name;
         public enum TweenType
         {
             Move,
@@ -26,15 +27,22 @@ public class Tweener : MonoBehaviour
         public bool loop;
         public int loopCount;
         public bool pingpong;
-        public float targetAlpha; // For Fade
-        public Color targetColor; // For Color
-        public GameObject target; // New property
-        public UnityEngine.Events.UnityEvent OnTweenComplete; // New property
-        public AnimationCurve customCurve; // New property
-        public bool useCustomCurve; // New property
+        public float targetAlpha;
+        public Color targetColor;
+        public GameObject target;
+        public UnityEngine.Events.UnityEvent OnTweenComplete;
+        public AnimationCurve customCurve;
+        public bool useCustomCurve;
     }
 
+    [Header("General Settings")]
+    [Tooltip("Use unscaled time for tweens")]
     public bool useUnscaledTime = false;
+
+    [Tooltip("Start tween from the initial active state of the object")]
+    public bool startFromInitialActiveState = true;
+
+    [Header("Tweens")]
     public List<TweenSettings> simultaneousTweens = new List<TweenSettings>();
     public List<TweenSettings> sequentialTweens = new List<TweenSettings>();
 
@@ -42,12 +50,18 @@ public class Tweener : MonoBehaviour
 
     private void OnEnable()
     {
-        RunSimultaneousTweens();
+        if (startFromInitialActiveState)
+        {
+            RunSimultaneousTweens();
+        }
     }
 
     private void Start()
     {
-        RunSimultaneousTweens();
+        if (startFromInitialActiveState)
+        {
+            RunSimultaneousTweens();
+        }
     }
 
     private void RunTween(TweenSettings tween, GameObject defaultTarget)

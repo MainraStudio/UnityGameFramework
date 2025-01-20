@@ -1,6 +1,8 @@
-using DG.Tweening;
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
+using UnityEngine.UI;
 
 public class Tweener : MonoBehaviour
 {
@@ -17,7 +19,6 @@ public class Tweener : MonoBehaviour
         }
 
         public TweenType tweenType;
-        public bool isUIElement;
         public Vector3 targetValue;
         public float duration;
         public Ease easeType;
@@ -27,39 +28,32 @@ public class Tweener : MonoBehaviour
         public bool pingpong;
         public float targetAlpha; // For Fade
         public Color targetColor; // For Color
-        public bool startOnActive; // New property
+        public GameObject target; // New property
         public UnityEngine.Events.UnityEvent OnTweenComplete; // New property
         public AnimationCurve customCurve; // New property
         public bool useCustomCurve; // New property
     }
 
     public bool useUnscaledTime = false;
-    public List<TweenSettings> tweenAnimations = new List<TweenSettings>();
+    public List<TweenSettings> simultaneousTweens = new List<TweenSettings>();
+    public List<TweenSettings> sequentialTweens = new List<TweenSettings>();
+
+    private int activeSimultaneousTweens = 0;
 
     private void OnEnable()
     {
-        foreach (var tween in tweenAnimations)
-        {
-            if (tween.startOnActive)
-            {
-                RunTween(tween, gameObject);
-            }
-        }
+        RunSimultaneousTweens();
     }
 
     private void Start()
     {
-        foreach (var tween in tweenAnimations)
-        {
-            if (!tween.startOnActive)
-            {
-                RunTween(tween, gameObject);
-            }
-        }
+        RunSimultaneousTweens();
     }
 
-    private void RunTween(TweenSettings tween, GameObject target)
+    private void RunTween(TweenSettings tween, GameObject defaultTarget)
     {
+        GameObject target = tween.target != null ? tween.target : defaultTarget;
+
         switch (tween.tweenType)
         {
             case TweenSettings.TweenType.Move:
@@ -71,14 +65,19 @@ public class Tweener : MonoBehaviour
             case TweenSettings.TweenType.Rotate:
                 RunRotateTween(tween, target);
                 break;
-            // Add cases for Fade and Color if needed
+            case TweenSettings.TweenType.Fade:
+                RunFadeTween(tween, target);
+                break;
+            case TweenSettings.TweenType.Color:
+                RunColorTween(tween, target);
+                break;
         }
     }
 
     private void RunMoveTween(TweenSettings tween, GameObject target)
     {
         Tween tweenAction;
-        if (tween.isUIElement && target.TryGetComponent(out RectTransform rectTransform))
+        if (target.TryGetComponent(out RectTransform rectTransform))
         {
             tweenAction = rectTransform.DOAnchorPos((Vector2)tween.targetValue, tween.duration);
         }
@@ -93,7 +92,7 @@ public class Tweener : MonoBehaviour
     private void RunScaleTween(TweenSettings tween, GameObject target)
     {
         Tween tweenAction;
-        if (tween.isUIElement && target.TryGetComponent(out RectTransform rectTransform))
+        if (target.TryGetComponent(out RectTransform rectTransform))
         {
             tweenAction = rectTransform.DOScale(tween.targetValue, tween.duration);
         }
@@ -108,7 +107,7 @@ public class Tweener : MonoBehaviour
     private void RunRotateTween(TweenSettings tween, GameObject target)
     {
         Tween tweenAction;
-        if (tween.isUIElement && target.TryGetComponent(out RectTransform rectTransform))
+        if (target.TryGetComponent(out RectTransform rectTransform))
         {
             tweenAction = rectTransform.DORotate(tween.targetValue, tween.duration);
         }
@@ -118,6 +117,60 @@ public class Tweener : MonoBehaviour
         }
 
         ApplyTweenSettings(tween, tweenAction);
+    }
+
+    private void RunFadeTween(TweenSettings tween, GameObject target)
+    {
+        Tween tweenAction = null;
+
+        if (target.TryGetComponent(out RectTransform rectTransform))
+        {
+            CanvasGroup canvasGroup = target.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                Image image = target.GetComponent<Image>();
+                if (image != null)
+                {
+                    tweenAction = image.DOFade(tween.targetAlpha, tween.duration);
+                }
+            }
+            else
+            {
+                tweenAction = canvasGroup.DOFade(tween.targetAlpha, tween.duration);
+            }
+        }
+        else
+        {
+            SpriteRenderer spriteRenderer = target.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                tweenAction = spriteRenderer.DOFade(tween.targetAlpha, tween.duration);
+            }
+        }
+
+        if (tweenAction != null)
+        {
+            ApplyTweenSettings(tween, tweenAction);
+        }
+    }
+
+    private void RunColorTween(TweenSettings tween, GameObject target)
+    {
+        Renderer renderer = target.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Tween tweenAction = renderer.material.DOColor(tween.targetColor, tween.duration);
+            ApplyTweenSettings(tween, tweenAction);
+        }
+        else
+        {
+            Image image = target.GetComponent<Image>();
+            if (image != null)
+            {
+                Tween tweenAction = image.DOColor(tween.targetColor, tween.duration);
+                ApplyTweenSettings(tween, tweenAction);
+            }
+        }
     }
 
     private void ApplyTweenSettings(TweenSettings tween, Tween tweenAction)
@@ -139,10 +192,42 @@ public class Tweener : MonoBehaviour
         {
             tweenAction.SetUpdate(true);
         }
+
+        activeSimultaneousTweens++;
+        tweenAction.OnComplete(() =>
+        {
+            activeSimultaneousTweens--;
+            if (activeSimultaneousTweens == 0)
+            {
+                RunSequentialTweens();
+            }
+        });
     }
 
     private void OnTweenComplete(TweenSettings tween)
     {
         tween.OnTweenComplete?.Invoke();
+    }
+
+    public void RunSimultaneousTweens()
+    {
+        foreach (var tween in simultaneousTweens)
+        {
+            RunTween(tween, gameObject);
+        }
+    }
+
+    public void RunSequentialTweens()
+    {
+        StartCoroutine(RunSequentialTweensCoroutine());
+    }
+
+    private IEnumerator RunSequentialTweensCoroutine()
+    {
+        foreach (var tween in sequentialTweens)
+        {
+            RunTween(tween, gameObject);
+            yield return new WaitForSeconds(tween.duration + tween.delay);
+        }
     }
 }

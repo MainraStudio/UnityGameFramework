@@ -47,14 +47,8 @@ public class Tweener : MonoBehaviour
     public List<TweenSettings> sequentialTweens = new List<TweenSettings>();
 
     private int activeSimultaneousTweens = 0;
-
-    private void OnEnable()
-    {
-        if (startFromInitialActiveState)
-        {
-            RunSimultaneousTweens();
-        }
-    }
+    private List<Tween> activeTweens = new List<Tween>();
+    private Coroutine sequentialCoroutine;
 
     private void Start()
     {
@@ -64,127 +58,122 @@ public class Tweener : MonoBehaviour
         }
     }
 
-    private void RunTween(TweenSettings tween, GameObject defaultTarget)
+    private Tween RunTween(TweenSettings tween, GameObject defaultTarget)
     {
         GameObject target = tween.target != null ? tween.target : defaultTarget;
+        if (target == null)
+        {
+            Debug.LogWarning($"Target for tween {tween.name} is null. Skipping.");
+            return null;
+        }
 
+        Tween tweenAction = null;
         switch (tween.tweenType)
         {
             case TweenSettings.TweenType.Move:
-                RunMoveTween(tween, target);
+                tweenAction = RunMoveTween(tween, target);
                 break;
             case TweenSettings.TweenType.Scale:
-                RunScaleTween(tween, target);
+                tweenAction = RunScaleTween(tween, target);
                 break;
             case TweenSettings.TweenType.Rotate:
-                RunRotateTween(tween, target);
+                tweenAction = RunRotateTween(tween, target);
                 break;
             case TweenSettings.TweenType.Fade:
-                RunFadeTween(tween, target);
+                tweenAction = RunFadeTween(tween, target);
                 break;
             case TweenSettings.TweenType.Color:
-                RunColorTween(tween, target);
+                tweenAction = RunColorTween(tween, target);
                 break;
         }
+
+        if (tweenAction != null)
+        {
+            activeTweens.Add(tweenAction);
+        }
+
+        return tweenAction;
     }
 
-    private void RunMoveTween(TweenSettings tween, GameObject target)
+    private Tween RunMoveTween(TweenSettings tween, GameObject target)
     {
-        Tween tweenAction;
-        if (target.TryGetComponent(out RectTransform rectTransform))
-        {
-            tweenAction = rectTransform.DOAnchorPos((Vector2)tween.targetValue, tween.duration);
-        }
-        else
-        {
-            tweenAction = target.transform.DOMove(tween.targetValue, tween.duration);
-        }
+        Tween tweenAction = target.TryGetComponent(out RectTransform rectTransform)
+            ? rectTransform.DOAnchorPos((Vector2)tween.targetValue, tween.duration)
+            : target.transform.DOMove(tween.targetValue, tween.duration);
 
         ApplyTweenSettings(tween, tweenAction);
+        return tweenAction;
     }
 
-    private void RunScaleTween(TweenSettings tween, GameObject target)
+    private Tween RunScaleTween(TweenSettings tween, GameObject target)
     {
-        Tween tweenAction;
-        if (target.TryGetComponent(out RectTransform rectTransform))
-        {
-            tweenAction = rectTransform.DOScale(tween.targetValue, tween.duration);
-        }
-        else
-        {
-            tweenAction = target.transform.DOScale(tween.targetValue, tween.duration);
-        }
+        Tween tweenAction = target.TryGetComponent(out RectTransform rectTransform)
+            ? rectTransform.DOScale(tween.targetValue, tween.duration)
+            : target.transform.DOScale(tween.targetValue, tween.duration);
 
         ApplyTweenSettings(tween, tweenAction);
+        return tweenAction;
     }
 
-    private void RunRotateTween(TweenSettings tween, GameObject target)
+    private Tween RunRotateTween(TweenSettings tween, GameObject target)
     {
-        Tween tweenAction;
-        if (target.TryGetComponent(out RectTransform rectTransform))
-        {
-            tweenAction = rectTransform.DORotate(tween.targetValue, tween.duration);
-        }
-        else
-        {
-            tweenAction = target.transform.DORotate(tween.targetValue, tween.duration);
-        }
-
+        Tween tweenAction = target.transform.DORotate(tween.targetValue, tween.duration);
         ApplyTweenSettings(tween, tweenAction);
+        return tweenAction;
     }
 
-    private void RunFadeTween(TweenSettings tween, GameObject target)
+    private Tween RunFadeTween(TweenSettings tween, GameObject target)
     {
         Tween tweenAction = null;
 
-        if (target.TryGetComponent(out RectTransform rectTransform))
+        if (target.TryGetComponent(out CanvasGroup canvasGroup))
         {
-            CanvasGroup canvasGroup = target.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-            {
-                Image image = target.GetComponent<Image>();
-                if (image != null)
-                {
-                    tweenAction = image.DOFade(tween.targetAlpha, tween.duration);
-                }
-            }
-            else
-            {
-                tweenAction = canvasGroup.DOFade(tween.targetAlpha, tween.duration);
-            }
+            tweenAction = canvasGroup.DOFade(tween.targetAlpha, tween.duration);
         }
-        else
+        else if (target.TryGetComponent(out Image image))
         {
-            SpriteRenderer spriteRenderer = target.GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                tweenAction = spriteRenderer.DOFade(tween.targetAlpha, tween.duration);
-            }
+            tweenAction = image.DOFade(tween.targetAlpha, tween.duration);
+        }
+        else if (target.TryGetComponent(out SpriteRenderer spriteRenderer))
+        {
+            tweenAction = spriteRenderer.DOFade(tween.targetAlpha, tween.duration);
+        }
+        else if (target.TryGetComponent(out TMPro.TMP_Text tmpText))
+        {
+            tweenAction = tmpText.DOFade(tween.targetAlpha, tween.duration);
         }
 
         if (tweenAction != null)
         {
             ApplyTweenSettings(tween, tweenAction);
         }
+
+        return tweenAction;
     }
 
-    private void RunColorTween(TweenSettings tween, GameObject target)
+    private Tween RunColorTween(TweenSettings tween, GameObject target)
     {
-        Renderer renderer = target.GetComponent<Renderer>();
-        if (renderer != null)
+        Tween tweenAction = null;
+
+        if (target.TryGetComponent(out Renderer renderer))
         {
-            Tween tweenAction = renderer.material.DOColor(tween.targetColor, tween.duration);
+            tweenAction = renderer.material.DOColor(tween.targetColor, tween.duration);
+        }
+        else if (target.TryGetComponent(out Image image))
+        {
+            tweenAction = image.DOColor(tween.targetColor, tween.duration);
+        }
+        else if (target.TryGetComponent(out TMPro.TMP_Text tmpText))
+        {
+            tweenAction = tmpText.DOColor(tween.targetColor, tween.duration);
+        }
+
+        if (tweenAction != null)
+        {
             ApplyTweenSettings(tween, tweenAction);
         }
-        else
-        {
-            Image image = target.GetComponent<Image>();
-            if (image != null)
-            {
-                Tween tweenAction = image.DOColor(tween.targetColor, tween.duration);
-                ApplyTweenSettings(tween, tweenAction);
-            }
-        }
+
+        return tweenAction;
     }
 
     private void ApplyTweenSettings(TweenSettings tween, Tween tweenAction)
@@ -199,8 +188,17 @@ public class Tweener : MonoBehaviour
         }
 
         tweenAction.SetDelay(tween.delay)
-            .OnComplete(() => OnTweenComplete(tween))
-            .SetLoops(tween.loop ? -1 : tween.loopCount, tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart);
+            .SetLoops(tween.loop ? (tween.loopCount > 0 ? tween.loopCount : -1) : 1,
+                tween.pingpong ? DG.Tweening.LoopType.Yoyo : DG.Tweening.LoopType.Restart)
+            .OnComplete(() =>
+            {
+                OnTweenComplete(tween);
+                activeTweens.Remove(tweenAction);
+                if (--activeSimultaneousTweens <= 0 && sequentialCoroutine == null)
+                {
+                    RunSequentialTweens();
+                }
+            });
 
         if (useUnscaledTime)
         {
@@ -208,14 +206,6 @@ public class Tweener : MonoBehaviour
         }
 
         activeSimultaneousTweens++;
-        tweenAction.OnComplete(() =>
-        {
-            activeSimultaneousTweens--;
-            if (activeSimultaneousTweens == 0)
-            {
-                RunSequentialTweens();
-            }
-        });
     }
 
     private void OnTweenComplete(TweenSettings tween)
@@ -233,15 +223,48 @@ public class Tweener : MonoBehaviour
 
     public void RunSequentialTweens()
     {
-        StartCoroutine(RunSequentialTweensCoroutine());
+        if (sequentialCoroutine != null)
+        {
+            StopCoroutine(sequentialCoroutine);
+        }
+        sequentialCoroutine = StartCoroutine(RunSequentialTweensCoroutine());
     }
 
     private IEnumerator RunSequentialTweensCoroutine()
     {
         foreach (var tween in sequentialTweens)
         {
-            RunTween(tween, gameObject);
-            yield return new WaitForSeconds(tween.duration + tween.delay);
+            Tween tweenAction = RunTween(tween, gameObject);
+            if (tweenAction != null)
+            {
+                yield return tweenAction.WaitForCompletion();
+            }
+        }
+        sequentialCoroutine = null;
+    }
+
+    public void CancelAllTweens()
+    {
+        foreach (var tween in activeTweens)
+        {
+            tween.Kill();
+        }
+        activeTweens.Clear();
+    }
+
+    public void PauseAllTweens()
+    {
+        foreach (var tween in activeTweens)
+        {
+            tween.Pause();
+        }
+    }
+
+    public void ResumeAllTweens()
+    {
+        foreach (var tween in activeTweens)
+        {
+            tween.Play();
         }
     }
 }

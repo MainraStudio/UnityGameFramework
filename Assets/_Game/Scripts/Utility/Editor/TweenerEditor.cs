@@ -30,30 +30,30 @@ public class TweenerEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        
-        EditorGUILayout.PropertyField(useUnscaledTimeProp, new GUIContent("Use Unscaled Time", "Use unscaled time for tweens"));
-        EditorGUILayout.PropertyField(startFromInitialActiveStateProp, new GUIContent("Start From Initial Active State", "Start tween from the initial active state of the object"));
 
-        EditorGUILayout.Space();
-        DrawTweensList("Simultaneous Tweens", simultaneousTweensProp, foldoutsSimultaneous);
-
-        EditorGUILayout.Space();
-        DrawTweensList("Sequential Tweens", sequentialTweensProp, foldoutsSequential);
-
-        EditorGUILayout.Space();
-        if (GUILayout.Button("Run Tweens"))
+        DrawColoredBackground(Color.black, Color.white, () =>
         {
-            ((Tweener)target).RunSimultaneousTweens();
-            ((Tweener)target).RunSequentialTweens();
-        }
+            EditorGUILayout.PropertyField(useUnscaledTimeProp, new GUIContent("Use Unscaled Time", "Use unscaled time for tweens"));
+            EditorGUILayout.PropertyField(startFromInitialActiveStateProp, new GUIContent("Start From Initial Active State", "Start tween from the initial active state of the object"));
+        });
 
-        if (GUILayout.Button("Stop Tweens"))
-        {
-            ((Tweener)target).StopAllCoroutines();
-            DOTween.KillAll();
-        }
+        EditorGUILayout.Space();
+        DrawColoredBackground(Color.black, Color.white, () => DrawTweensList("Simultaneous Tweens", simultaneousTweensProp, foldoutsSimultaneous));
+
+        EditorGUILayout.Space();
+        DrawColoredBackground(Color.black, Color.white, () => DrawTweensList("Sequential Tweens", sequentialTweensProp, foldoutsSequential));
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawColoredBackground(Color backgroundColor, Color textColor, System.Action drawContent)
+    {
+        var rect = EditorGUILayout.BeginVertical();
+        EditorGUI.DrawRect(rect, backgroundColor);
+        GUI.color = textColor;
+        drawContent();
+        GUI.color = Color.white;
+        EditorGUILayout.EndVertical();
     }
 
     private void DrawTweensList(string label, SerializedProperty tweensProp, bool[] foldouts)
@@ -75,6 +75,7 @@ public class TweenerEditor : Editor
 
             if (foldouts[i])
             {
+                EditorGUILayout.PropertyField(tween.FindPropertyRelative("target"));
                 EditorGUILayout.PropertyField(tweenName, new GUIContent("Name"));
                 EditorGUILayout.PropertyField(tweenType);
 
@@ -121,14 +122,17 @@ public class TweenerEditor : Editor
             }
 
             EditorGUILayout.BeginHorizontal();
+            GUI.backgroundColor = Color.cyan;
             if (GUILayout.Button("Move Up") && i > 0)
             {
                 tweensProp.MoveArrayElement(i, i - 1);
             }
+            GUI.backgroundColor = Color.magenta;
             if (GUILayout.Button("Move Down") && i < tweensProp.arraySize - 1)
             {
                 tweensProp.MoveArrayElement(i, i + 1);
             }
+            GUI.backgroundColor = Color.red;
             if (GUILayout.Button("Remove"))
             {
                 tweensProp.DeleteArrayElementAtIndex(i);
@@ -136,16 +140,19 @@ public class TweenerEditor : Editor
                 UpdateFoldoutsArray();
                 return;
             }
+            GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
         }
 
+        GUI.backgroundColor = Color.green;
         if (GUILayout.Button($"Add {label} Animation"))
         {
             tweensProp.InsertArrayElementAtIndex(tweensProp.arraySize);
             serializedObject.ApplyModifiedProperties();
             UpdateFoldoutsArray();
         }
+        GUI.backgroundColor = Color.white;
     }
 }

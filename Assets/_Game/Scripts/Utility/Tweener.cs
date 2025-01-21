@@ -167,6 +167,10 @@ public class Tweener : MonoBehaviour
         {
             tweenAction = tmpText.DOColor(tween.targetColor, tween.duration);
         }
+        else if (target.TryGetComponent(out SpriteRenderer spriteRenderer))
+        {
+            tweenAction = spriteRenderer.DOColor(tween.targetColor, tween.duration);
+        }
 
         if (tweenAction != null)
         {

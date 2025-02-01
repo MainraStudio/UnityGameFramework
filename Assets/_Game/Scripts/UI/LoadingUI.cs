@@ -3,7 +3,7 @@ using MainraFramework;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoadingUI : BaseUI
+public class LoadingUI : MonoBehaviour
 {
     [SerializeField] private Slider sliderLoadingBar;
     private void Update()

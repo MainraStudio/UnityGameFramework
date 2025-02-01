@@ -27,24 +27,82 @@ public class ParameterEditor : EditorWindow
     // Track visibility of categories (collapsed/expanded)
     private Dictionary<int, bool> categoryVisibility = new Dictionary<int, bool>();
 
+    // Autosave settings
+    private bool autoSaveEnabled = true;
+    private double lastChangeTime;
+    private const double autoSaveDelay = 30.0; // Autosave delay in seconds
+    private const string AutoSavePrefsKey = "ParameterEditor_AutoSave";
+
     [MenuItem("Tools/MainraFramework/Parameter Editor")]
     public static void ShowWindow()
     {
         GetWindow<ParameterEditor>("Parameter Editor");
     }
 
-    // Load data when the editor window is opened
     private void OnEnable()
     {
         LoadData();
         AddDefaultCategories();
-        SyncWithGeneratedScript(); // Sync with the generated script
+        SyncWithGeneratedScript();
+
+        // Load autosave preference
+        autoSaveEnabled = EditorPrefs.GetBool(AutoSavePrefsKey, true);
+
+        // Start the autosave update loop
+        EditorApplication.update += AutoSaveUpdate;
     }
 
-    // Main GUI layout
+    private void OnDisable()
+    {
+        // Simpan perubahan sebelum keluar dari window
+        if (isDirty)
+        {
+            SaveData();
+            GenerateScript();
+        }
+
+        // Clean up update loop
+        EditorApplication.update -= AutoSaveUpdate;
+    }
+
+    private void AutoSaveUpdate()
+    {
+        if (!autoSaveEnabled || !isDirty)
+            return;
+
+        if (EditorApplication.timeSinceStartup - lastChangeTime >= autoSaveDelay)
+        {
+            SaveData();
+            GenerateScript();
+        }
+    }
+
+    private void MarkDirty()
+    {
+        isDirty = true;
+        lastChangeTime = EditorApplication.timeSinceStartup;
+    }
+
     private void OnGUI()
     {
         GUILayout.Label("Edit Parameters", EditorStyles.boldLabel);
+
+        // Autosave toggle
+        EditorGUI.BeginChangeCheck();
+        autoSaveEnabled = EditorGUILayout.ToggleLeft("Enable Autosave", autoSaveEnabled);
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorPrefs.SetBool(AutoSavePrefsKey, autoSaveEnabled);
+        }
+
+        if (autoSaveEnabled && isDirty)
+        {
+            double timeUntilSave = autoSaveDelay - (EditorApplication.timeSinceStartup - lastChangeTime);
+            if (timeUntilSave > 0)
+            {
+                EditorGUILayout.HelpBox($"Autosaving in {timeUntilSave:F0} seconds...", MessageType.Info);
+            }
+        }
 
         if (parameterData == null)
         {
@@ -52,8 +110,8 @@ public class ParameterEditor : EditorWindow
             if (GUILayout.Button("Create New Data"))
             {
                 parameterData = new ParameterData();
-                AddDefaultCategories(); // Add default categories if the file is new
-                isDirty = true;
+                AddDefaultCategories();
+                MarkDirty();
             }
             return;
         }
@@ -64,7 +122,7 @@ public class ParameterEditor : EditorWindow
         // Scrollable list for categories
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         var filteredCategories = parameterData.Categories
-            .Where(c => c.Name.ToLower().Contains(searchFilter.ToLower()) || 
+            .Where(c => c.Name.ToLower().Contains(searchFilter.ToLower()) ||
                         c.Items.Any(item => item.ToLower().Contains(searchFilter.ToLower())))
             .ToList();
 
@@ -78,23 +136,19 @@ public class ParameterEditor : EditorWindow
         if (GUILayout.Button("Add New Category"))
         {
             AddNewCategory();
-            isDirty = true;
+            MarkDirty();
         }
 
         GUILayout.Space(20);
 
-        // Save and generate script button
-        if (GUILayout.Button("Save & Generate Script"))
+        // Manual save button
+        using (new EditorGUI.DisabledGroupScope(!isDirty))
         {
-            SaveData();
-            GenerateScript();
-            isDirty = false;
-        }
-
-        // Sync with generated script button
-        if (GUILayout.Button("Sync with Generated Script"))
-        {
-            SyncWithGeneratedScript();
+            if (GUILayout.Button("Save & Generate Script"))
+            {
+                SaveData();
+                GenerateScript();
+            }
         }
 
         // Backup option
@@ -110,7 +164,6 @@ public class ParameterEditor : EditorWindow
         }
     }
 
-    // Draw a single category with its items
     private void DrawCategory(ParameterCategory category, int index)
     {
         if (!categoryVisibility.ContainsKey(index))
@@ -123,12 +176,18 @@ public class ParameterEditor : EditorWindow
 
             // Category header
             GUILayout.BeginHorizontal();
+            EditorGUI.BeginChangeCheck();
             category.Name = EditorGUILayout.TextField("Category Name", category.Name);
+            if (EditorGUI.EndChangeCheck())
+            {
+                MarkDirty();
+            }
 
             if (GUILayout.Button("Remove", GUILayout.Width(80)))
             {
                 parameterData.Categories.RemoveAt(index);
-                isDirty = true;
+                categoryVisibility.Remove(index); // Remove visibility state for the deleted category
+                MarkDirty();
                 return;
             }
             GUILayout.EndHorizontal();
@@ -136,28 +195,34 @@ public class ParameterEditor : EditorWindow
             // Items in the category
             for (int i = 0; i < category.Items.Count; i++)
             {
-                bool isMatch = !string.IsNullOrEmpty(searchFilter) && category.Items[i].ToLower().Contains(searchFilter.ToLower());
+                bool isMatch = !string.IsNullOrEmpty(searchFilter) &&
+                             category.Items[i].ToLower().Contains(searchFilter.ToLower());
                 GUIStyle itemStyle = new GUIStyle(EditorStyles.textField);
                 if (isMatch)
                 {
-                    itemStyle.normal.textColor = Color.yellow; // Highlight matching items
+                    itemStyle.normal.textColor = Color.yellow;
                 }
 
                 GUILayout.BeginHorizontal();
+                EditorGUI.BeginChangeCheck();
                 category.Items[i] = EditorGUILayout.TextField(category.Items[i], itemStyle);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    MarkDirty();
+                }
+
                 if (GUILayout.Button("-", GUILayout.Width(30)))
                 {
                     category.Items.RemoveAt(i);
-                    isDirty = true;  // Data telah diubah
+                    MarkDirty();
                 }
                 GUILayout.EndHorizontal();
             }
 
-            // Add new item to the category
             if (GUILayout.Button($"Add Item to {category.Name}"))
             {
                 category.Items.Add(string.Empty);
-                isDirty = true;  // Data telah diubah
+                MarkDirty();
             }
 
             GUILayout.EndVertical();
@@ -165,7 +230,6 @@ public class ParameterEditor : EditorWindow
         }
     }
 
-    // Add a new category
     private void AddNewCategory()
     {
         parameterData.Categories.Add(new ParameterCategory
@@ -173,9 +237,9 @@ public class ParameterEditor : EditorWindow
             Name = "NewCategory",
             Items = new List<string>()
         });
+        MarkDirty();
     }
 
-    // Add default categories if no data exists
     private void AddDefaultCategories()
     {
         if (parameterData.Categories.Count == 0)
@@ -216,11 +280,10 @@ public class ParameterEditor : EditorWindow
                 Items = new List<string> { "gameplay", "gameplay2", "ButtonClick", "VictorySound", "coin", "Win" }
             });
 
-            isDirty = true;
+            MarkDirty();
         }
     }
 
-    // Load parameter data from JSON
     private void LoadData()
     {
         if (File.Exists(JsonFilePath))
@@ -229,23 +292,22 @@ public class ParameterEditor : EditorWindow
             {
                 string json = File.ReadAllText(JsonFilePath);
                 parameterData = JsonUtility.FromJson<ParameterData>(json);
-                isDirty = false; // Data sudah dimuat, tidak ada perubahan
+                isDirty = false;
             }
             catch
             {
                 Debug.LogError("Failed to parse JSON file.");
                 parameterData = new ParameterData();
-                isDirty = true; // Menandakan bahwa data belum dimuat dengan benar
+                isDirty = false; // No changes yet
             }
         }
         else
         {
             parameterData = new ParameterData();
-            isDirty = true; // Menandakan bahwa data kosong dan perlu disimpan
+            isDirty = false; // No changes yet
         }
     }
 
-    // Save parameter data to JSON
     private void SaveData()
     {
         if (isDirty)
@@ -263,15 +325,16 @@ public class ParameterEditor : EditorWindow
                 Debug.LogError("Failed to save data to JSON.");
             }
         }
-        else
-        {
-            Debug.Log("No changes to save.");
-        }
     }
 
-    // Generate the Parameter.cs script dynamically
     private void GenerateScript()
     {
+        if (parameterData == null || parameterData.Categories.Count == 0)
+        {
+            Debug.LogWarning("No data to generate script.");
+            return;
+        }
+
         try
         {
             using (StreamWriter writer = new StreamWriter(ScriptFilePath))
@@ -314,7 +377,6 @@ public class ParameterEditor : EditorWindow
         }
     }
 
-    // Create a backup of the JSON data
     private void CreateBackup()
     {
         string backupPath = JsonFilePath.Replace(".json", $"_Backup_{System.DateTime.Now:yyyyMMddHHmmss}.json");
@@ -322,7 +384,6 @@ public class ParameterEditor : EditorWindow
         Debug.Log($"Backup created at {backupPath}");
     }
 
-    // Sync data with the generated script
     private void SyncWithGeneratedScript()
     {
         if (!File.Exists(ScriptFilePath))
@@ -334,56 +395,65 @@ public class ParameterEditor : EditorWindow
         try
         {
             string scriptContent = File.ReadAllText(ScriptFilePath);
-            // Regex to match categories (e.g., "public static class Tags")
             var categoryRegex = new Regex(@"public\s+static\s+class\s+(\w+)");
-            // Regex to match items within a category (e.g., "public const string PLAYER = "Player";")
-            var itemRegex = new Regex(@"public\s+const\s+string\s+\w+\s+=\s+""(.+?)"";");
+            var itemRegex = new Regex(@"public\s+const\s+string\s+(\w+)\s+=\s+""(.+?)"";");
 
             var matches = categoryRegex.Matches(scriptContent);
-            var categories = new List<ParameterCategory>();
+            var scriptCategories = new List<ParameterCategory>();
 
+            // Extract all categories and items from the script
             foreach (Match match in matches)
             {
                 string categoryName = match.Groups[1].Value;
-                var categoryItems = new List<string>();
-
-                int startIndex = scriptContent.IndexOf($"public static class {categoryName}", System.StringComparison.Ordinal);
-                int endIndex = scriptContent.IndexOf("}", startIndex, System.StringComparison.Ordinal);
-                string categoryBlock = scriptContent.Substring(startIndex, endIndex - startIndex);
-
-                foreach (Match itemMatch in itemRegex.Matches(categoryBlock))
+                if (categoryName != "Parameter")
                 {
-                    categoryItems.Add(itemMatch.Groups[1].Value);
+                    var categoryItems = new List<string>();
+
+                    int startIndex = scriptContent.IndexOf($"public static class {categoryName}", System.StringComparison.Ordinal);
+                    int endIndex = scriptContent.IndexOf("}", startIndex, System.StringComparison.Ordinal);
+                    string categoryBlock = scriptContent.Substring(startIndex, endIndex - startIndex);
+
+                    foreach (Match itemMatch in itemRegex.Matches(categoryBlock))
+                    {
+                        categoryItems.Add(itemMatch.Groups[2].Value);
+                    }
+
+                    scriptCategories.Add(new ParameterCategory
+                    {
+                        Name = categoryName,
+                        Items = categoryItems
+                    });
                 }
-
-                categories.Add(new ParameterCategory
-                {
-                    Name = categoryName,
-                    Items = categoryItems
-                });
             }
 
-            foreach (var scriptCategory in categories)
+            // Update existing categories with items from script
+            var updatedCategories = new List<ParameterCategory>();
+            foreach (var scriptCategory in scriptCategories)
             {
                 var existingCategory = parameterData.Categories.FirstOrDefault(c => c.Name == scriptCategory.Name);
-                if (existingCategory == null)
+                if (existingCategory != null)
                 {
-                    parameterData.Categories.Add(scriptCategory);
+                    existingCategory.Items = new List<string>(scriptCategory.Items);
+                    updatedCategories.Add(existingCategory);
                 }
                 else
                 {
-                    foreach (var item in scriptCategory.Items)
-                    {
-                        if (!existingCategory.Items.Contains(item))
-                        {
-                            existingCategory.Items.Add(item);
-                        }
-                    }
+                    updatedCategories.Add(scriptCategory);
                 }
             }
 
+            // Remove categories that are not in the script
+            parameterData.Categories = updatedCategories;
+
+            // Update category visibility
+            categoryVisibility.Clear();
+            for (int i = 0; i < parameterData.Categories.Count; i++)
+            {
+                categoryVisibility[i] = true;
+            }
+
             Debug.Log("Data successfully synced with the generated script.");
-            isDirty = true;
+            MarkDirty();
         }
         catch (System.Exception ex)
         {
@@ -391,7 +461,6 @@ public class ParameterEditor : EditorWindow
         }
     }
 
-    // Import JSON file
     private void ImportJson()
     {
         string path = EditorUtility.OpenFilePanel("Import Parameter Data", "Assets", "json");
@@ -401,7 +470,7 @@ public class ParameterEditor : EditorWindow
             {
                 string json = File.ReadAllText(path);
                 parameterData = JsonUtility.FromJson<ParameterData>(json);
-                isDirty = true;
+                MarkDirty();
                 Debug.Log("Data imported successfully.");
             }
             catch (System.Exception ex)
@@ -411,21 +480,18 @@ public class ParameterEditor : EditorWindow
         }
     }
 
-    // Helper: Convert a string to a constant-friendly format
     private string GetConstantName(string input)
     {
         return input.ToUpper().Replace(" ", "_").Replace("-", "_");
     }
 }
 
-// Data structure for parameter categories
 [System.Serializable]
 public class ParameterData
 {
     public List<ParameterCategory> Categories = new List<ParameterCategory>();
 }
 
-// Data structure for individual categories
 [System.Serializable]
 public class ParameterCategory
 {

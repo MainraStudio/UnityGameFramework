@@ -1,6 +1,14 @@
 {
     "Categories": [
         {
+            "Name": "AudioMixer",
+            "Items": [
+                "MasterVolume",
+                "MusicVolume",
+                "SfxVolume"
+            ]
+        },
+        {
             "Name": "Tags",
             "Items": [
                 "Player",
@@ -42,35 +50,18 @@
             "Items": [
                 "StartButton",
                 "PauseButton",
-                "ScoreText",
-                "HealthBar"
+                "ScoreText"
             ]
         },
         {
             "Name": "AudioClips",
             "Items": [
-                "gameplay",
-                "gameplay2",
+                "Gameplay",
+                "Gameplay2",
                 "ButtonClick",
                 "VictorySound",
-                "coin",
+                "Coin",
                 "Win"
-            ]
-        },
-        {
-            "Name": "AudioMixer",
-            "Items": [
-                "MasterVolume",
-                "MusicVolume",
-                "SfxVolume"
-            ]
-        },
-        {
-            "Name": "PlayerPrefs",
-            "Items": [
-                "MasterVolume",
-                "MusicVolume",
-                "SfxVolume"
             ]
         }
     ]

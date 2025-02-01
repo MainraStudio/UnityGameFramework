@@ -2,6 +2,12 @@ namespace MainraFramework
 {
     public static class Parameter
     {
+        public static class AudioMixer
+        {
+            public const string MASTERVOLUME = "MasterVolume";
+            public const string MUSICVOLUME = "MusicVolume";
+            public const string SFXVOLUME = "SfxVolume";
+        }
         public static class Tags
         {
             public const string PLAYER = "Player";
@@ -36,28 +42,15 @@ namespace MainraFramework
             public const string STARTBUTTON = "StartButton";
             public const string PAUSEBUTTON = "PauseButton";
             public const string SCORETEXT = "ScoreText";
-            public const string HEALTHBAR = "HealthBar";
         }
         public static class AudioClips
         {
-            public const string GAMEPLAY = "gameplay";
-            public const string GAMEPLAY2 = "gameplay2";
+            public const string GAMEPLAY = "Gameplay";
+            public const string GAMEPLAY2 = "Gameplay2";
             public const string BUTTONCLICK = "ButtonClick";
             public const string VICTORYSOUND = "VictorySound";
-            public const string COIN = "coin";
+            public const string COIN = "Coin";
             public const string WIN = "Win";
-        }
-        public static class AudioMixer
-        {
-            public const string MASTERVOLUME = "MasterVolume";
-            public const string MUSICVOLUME = "MusicVolume";
-            public const string SFXVOLUME = "SfxVolume";
-        }
-        public static class PlayerPrefs
-        {
-            public const string MASTERVOLUME = "MasterVolume";
-            public const string MUSICVOLUME = "MusicVolume";
-            public const string SFXVOLUME = "SfxVolume";
         }
     }
 }

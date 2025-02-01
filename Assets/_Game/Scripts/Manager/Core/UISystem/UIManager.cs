@@ -11,9 +11,6 @@ public class UIManager : PersistentSingleton<UIManager>
 
     [ReorderableList]
     [SerializeField] private List<BaseUI> uiPrefabs;
-    
-    [ReorderableList]
-    [SerializeField] private List<BaseUI> popupPrefabs;
 
     [SerializeField] private Canvas persistentCanvas;
     [SerializeField] private Canvas popupCanvas;
@@ -36,7 +33,7 @@ public class UIManager : PersistentSingleton<UIManager>
     public void ShowPopupUI<T>(bool useTransition = true) where T : BaseUI
     {
         EnableCanvas(popupCanvas);
-        var popup = GetOrCreatePopupInstance<T>(popupCanvas.transform);
+        var popup = GetOrCreateUIInstance<T>(popupCanvas.transform);
         if (popup != null)
         {
             popup.Show(useTransition);
@@ -45,7 +42,7 @@ public class UIManager : PersistentSingleton<UIManager>
 
     public void ShowConfirmationPopup(string message, UnityAction onConfirm, UnityAction onCancel)
     {
-        var popup = GetOrCreatePopupInstance<ConfirmationPopup>(popupCanvas.transform);
+        var popup = GetOrCreateUIInstance<ConfirmationPopup>(popupCanvas.transform);
         if (popup != null)
         {
             popup.Setup(message, onConfirm, onCancel);
@@ -167,27 +164,6 @@ public class UIManager : PersistentSingleton<UIManager>
         }
 
         Debug.LogError($"UI Prefab of type {type.Name} not found!");
-        return null;
-    }
-
-    private T GetOrCreatePopupInstance<T>(Transform parent) where T : BaseUI
-    {
-        var type = typeof(T);
-
-        if (uiInstances.ContainsKey(type))
-        {
-            return uiInstances[type] as T;
-        }
-
-        var prefab = popupPrefabs.Find(p => p is T);
-        if (prefab != null)
-        {
-            var instance = Instantiate(prefab, parent);
-            uiInstances[type] = instance;
-            return instance as T;
-        }
-
-        Debug.LogError($"Popup Prefab of type {type.Name} not found!");
         return null;
     }
 

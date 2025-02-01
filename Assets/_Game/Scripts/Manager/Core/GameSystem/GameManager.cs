@@ -7,12 +7,15 @@ namespace MainraFramework
 	public class GameManager : PersistentSingleton<GameManager>
 	{
 		private GameState currentState;
+		
 		public SceneManager SceneManager { get; private set; }
+		//TODO: Add more manager here
 
 		protected override void Awake()
 		{
 			base.Awake();
 			SceneManager = new SceneManager(this);
+			//TODO: Initialize more manager here
 		}
 
 		public void SetState(GameState newState)
@@ -29,6 +32,7 @@ namespace MainraFramework
 		private void Start()
 		{
 			SetState(new MainMenuState()); // Set initial state
+			
 		}
 
 		private void Update()

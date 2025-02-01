@@ -388,6 +388,7 @@ GameObject:
   - component: {fileID: 1042672541}
   - component: {fileID: 1042672540}
   - component: {fileID: 1042672544}
+  - component: {fileID: 1042672545}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -490,7 +491,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e976eb42a3add32409c6ecc32fffa87b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useTransition: 0
+  fadeDuration: 0
+  useCustomFadeCurve: 0
+  fadeEase: 2
+  customFadeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useScaleEffect: 1
+  startScale: {x: 0.8, y: 0.8, z: 0.8}
+  useCustomScaleCurve: 0
+  customScaleCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleEase: 27
+  usePositionEffect: 0
+  slideDirection: 3
+  slideDistance: 100
+  useCustomPositionCurve: 0
+  customPositionCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  positionEase: 6
+  disableInputDuringTransition: 1
+  useTimeScale: 1
+  queueTransitions: 0
+  enableDebugLogs: 0
   sliderLoadingBar: {fileID: 1032870797}
+--- !u!225 &1042672545
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042672539}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1162972077
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,40 +12,41 @@ public abstract class BaseUI : MonoBehaviour
     private Sequence currentSequence;
     private Vector2 originalPosition;
     private Vector3 originalScale;
-    
-    [Header("Fade Settings")]
-    [SerializeField] private float fadeDuration = 0.5f;
-    [SerializeField] private bool useCustomFadeCurve = false;
-    [SerializeField, HideIf("useCustomFadeCurve")] 
+
+    [Header("Transition Settings")]
+    [SerializeField] private bool useTransition = true; // Tambahkan variabel ini
+    [SerializeField, ShowIf("useTransition")] private float fadeDuration = 0.5f;
+    [SerializeField, ShowIf("useTransition")] private bool useCustomFadeCurve = false;
+    [SerializeField, ShowIf("useTransition"),HideIf("useCustomFadeCurve")]
     private Ease fadeEase = Ease.InOutSine;
-    [SerializeField, ShowIf("useCustomFadeCurve")] 
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useCustomFadeCurve")]
     private AnimationCurve customFadeCurve;
 
     [Header("Scale Settings")]
-    [SerializeField] private bool useScaleEffect = false;
-    [SerializeField, ShowIf("useScaleEffect")] 
+    [SerializeField, ShowIf("useTransition")] private bool useScaleEffect = false;
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect")]
     private Vector3 startScale = new Vector3(0.8f, 0.8f, 0.8f);
-    [SerializeField, ShowIf("useScaleEffect")] 
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect")]
     private bool useCustomScaleCurve = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "useScaleEffect", "useCustomScaleCurve")] 
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect", "useCustomScaleCurve")]
     private AnimationCurve customScaleCurve;
-    [SerializeField, ShowIf(EConditionOperator.And, "useScaleEffect", "!useCustomScaleCurve")] 
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect", "!useCustomScaleCurve")]
     private Ease scaleEase = Ease.OutBack;
-    
+
     [Header("Position Settings")]
-    [SerializeField] private bool usePositionEffect = false;
-    [SerializeField, ShowIf("usePositionEffect")] 
+    [SerializeField, ShowIf("useTransition")] private bool usePositionEffect = false;
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
     private UISlideDirection slideDirection = UISlideDirection.Bottom;
-    [SerializeField, ShowIf("usePositionEffect")] 
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
     private float slideDistance = 100f;
-    [SerializeField, ShowIf("usePositionEffect")]
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
     private bool useCustomPositionCurve = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "usePositionEffect", "useCustomPositionCurve")]
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect", "useCustomPositionCurve")]
     private AnimationCurve customPositionCurve;
-    [SerializeField, ShowIf(EConditionOperator.And, "usePositionEffect", "!useCustomPositionCurve")]
+    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect", "!useCustomPositionCurve")]
     private Ease positionEase = Ease.OutQuad;
-    
-    [Header("Transition Settings")]
+
+    [Header("Other Settings")]
     [SerializeField] private bool disableInputDuringTransition = true;
     [SerializeField] private bool useTimeScale = false;
     [SerializeField] private bool queueTransitions = false;
@@ -76,13 +77,16 @@ public abstract class BaseUI : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         rectTransform = GetComponent<RectTransform>();
-        
+
         // Store original transform values
         originalPosition = rectTransform.anchoredPosition;
         originalScale = rectTransform.localScale;
-        
+
         // Initial setup
-        canvasGroup.alpha = 0f;
+        if (useTransition)
+        {
+            canvasGroup.alpha = 0f;
+        }
         SetInput(false);
     }
 
@@ -90,7 +94,7 @@ public abstract class BaseUI : MonoBehaviour
     {
         if (fadeDuration < 0) fadeDuration = 0;
         if (slideDistance < 0) slideDistance = 0;
-        
+
         // Validate curves
         if (useCustomFadeCurve && customFadeCurve == null)
             Debug.LogWarning($"[{gameObject.name}] Custom fade curve is enabled but no curve is assigned!");
@@ -134,7 +138,7 @@ public abstract class BaseUI : MonoBehaviour
         if (useTransition)
         {
             currentSequence = DOTween.Sequence().SetUpdate(!useTimeScale);
-            
+
             // Setup initial state
             if (usePositionEffect)
             {
@@ -144,7 +148,7 @@ public abstract class BaseUI : MonoBehaviour
             {
                 rectTransform.localScale = startScale;
             }
-            
+
             // Add fade tween
             var fadeTween = canvasGroup.DOFade(1f, fadeDuration);
             if (useCustomFadeCurve)
@@ -152,7 +156,7 @@ public abstract class BaseUI : MonoBehaviour
             else
                 fadeTween.SetEase(fadeEase);
             currentSequence.Join(fadeTween);
-            
+
             // Add scale tween
             if (useScaleEffect)
             {
@@ -163,7 +167,7 @@ public abstract class BaseUI : MonoBehaviour
                     scaleTween.SetEase(scaleEase);
                 currentSequence.Join(scaleTween);
             }
-            
+
             // Add position tween
             if (usePositionEffect)
             {
@@ -202,7 +206,7 @@ public abstract class BaseUI : MonoBehaviour
         Log("Show complete.");
         OnShowComplete?.Invoke();
         callback?.Invoke();
-        
+
         ProcessNextTransition();
     }
 
@@ -239,7 +243,7 @@ public abstract class BaseUI : MonoBehaviour
         if (useTransition)
         {
             currentSequence = DOTween.Sequence().SetUpdate(!useTimeScale);
-            
+
             // Add fade tween
             var fadeTween = canvasGroup.DOFade(0f, fadeDuration);
             if (useCustomFadeCurve)
@@ -247,7 +251,7 @@ public abstract class BaseUI : MonoBehaviour
             else
                 fadeTween.SetEase(fadeEase);
             currentSequence.Join(fadeTween);
-            
+
             // Add scale tween
             if (useScaleEffect)
             {
@@ -258,7 +262,7 @@ public abstract class BaseUI : MonoBehaviour
                     scaleTween.SetEase(scaleEase);
                 currentSequence.Join(scaleTween);
             }
-            
+
             // Add position tween
             if (usePositionEffect)
             {
@@ -296,7 +300,7 @@ public abstract class BaseUI : MonoBehaviour
         Log("Hide complete.");
         OnHideComplete?.Invoke();
         callback?.Invoke();
-        
+
         ProcessNextTransition();
     }
 
@@ -354,7 +358,7 @@ public abstract class BaseUI : MonoBehaviour
 
     public bool IsVisible() => gameObject.activeSelf && canvasGroup.alpha > 0f;
     public bool IsTransitioning() => isTransitioning;
-    
+
     private void SetInput(bool state)
     {
         canvasGroup.interactable = state;

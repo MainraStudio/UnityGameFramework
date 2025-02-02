@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 
 public class UIManager : PersistentSingleton<UIManager>
 {
     public static event Action OnButtonClicked;
 
-    [ReorderableList]
+    [ListDrawerSettings(Expanded = true)]
     [SerializeField] private List<BaseUI> uiPrefabs;
 
     [SerializeField] private Canvas persistentCanvas;

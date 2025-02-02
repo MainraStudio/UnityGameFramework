@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using System;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -14,36 +14,36 @@ public abstract class BaseUI : MonoBehaviour
     private Vector3 originalScale;
 
     [Header("Transition Settings")]
-    [SerializeField] private bool useTransition = true; // Tambahkan variabel ini
+    [SerializeField] private bool useTransition = true;
     [SerializeField, ShowIf("useTransition")] private float fadeDuration = 0.5f;
     [SerializeField, ShowIf("useTransition")] private bool useCustomFadeCurve = false;
-    [SerializeField, ShowIf("useTransition"),HideIf("useCustomFadeCurve")]
+    [SerializeField, ShowIf("@this.useTransition && !this.useCustomFadeCurve")]
     private Ease fadeEase = Ease.InOutSine;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useCustomFadeCurve")]
+    [SerializeField, ShowIf("@this.useTransition && this.useCustomFadeCurve")]
     private AnimationCurve customFadeCurve;
 
     [Header("Scale Settings")]
     [SerializeField, ShowIf("useTransition")] private bool useScaleEffect = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect")]
+    [SerializeField, ShowIf("@this.useTransition && this.useScaleEffect")]
     private Vector3 startScale = new Vector3(0.8f, 0.8f, 0.8f);
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect")]
+    [SerializeField, ShowIf("@this.useTransition && this.useScaleEffect")] 
     private bool useCustomScaleCurve = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect", "useCustomScaleCurve")]
+    [SerializeField, ShowIf("@this.useTransition && this.useScaleEffect && this.useCustomScaleCurve")]
     private AnimationCurve customScaleCurve;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "useScaleEffect", "!useCustomScaleCurve")]
+    [SerializeField, ShowIf("@this.useTransition && this.useScaleEffect && !this.useCustomScaleCurve")]
     private Ease scaleEase = Ease.OutBack;
 
     [Header("Position Settings")]
     [SerializeField, ShowIf("useTransition")] private bool usePositionEffect = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
+    [SerializeField, ShowIf("@this.useTransition && this.usePositionEffect")]
     private UISlideDirection slideDirection = UISlideDirection.Bottom;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
+    [SerializeField, ShowIf("@this.useTransition && this.usePositionEffect")]
     private float slideDistance = 100f;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect")]
+    [SerializeField, ShowIf("@this.useTransition && this.usePositionEffect")]
     private bool useCustomPositionCurve = false;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect", "useCustomPositionCurve")]
+    [SerializeField, ShowIf("@this.useTransition && this.usePositionEffect && this.useCustomPositionCurve")]
     private AnimationCurve customPositionCurve;
-    [SerializeField, ShowIf(EConditionOperator.And, "useTransition", "usePositionEffect", "!useCustomPositionCurve")]
+    [SerializeField, ShowIf("@this.useTransition && this.usePositionEffect && !this.useCustomPositionCurve")]
     private Ease positionEase = Ease.OutQuad;
 
     [Header("Other Settings")]
@@ -271,7 +271,7 @@ public abstract class BaseUI : MonoBehaviour
                     positionTween.SetEase(customPositionCurve);
                 else
                     positionTween.SetEase(positionEase);
-                currentSequence.Join(positionTween);
+            currentSequence.Join(positionTween);
             }
 
             // Setup progress callback

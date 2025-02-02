@@ -1,21 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 
 public class MainMenuUI : BaseUI
 {
 	[BoxGroup("Buttons")]
 	[SerializeField] private Button play;
-    
+
 	[BoxGroup("Buttons")]
 	[SerializeField] private Button settings;
-    
+
 	[BoxGroup("Buttons")]
 	[SerializeField] private Button quit;
 
 	[BoxGroup("Settings Panel")]
 	[SerializeField] private GameObject settingsPanel;
-    
+
 	[BoxGroup("Settings Panel")]
 	[SerializeField] private Button backButton;
 

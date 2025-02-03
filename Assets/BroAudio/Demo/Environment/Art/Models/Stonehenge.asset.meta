@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bdb78e38a71948b44a4c04618f9c1777
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.0
+  assetPath: Assets/BroAudio/Demo/Environment/Art/Models/Stonehenge.asset
+  uploadId: 728900

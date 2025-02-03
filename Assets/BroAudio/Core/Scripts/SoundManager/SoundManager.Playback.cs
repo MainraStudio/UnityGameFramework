@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Ami.BroAudio.Data;
@@ -12,34 +11,58 @@ namespace Ami.BroAudio.Runtime
         private Queue<IPlayable> _playbackQueue = new Queue<IPlayable>();
 
         #region Play
-        public IAudioPlayer Play(int id)
+        public IAudioPlayer Play(SoundID id, IPlayableValidator customValidator = null)
         {
-            if (IsPlayable(id,out var entity) && TryGetAvailablePlayer(id, out var player))
+            if (IsPlayable(id, customValidator, out var entity, out var player))
             {
                 var pref = new PlaybackPreference(entity);
                 return PlayerToPlay(id, player, pref);
             }
-            return null;
+            return Empty.AudioPlayer;
         }
 
-        public IAudioPlayer Play(int id, Vector3 position)
+        public IAudioPlayer Play(SoundID id, Vector3 position, IPlayableValidator customValidator = null)
         {
-            if (IsPlayable(id,out var entity) && TryGetAvailablePlayer(id, out var player))
+            if (IsPlayable(id, customValidator, out var entity, out var player))
             {
                 var pref = new PlaybackPreference(entity, position);
                 return PlayerToPlay(id, player, pref);
             }
-            return null;
+            return Empty.AudioPlayer;
         }
 
-        public IAudioPlayer Play(int id, Transform followTarget)
+        public IAudioPlayer Play(SoundID id, Transform followTarget, IPlayableValidator customValidator = null)
         {
-            if (IsPlayable(id,out var entity) && TryGetAvailablePlayer(id, out var player))
+            if (IsPlayable(id, customValidator, out var entity, out var player))
             {
                 var pref = new PlaybackPreference(entity, followTarget);
                 return PlayerToPlay(id, player, pref);
             }
-            return null;
+            return Empty.AudioPlayer;
+        }
+
+        private bool IsPlayable(SoundID id, IPlayableValidator customValidator, out IAudioEntity entity, out AudioPlayer player)
+        {
+            entity = null;
+            player = null;
+
+            if(id <= 0 || !_audioBank.TryGetValue(id, out entity))
+            {
+#if UNITY_EDITOR
+                Debug.LogError(LogTitle + $"The sound is missing or it has never been assigned. No sound will be played. Object:{id.DebugObject?.name}", id.DebugObject); 
+#endif
+                return false;
+            }
+
+            var validator = customValidator ?? entity.Group; // entity's group will be set in InitBank() if it's null
+
+            bool isValid = validator == null || validator.IsPlayable(id);
+            bool result = isValid && TryGetAvailablePlayer(id, out player);
+            if(validator != null && player != null)
+            {
+                validator.OnGetPlayer(player);
+            }
+            return result;
         }
 
         private IAudioPlayer PlayerToPlay(int id, AudioPlayer player, PlaybackPreference pref)
@@ -55,12 +78,10 @@ namespace Ami.BroAudio.Runtime
                 player.AsBGM().SetTransition(Setting.DefaultBGMTransition, Setting.DefaultBGMTransitionTime);
             }
 
-            if(CombFilteringPreventionInSeconds > 0f)
-            {
-                _combFilteringPreventer ??= new Dictionary<SoundID, AudioPlayer>();
-                player.OnEnd(RemoveFromPreventer);
-                _combFilteringPreventer[id] = player;
-            }
+            // Whether there's any group implementing this or not, we're tracking it anyway
+            _combFilteringPreventer ??= new Dictionary<SoundID, AudioPlayer>();
+            player.OnEnd(RemoveFromPreventer);
+            _combFilteringPreventer[id] = player;
 
             if (pref.Entity.SeamlessLoop)
             {
@@ -68,7 +89,6 @@ namespace Ami.BroAudio.Runtime
                 seamlessLoopHelper.AddReplayListener(player);
             }
 
-            //pref.Entity.Config.AddPlayingEntity(wrapper);
             return wrapper;
         }
 
@@ -154,39 +174,23 @@ namespace Ami.BroAudio.Runtime
             }
         }
 
-
-        private bool IsPlayable(int id, out IAudioEntity entity)
+        public bool HasPassCombFilteringPreventionTime(SoundID id, float combFilteringTime, bool ignoreCombFilteringIfSameFrame)
         {
-            entity = null;
-            if (id <= 0 || !_audioBank.TryGetValue(id, out entity))
+            if (_combFilteringPreventer != null && _combFilteringPreventer.TryGetValue(id, out var previousPlayer))
             {
-                Debug.LogError(LogTitle + $"The sound is missing or it has never been assigned. No sound will be played. SoundID:{id}");
-                return false;
-            }
-
-            // TODO:改成用Config
-            //return entity.Config.IsPlayable();
-            if (_combFilteringPreventer != null && _combFilteringPreventer.TryGetValue(id, out var previousPlayer)
-                && !HasPassPreventionTime(previousPlayer.PlaybackStartingTime))
-            {
-#if UNITY_EDITOR
-                if (Setting.LogCombFilteringWarning)
+                int time = TimeExtension.UnscaledCurrentFrameBeganTime;
+                int previousPlayTime = previousPlayer.PlaybackStartingTime;
+                // the previous has been added to the queue but hasn't played yet, i.e. The current and the previous will end up being played in the same frame
+                bool previousIsInQueue = Mathf.Approximately(previousPlayTime, 0f); 
+                float difference = time - previousPlayTime;
+                if(previousIsInQueue || Mathf.Approximately(difference, 0f))
                 {
-                    Debug.LogWarning(LogTitle + $"One of the plays of Audio:{((SoundID)id).ToName().ToWhiteBold()} has been rejected due to the concern about sound quality. " +
-                    $"For more information, please go to the [Comb Filtering] section in Tools/BroAudio/Preference.");
+                    return ignoreCombFilteringIfSameFrame;
                 }
-#endif
-                return false;
+
+                return difference >= TimeExtension.SecToMs(combFilteringTime);
             }
             return true;
         }
-
-        private bool HasPassPreventionTime(int previousPlayTime)
-        {
-            int time = TimeExtension.UnscaledCurrentFrameBeganTime;
-            bool isInQueue = previousPlayTime == 0f;
-            return !isInQueue && time - previousPlayTime >= TimeExtension.SecToMs(Setting.CombFilteringPreventionInSeconds);
-        }
     }
 }
-

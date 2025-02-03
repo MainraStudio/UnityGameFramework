@@ -14,12 +14,12 @@ namespace Ami.BroAudio.Runtime
         {
             get
             {
-                _setting ??= Resources.Load<RuntimeSetting>(BroName.RuntimeSettingFileName);
+                _setting ??= Resources.Load<RuntimeSetting>(BroName.RuntimeSettingName);
 
                 if (!_setting)
                 {
-                    _setting = new RuntimeSetting();
-                    Debug.LogWarning(Utility.LogTitle + $"Can't load {BroName.RuntimeSettingFileName}.asset, all setting values will be as default. " +
+                    _setting = ScriptableObject.CreateInstance<RuntimeSetting>();
+                    Debug.LogWarning(Utility.LogTitle + $"Can't load {BroName.RuntimeSettingName}.asset, all setting values will be as default. " +
                         "If your setting file is missing. Please reimport it from the asset package");
                 }
                 return _setting;
@@ -31,7 +31,5 @@ namespace Ami.BroAudio.Runtime
         public static Ease SeamlessFadeIn => Instance.Setting.SeamlessFadeInEase;
         public static Ease SeamlessFadeOut => Instance.Setting.SeamlessFadeOutEase;
         public static PitchShiftingSetting PitchSetting => Instance.Setting.PitchSetting;
-
-        public static float CombFilteringPreventionInSeconds => Instance.Setting.CombFilteringPreventionInSeconds;
     }
 }

@@ -1,76 +1,82 @@
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Ami.BroAudio.Data;
 using Ami.BroAudio.Runtime;
 using static Ami.BroAudio.Editor.BroEditorUtility;
-using System;
+using static Ami.BroAudio.Tools.BroName;
 
 namespace Ami.BroAudio.Editor
 {
 #if UNITY_EDITOR
 	public static class BroUserDataGenerator
 	{
-		private static bool _isGenerating = false;
+		private static bool _isLoading = false;
 
 		public static void CheckAndGenerateUserData()
 		{
-			if (_isGenerating)
+			if (_isLoading)
 			{
 				return;
 			}
-			_isGenerating = true;
+			_isLoading = true;
 
             var request = Resources.LoadAsync<SoundManager>(nameof(SoundManager));
             request.completed += OnGetSoundManager;
 
             void OnGetSoundManager(AsyncOperation operation)
             {
-                request.completed -= OnGetSoundManager;
+                request.completed -= OnGetSoundManager;          
                 if (request.asset is SoundManager soundManager)
                 {
                     if(TryGetCoreData(out var currentCoreData))
                     {
-                        AssignCoreData(soundManager, currentCoreData);
+                        soundManager.AssignCoreData(currentCoreData);
+                        BroUpdater.Process(soundManager.Mixer, currentCoreData);
                     }
                     else
                     {
-                        StartGenerateUserData(soundManager);
+                        StartGeneratingUserData(soundManager);
                     }
                 }
                 else
                 {
                     Debug.LogError(Utility.LogTitle + $"Load {nameof(SoundManager)} fail, " +
-                        $"please import it and place it in the Resources folder, and go to Tools/Preference, switch to the last tab and hit [Regenerate User Data]");
+                        $"please import it and place it in the Resources folder, and go to Tools/Preferences, switch to the last tab and hit [Regenerate User Data]");
                 }
+                _isLoading = false;
             }
         }
 
-		private static void StartGenerateUserData(SoundManager soundManager)
+        private static void StartGeneratingUserData(SoundManager soundManager)
 		{
-			string resourcePath;
-			resourcePath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(soundManager));
-
+			string resourcePath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(soundManager));
 			string coreDataPath = GetAssetSavePath(resourcePath, CoreDataResourcesPath);
             var coreData = CreateCoreData(coreDataPath, out string audioAssetOutputPath);
-			AssignCoreData(soundManager, coreData);
+            soundManager.AssignCoreData(coreData);
 
-			CreateSettingIfNotExist<RuntimeSetting>(GetAssetSavePath(resourcePath, RuntimeSettingPath));
-            var editorSetting = CreateSettingIfNotExist<EditorSetting>(GetAssetSavePath(resourcePath, EditorSettingPath));
+			var runtimeSetting = CreateScriptableObjectIfNotExist<RuntimeSetting>(GetAssetSavePath(resourcePath, RuntimeSettingPath));
+            runtimeSetting.GlobalPlaybackGroup = CreateScriptableObjectIfNotExist<DefaultPlaybackGroup>(GetAssetSavePath(resourcePath, GlobalPlaybackGroupPath));
+            EditorUtility.SetDirty(runtimeSetting);
+
+            string editorResourcesPath = resourcePath.Replace(ResourcesFolder, $"{EditorFolder}/{ResourcesFolder}");
+            var editorSetting = CreateScriptableObjectIfNotExist<EditorSetting>(GetAssetSavePath(editorResourcesPath, EditorSettingPath));
 			editorSetting.AssetOutputPath = audioAssetOutputPath;
 			EditorUtility.SetDirty(editorSetting);
+
             AssetDatabase.SaveAssets();
-            _isGenerating = false;
         }
 
 		private static string GetAssetSavePath(string resourcesPath, string relativePath)
 		{
-			return Path.Combine(resourcesPath, relativePath + ".asset");
+			return Combine(resourcesPath, relativePath + ".asset");
 		}
 
 		private static BroAudioData CreateCoreData(string coreDataPath, out string audioAssetOutputpath)
 		{
 			BroAudioData coreData = ScriptableObject.CreateInstance<BroAudioData>();
+            coreData.UpdateVersion();
 			GetInitialData(coreData.AddAsset, out audioAssetOutputpath);
 			AssetDatabase.CreateAsset(coreData, coreDataPath);
             EditorUtility.SetDirty(coreData);
@@ -102,41 +108,18 @@ namespace Ami.BroAudio.Editor
 			else
 			{
 				audioAssetOutputPath = DefaultAssetOutputPath;
-                var demoAsset = AssetDatabase.LoadAssetAtPath<AudioAsset>(DefaultAssetOutputPath + "/Demo.asset");
-				onGetAsset?.Invoke(demoAsset);
+                string broPath = DefaultAssetOutputPath.Remove(DefaultAssetOutputPath.LastIndexOf('/'));
+                string demoAssetPath = Combine(DefaultAssetOutputPath, "Demo.asset");
+                if (Directory.Exists(Combine(broPath, "Demo")))
+                {
+                    var demoAsset = AssetDatabase.LoadAssetAtPath<AudioAsset>(demoAssetPath);
+                    onGetAsset?.Invoke(demoAsset);
+                }
+                else
+                {
+                    AssetDatabase.DeleteAsset(demoAssetPath);
+                }
 			}
-		}
-
-		private static void AssignCoreData(SoundManager soundManager, BroAudioData coreData)
-		{
-			soundManager.AssignCoreData(coreData);
-			PrefabUtility.SavePrefabAsset(soundManager.gameObject);
-		}
-
-		private static T CreateSettingIfNotExist<T>(string path) where T : ScriptableObject
-		{
-			T setting = null;
-			if (!TryLoadResources<T>(path, out setting))
-			{
-				setting = ScriptableObject.CreateInstance<T>();
-				if (setting is EditorSetting editorSetting)
-				{
-                    editorSetting.ResetToFactorySettings();
-				}
-				else if (setting is RuntimeSetting runtimeSetting)
-				{
-					runtimeSetting.ResetToFactorySettings();
-				}
-				AssetDatabase.CreateAsset(setting, path);
-                EditorUtility.SetDirty(setting);
-            }
-			return setting;
-		}
-
-		private static bool TryLoadResources<T>(string path, out T resouece) where T : UnityEngine.Object
-		{
-			resouece = Resources.Load<T>(path);
-			return resouece != null;
 		}
 	}
 #endif

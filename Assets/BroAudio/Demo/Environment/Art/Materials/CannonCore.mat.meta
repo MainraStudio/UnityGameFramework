@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5fda8e18d69ae2b4b9a14a1494cb295d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.0
+  assetPath: Assets/BroAudio/Demo/Environment/Art/Materials/CannonCore.mat
+  uploadId: 728900

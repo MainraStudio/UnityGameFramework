@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 20f39f4d28332644eafacbfaa8b8e2cf
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.0
+  assetPath: Assets/BroAudio/Demo/Environment/Prefabs/Satellite Particle System.prefab
+  uploadId: 728900

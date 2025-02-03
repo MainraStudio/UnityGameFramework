@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Linq;
 using Ami.BroAudio.Editor;
 using System;
-using UnityEditorInternal;
 
 namespace Ami.Extension
 {
@@ -657,9 +656,28 @@ namespace Ami.Extension
             return state;
         }
 
+        public static bool DrawButtonToggleLayout(bool state, GUIContent guiContent, params GUILayoutOption[] options)
+        {
+            state = EditorGUILayout.Toggle(state, GUI.skin.button, options);
+            Rect rect = GUILayoutUtility.GetLastRect();
+            EditorGUI.LabelField(rect, guiContent, GUIStyleHelper.MiddleCenterText);
+            return state;
+        }
+
         public static SerializedProperty FindBackingFieldProperty(this SerializedProperty property, string fieldName)
         {
             return property.FindPropertyRelative(GetBackingFieldName(fieldName));
+        }
+
+        public static SerializedProperty FindBackingFieldProperty(this SerializedObject so, string fieldName)
+        {
+            return so.FindProperty(GetBackingFieldName(fieldName));
+        }
+
+        public static bool TryFindPropertyRelative(this SerializedProperty property, string propertyPath, out SerializedProperty result)
+        {
+            result = property.FindPropertyRelative(propertyPath);
+            return result != null;
         }
 
         public static void DrawBoldToggle(ref SerializedProperty property, RectOffset padding, GUIContent content = null)
@@ -706,12 +724,27 @@ namespace Ami.Extension
             return rect;
         }
 
+        public static Rect AdjustWidth(this Rect rect, float width)
+        {
+            rect.width += width;
+            return rect;
+        }
+
         public static int GetEnumFlag(this SerializedProperty property)
         {
 #if UNITY_2021_2_OR_NEWER
             return property.enumValueFlag;
 #else
             return property.intValue;
+#endif
+        }
+
+        public static void SetEnumFlag(this SerializedProperty property, int flags)
+        {
+#if UNITY_2021_2_OR_NEWER
+            property.enumValueFlag = flags;
+#else
+            property.intValue = flags;
 #endif
         }
     }

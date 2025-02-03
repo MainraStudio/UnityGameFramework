@@ -20,6 +20,7 @@
         PitchShiftingToolTip,
         AudioFilterSlope,
         AlwaysPlayMusicAsBGM,
+        GlobalPlaybackGroup,
 
         // Settings/Info
         Copyright = 20,
@@ -50,6 +51,8 @@
         LibraryManager_NameTempAssetHint,
         LibraryManager_AssetAudioTypeNotSet,
         LibraryManager_AssetUnnamed,
+        LibraryManager_AddressableConversionDialog,
+        LibraryManager_AddressableConversionTooltip,
 
         // Sound Volume
         SoundVolume_ApplyOnEnable = 400,
@@ -60,5 +63,8 @@
 
         // Sound Source
         SoundSource_PositionMode = 450,
+
+        // Playback Group
+        PlaybackGroup_Override = 500,
     }
 }

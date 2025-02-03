@@ -5,7 +5,6 @@ using System.Threading;
 using Ami.BroAudio.Editor;
 using Ami.BroAudio.Data;
 using UnityEngine.Audio;
-using Ami.BroAudio.Tools;
 using System.Threading.Tasks;
 using System.Reflection;
 using static Ami.BroAudio.Utility;
@@ -36,9 +35,9 @@ namespace Ami.Extension
                 FadeOut = transport.FadeOut;
             }
 
-            public Data(BroAudioClip broAudioClip)
+            public Data(IBroAudioClip broAudioClip)
             {
-                AudioClip = broAudioClip.AudioClip;
+                AudioClip = broAudioClip.GetAudioClip();
                 Volume = broAudioClip.Volume;
                 StartPosition = broAudioClip.StartPosition;
                 EndPosition = broAudioClip.EndPosition;
@@ -91,7 +90,7 @@ namespace Ami.Extension
 
         public EditorPlayAudioClip()
         {
-            _mixer = Resources.Load<AudioMixer>(BroName.EditorAudioMixerPath);
+            _mixer = Resources.Load<AudioMixer>(BroEditorUtility.EditorAudioMixerPath);
             PlaybackIndicator = new PlaybackIndicatorUpdater();
             _volumeTransporter = new EditorAudioPreviewer(_mixer);
 
@@ -113,6 +112,10 @@ namespace Ami.Extension
 
         private async Task PlayClipByAudioSourceAsync(Data clip, bool selfLoop, Action onReplay, float pitch)
         {
+            if(clip.AudioClip == null)
+            {
+                return;
+            }
             StopStaticPreviewClipsAndCancelTask();
             ResetAndGetAudioSource(out var audioSource);
 

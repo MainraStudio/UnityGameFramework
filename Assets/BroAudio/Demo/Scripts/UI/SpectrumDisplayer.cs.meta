@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4c1735373d175d742a691bbc9168110b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.0
+  assetPath: Assets/BroAudio/Demo/Scripts/UI/SpectrumDisplayer.cs
+  uploadId: 728900

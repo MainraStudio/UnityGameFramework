@@ -1,15 +1,17 @@
 using UnityEngine;
 using Ami.Extension;
+using Ami.BroAudio.Runtime;
 
 namespace Ami.BroAudio.Data
 {
     [System.Serializable]
-    public class AudioEntity : IEntityIdentity, IAudioEntity
+    public partial class AudioEntity : IEntityIdentity, IAudioEntity
     {
         [field: SerializeField] public string Name { get; private set; }
         [field: SerializeField] public int ID { get; private set; }
 
         [SerializeField] private MulticlipsPlayMode MulticlipsPlayMode = MulticlipsPlayMode.Single;
+        [SerializeField] private PlaybackGroup _group;
 
         public BroAudioClip[] Clips;
 
@@ -24,9 +26,22 @@ namespace Ami.BroAudio.Data
         [field: SerializeField] public float VolumeRandomRange { get; private set; }
         [field: SerializeField] public RandomFlag RandomFlags { get; private set; }
 
-        public BroAudioClip PickNewClip() => Clips.PickNewOne(MulticlipsPlayMode, ID, out _);
-        public BroAudioClip PickNewClip(out int index) => Clips.PickNewOne(MulticlipsPlayMode, ID, out index);
-        public BroAudioClip PickNewClip(int velocity) => Clips.PickNewOne(MulticlipsPlayMode, ID, out _, velocity);
+        public PlaybackGroup Group
+        {
+            get
+            {
+                if(!_group)
+                {
+                    return SoundManager.Instance.Setting.GlobalPlaybackGroup;
+                }
+                return _group;
+            }
+            set => _group = value;
+        }
+
+        public IBroAudioClip PickNewClip() => Clips.PickNewOne(MulticlipsPlayMode, ID, out _);
+        public IBroAudioClip PickNewClip(out int index) => Clips.PickNewOne(MulticlipsPlayMode, ID, out index);
+        public IBroAudioClip PickNewClip(int velocity) => Clips.PickNewOne(MulticlipsPlayMode, ID, out _, velocity);
 
         public bool Validate()
         {
@@ -84,6 +99,7 @@ namespace Ami.BroAudio.Data
         public static class EditorPropertyName
 		{
             public static string MulticlipsPlayMode => nameof(AudioEntity.MulticlipsPlayMode);
+            public static string PlaybackGroup => nameof(AudioEntity._group);
             public static string SeamlessType => nameof(AudioEntity.SeamlessTransitionType);
             public static string TransitionTempo => nameof(AudioEntity.TransitionTempo);
             public static string SnapToFullVolume => nameof(AudioEntity.SnapToFullVolume);

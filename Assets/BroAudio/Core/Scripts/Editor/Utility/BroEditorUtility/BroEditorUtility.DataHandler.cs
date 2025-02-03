@@ -7,7 +7,13 @@ namespace Ami.BroAudio.Editor
 {
 	public static partial class BroEditorUtility
 	{
-		public static bool TryGetCoreData(out BroAudioData coreData)
+        public static bool TryLoadResources<T>(string path, out T resouece) where T : UnityEngine.Object
+        {
+            resouece = Resources.Load<T>(path);
+            return resouece != null;
+        }
+
+        public static bool TryGetCoreData(out BroAudioData coreData)
 		{
 			coreData = Resources.Load<BroAudioData>(CoreDataResourcesPath);
 			return coreData;
@@ -24,8 +30,29 @@ namespace Ami.BroAudio.Editor
 			return asset != null;
 		}
 
-		public static void WriteAssetOutputPathToSetting(string path)
+        public static T CreateScriptableObjectIfNotExist<T>(string path) where T : ScriptableObject
+        {
+            T scriptableObj;
+            if (!TryLoadResources<T>(path, out scriptableObj))
+            {
+                scriptableObj = ScriptableObject.CreateInstance<T>();
+                if (scriptableObj is EditorSetting editorSetting)
+                {
+                    editorSetting.ResetToFactorySettings();
+                }
+                else if (scriptableObj is RuntimeSetting runtimeSetting)
+                {
+                    runtimeSetting.ResetToFactorySettings();
+                }
+                AssetDatabase.CreateAsset(scriptableObj, path);
+                EditorUtility.SetDirty(scriptableObj);
+            }
+            return scriptableObj;
+        }
+
+        public static void WriteAssetOutputPathToSetting(string path)
 		{
+            Undo.RecordObject(EditorSetting, "Change BroAudio Asset Output Path");
 			EditorSetting.AssetOutputPath = path;
 			SaveToDisk(EditorSetting);
 		}
@@ -60,7 +87,16 @@ namespace Ami.BroAudio.Editor
 		public static void SaveToDisk(UnityEngine.Object obj)
 		{
 			EditorUtility.SetDirty(obj);
-			AssetDatabase.SaveAssets();
+			SaveAssetIfDirty(obj);
 		}
-	}
+
+        public static void SaveAssetIfDirty(UnityEngine.Object obj)
+        {
+#if UNITY_2020_3_OR_NEWER
+            AssetDatabase.SaveAssetIfDirty(obj);
+#else
+            AssetDatabase.SaveAssets();
+#endif
+        }
+    }
 }

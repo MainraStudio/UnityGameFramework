@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 638d5961028aa784bb903df907ebd8cb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.0
+  assetPath: Assets/BroAudio/Core/Scripts/Player/PlaybackGroup/DefaultPlaybackGroup.cs
+  uploadId: 728900

@@ -26,6 +26,8 @@ namespace Ami.BroAudio.Editor
         private const float HighVolumeSnappingThreshold = 0.2f;
         private const string DbValueStringFormat = "0.##";
 
+        public const string AssetReferenceGUIDFieldName = "m_AssetGUID";
+
         public const int RoundedDigits = 4;
         public const float MinMaxSliderFieldWidth = 50f;
 
@@ -43,7 +45,7 @@ namespace Ami.BroAudio.Editor
             {
                 if (!_runtimeSetting)
                 {
-                    _runtimeSetting = Resources.Load<RuntimeSetting>(BroName.RuntimeSettingFileName);
+                    _runtimeSetting = Resources.Load<RuntimeSetting>(BroName.RuntimeSettingName);
                     if (!_runtimeSetting)
                     {
                         Debug.LogError(Utility.LogTitle + string.Format(SettingFileMissingMegssage, "BroRuntimeSetting"));
@@ -62,7 +64,7 @@ namespace Ami.BroAudio.Editor
             {
                 if (!_editorSetting)
                 {
-                    _editorSetting = Resources.Load<EditorSetting>(BroName.EditorSettingPath);
+                    _editorSetting = Resources.Load<EditorSetting>(EditorSettingPath);
                     if (!_editorSetting)
                     {
                         Debug.LogError(Utility.LogTitle + string.Format(SettingFileMissingMegssage, "BroEditorSetting"));
@@ -245,7 +247,6 @@ namespace Ami.BroAudio.Editor
                 if (!string.IsNullOrEmpty(newPath) && IsInProjectFolder(newPath))
                 {
                     newPath = newPath.Remove(0, UnityProjectRootPath.Length + 1);
-                    AssetOutputPath = newPath;
                     WriteAssetOutputPathToSetting(newPath);
                     onUpdateSuccess?.Invoke();
                 }

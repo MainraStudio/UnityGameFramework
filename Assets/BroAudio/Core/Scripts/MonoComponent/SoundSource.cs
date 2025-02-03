@@ -1,3 +1,4 @@
+using Ami.BroAudio.Runtime;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -20,19 +21,41 @@ namespace Ami.BroAudio
         [SerializeField] float _overrideFadeOut = -1f;
         [Space]
         [SerializeField] SoundID _sound = default;
+        [SerializeField] PlaybackGroup _overrideGroup = null;
         [SerializeField] PositionMode _positionMode = default;
 
-        public void Play() => CurrentPlayer = BroAudio.Play(_sound);
-        public void Play(Transform followTarget) => CurrentPlayer = BroAudio.Play(_sound, followTarget);
-        public void Play(Vector3 positon) => CurrentPlayer = BroAudio.Play(_sound, positon);
-        public void Stop() => CurrentPlayer?.Stop();
-        public void Stop(float fadeTime) => CurrentPlayer?.Stop(fadeTime);
-        public void SetVolume(float vol) => CurrentPlayer?.SetVolume(vol);
-        public void SetVolume(float vol, float fadeTime) => CurrentPlayer?.SetVolume(vol, fadeTime);
-        public void SetPitch(float pitch) => CurrentPlayer?.SetPitch(pitch);
-        public void SetPitch(float pitch, float fadeTime) => CurrentPlayer?.SetPitch(pitch, fadeTime);
-
         public IAudioPlayer CurrentPlayer { get; private set; }
+        public bool IsPlaying => CurrentPlayer != null && CurrentPlayer.IsPlaying;
+
+        public void Play() => CurrentPlayer = BroAudio.Play(_sound, _overrideGroup);
+        public void Play(Transform followTarget) => CurrentPlayer = BroAudio.Play(_sound, followTarget, _overrideGroup);
+        public void Play(Vector3 positon) => CurrentPlayer = BroAudio.Play(_sound, positon, _overrideGroup);
+        public void Stop() => Stop(AudioPlayer.UseEntitySetting);
+        public void Stop(float fadeTime)
+        {
+            if (IsPlaying)
+            {
+                CurrentPlayer.Stop(fadeTime);
+            }
+        }
+
+        public void SetVolume(float vol) => SetVolume(vol, BroAdvice.FadeTime_Immediate);
+        public void SetVolume(float vol, float fadeTime)
+        {
+            if (IsPlaying)
+            {
+                CurrentPlayer.SetVolume(vol, fadeTime);
+            }
+        }
+
+        public void SetPitch(float pitch) => SetPitch(pitch, BroAdvice.FadeTime_Immediate);
+        public void SetPitch(float pitch, float fadeTime)
+        {
+            if (IsPlaying)
+            {
+                CurrentPlayer.SetPitch(pitch, fadeTime);
+            }
+        }
 
         private void OnEnable()
         {
@@ -68,6 +91,7 @@ namespace Ami.BroAudio
             }
         }
 
+#if UNITY_EDITOR
         public static class NameOf
         {
             public const string PlayOnEnable = nameof(_playOnEnable);
@@ -76,6 +100,7 @@ namespace Ami.BroAudio
             public const string OverrideFadeOut = nameof(_overrideFadeOut);
             public const string SoundID = nameof(_sound);
             public const string PositionMode = nameof(_positionMode);
-        }
+        } 
+#endif
     }
 }

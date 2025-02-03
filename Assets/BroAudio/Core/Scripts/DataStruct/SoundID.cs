@@ -1,6 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Ami.BroAudio.Runtime;
+using System.Collections;
+
+#if PACKAGE_ADDRESSABLES
+using UnityEngine.ResourceManagement.AsyncOperations;
+#endif
 
 namespace Ami.BroAudio
 {
@@ -68,7 +74,7 @@ namespace Ami.BroAudio
         /// </summary>
 		public static bool IsValid(this SoundID id)
 		{
-			return id > 0 && Runtime.SoundManager.Instance.IsIdInBank(id);
+			return id > 0 && SoundManager.Instance.IsIdInBank(id);
 		}
 
         /// <summary>
@@ -76,7 +82,7 @@ namespace Ami.BroAudio
         /// </summary>
         public static AudioClip GetAudioClip(this SoundID id)
         {
-            return Runtime.SoundManager.Instance.GetAudioClip(id);
+            return SoundManager.Instance.GetAudioClip(id);
         }
 
         /// <summary>
@@ -84,16 +90,54 @@ namespace Ami.BroAudio
         /// </summary>
         public static AudioClip GetAudioClip(this SoundID id, int velocity)
         {
-            return Runtime.SoundManager.Instance.GetAudioClip(id, velocity);
+            return SoundManager.Instance.GetAudioClip(id, velocity);
         }
 
         /// <inheritdoc cref="BroAudio.Play(SoundID)"/>
-        public static IAudioPlayer Play(this SoundID id) => BroAudio.Play(id);
+        public static IAudioPlayer Play(this SoundID id, PlaybackGroup overrideGroup = null) 
+            => BroAudio.Play(id, overrideGroup);
 
         /// <inheritdoc cref="BroAudio.Play(SoundID, Vector3)"/>
-        public static IAudioPlayer Play(this SoundID id, Vector3 position) => BroAudio.Play(id, position);
+        public static IAudioPlayer Play(this SoundID id, Vector3 position, PlaybackGroup overrideGroup = null) 
+            => BroAudio.Play(id, position, overrideGroup);
 
         /// <inheritdoc cref="BroAudio.Play(SoundID, Transform)"/>
-        public static IAudioPlayer Play(this SoundID id, Transform followTarget) => BroAudio.Play(id, followTarget);
+        public static IAudioPlayer Play(this SoundID id, Transform followTarget, PlaybackGroup overrideGroup = null) 
+            => BroAudio.Play(id, followTarget, overrideGroup);
+
+#if PACKAGE_ADDRESSABLES
+        ///<inheritdoc cref="BroAudio.LoadAllAssetsAsync(SoundID)"/>
+        public static AsyncOperationHandle<IList<AudioClip>> LoadAllAssetsAsync(this SoundID id)
+            => SoundManager.Instance.LoadAllAssetsAsync(id);
+
+        ///<inheritdoc cref="BroAudio.LoadAssetAsync(SoundID)"/>
+        public static AsyncOperationHandle<AudioClip> LoadAssetAsync(this SoundID id)
+            => LoadAssetAsync(id, 0);
+
+        ///<inheritdoc cref="BroAudio.LoadAssetAsync(SoundID,int)"/>
+        public static AsyncOperationHandle<AudioClip> LoadAssetAsync(this SoundID id, int clipIndex)
+            => SoundManager.Instance.LoadAssetAsync(id, clipIndex);
+
+        ///<inheritdoc cref="BroAudio.ReleaseAllAssets(SoundID)"/>
+        public static void ReleaseAllAssets(this SoundID id)
+            => SoundManager.Instance.ReleaseAllAssets(id);
+
+        ///<inheritdoc cref="BroAudio.ReleaseAsset(SoundID)"/>
+        public static void ReleaseAsset(this SoundID id)
+            => ReleaseAsset(id, 0);
+
+        ///<inheritdoc cref="BroAudio.ReleaseAsset(SoundID, int)"/>
+        public static void ReleaseAsset(this SoundID id, int clipIndex)
+            => SoundManager.Instance.ReleaseAsset(id, clipIndex);
+
+        public static IEnumerable GetAllAddressablesKeys(this SoundID id)
+            => SoundManager.Instance.GetAddressableKeys(id);
+
+        public static object GetAddressablesKey(this SoundID id)
+            => GetAddressablesKey(id, 0);
+
+        public static object GetAddressablesKey(this SoundID id, int index)
+            => SoundManager.Instance.GetAddressableKey(id, index);
+#endif
     }
 }

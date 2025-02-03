@@ -3,45 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEditor;
+using Ami.BroAudio.Tools;
 
 namespace Ami.BroAudio.Editor
 {
 	public static partial class BroEditorUtility
 	{
-        public const string CoreDataResourcesPath = "BroAudioData";
-		public const string DefaultRelativeAssetOutputPath = "BroAudio/AudioAssets";
+        public const string CoreDataResourcesPath = BroName.CoreDataName;
+        public const string DefaultRelativeAssetOutputPath = "BroAudio/AudioAssets";
         public const string DefaultAssetOutputPath = "Assets/" + DefaultRelativeAssetOutputPath;
-		public const string EditorSettingPath = "Editor/BroEditorSetting";
-		public const string RuntimeSettingPath = "BroRuntimeSetting";
+        public const string EditorSettingPath = BroName.EditorSettingName;
+        public const string RuntimeSettingPath = BroName.RuntimeSettingName;
+        public const string GlobalPlaybackGroupPath = BroName.GlobalPlaybackGroupName;
 
-		public static readonly string UnityProjectRootPath = Application.dataPath.Replace("/Assets", string.Empty);
+        public const string MainLogoPath = "Logo_Editor";
+        public const string TransparentLogoPath = "Logo_Transparent";
+        public const string EditorAudioMixerPath = BroName.EditorAudioMixerName;
 
-		private static string _assetOutputPath = string.Empty;
+        public static readonly string UnityProjectRootPath = Application.dataPath.Replace("/Assets", string.Empty);
+
 		public static string AssetOutputPath
 		{
 			get
 			{
-				if(!string.IsNullOrEmpty(_assetOutputPath))
-				{
-                    return _assetOutputPath;
-                }
-
 				if(EditorSetting)
 				{
 					if(string.IsNullOrWhiteSpace(EditorSetting.AssetOutputPath))
 					{
-						_assetOutputPath = DefaultAssetOutputPath;
                         EditorSetting.AssetOutputPath = DefaultAssetOutputPath;
 						EditorUtility.SetDirty(EditorSetting);
+                        SaveAssetIfDirty(EditorSetting);
 					}
-					else
-					{
-						_assetOutputPath = EditorSetting.AssetOutputPath;
-					}
+                    return EditorSetting.AssetOutputPath;
 				}
-				return _assetOutputPath;
+				return DefaultAssetOutputPath;
 			}
-			set => _assetOutputPath = value;
 		}
 
 		public static string GetFullPath(string path) => Combine(UnityProjectRootPath,path);

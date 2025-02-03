@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Audio;
-using static Ami.BroAudio.Editor.BroEditorUtility;
+using Ami.BroAudio.Data;
 using static Ami.BroAudio.Editor.IconConstant;
 using static Ami.BroAudio.Editor.Setting.BroAudioGUISetting;
 using static Ami.BroAudio.Tools.BroName;
@@ -18,14 +18,6 @@ namespace Ami.BroAudio.Editor.Setting
 {
     public class PreferencesEditorWindow : MiEditorWindow
     {
-        public enum OpenMessage
-        {
-            None,
-            Welcome,
-            RuntimeSettingFileMissing,
-            EditorSettingFileMissing,
-        }
-
         public enum Tab { Audio, GUI, Miscellaneous,}
 
         public const float Gap = 50f;
@@ -43,12 +35,15 @@ namespace Ami.BroAudio.Editor.Setting
         public const string SpectrumBandColors = "Spectrum Band Colors";
         public const string ProjectSettingsMenuItemPath = "Edit/" + ProjectSettings;
         public const string ProjectSettings = "Project Settings";
-        public const string CombFilteringDocUrl = "https://man572142s-organization.gitbook.io/broaudio/reference/technical-details#preventing-comb-filtering";
 
         private readonly float[] _tabLabelRatios = new float[] { 0.33f,0.33f,0.34f};
 
-        private GUIContent _combFilteringGUIContent, _pitchGUIContent, _audioVoicesGUIContent, _virtualTracksGUIContent, _filterSlopeGUIContent, _acceptAudioMixerGUIContent
-            ,_playMusicAsBgmGUIContent, _logAccessRecycledWarningGUIContent, _poolSizeCountGUIContent,_dominatorTrackGUIContent, _regenerateUserDataGUIContent;
+        private GUIContent _pitchGUIContent, _audioVoicesGUIContent, _virtualTracksGUIContent, _filterSlopeGUIContent, _acceptAudioMixerGUIContent
+            ,_playMusicAsBgmGUIContent, _logAccessRecycledWarningGUIContent, _poolSizeCountGUIContent,_dominatorTrackGUIContent, _regenerateUserDataGUIContent, _globalGroupGUIContent;
+
+#if PACKAGE_ADDRESSABLES
+        private GUIContent _addressableConversionGUIContent, _directToAddressableGUIContent, _addressableToDirectGUIContent; 
+#endif
 
         private GUIContent[] _tabLabels = null;
         private Tab _currSelectedTab = Tab.Audio;
@@ -61,11 +56,16 @@ namespace Ami.BroAudio.Editor.Setting
         private Vector2 _scrollPos = default;
         private float _demoSliderValue = 1f;
         private Rect[] _tabPreAllocRects = null;
-        private bool _isInit = false;
         private bool _hasOutputAssetPath = false;
         private ReorderableList _spectrumColorsList = null;
+        private SerializedObject _runtimeSettingSO = null;
+        private SerializedObject _editorSettingSO = null;
+
         public override float SingleLineSpace => EditorGUIUtility.singleLineHeight + 3f;
-        public EditorSetting EditorSetting => BroEditorUtility.EditorSetting;
+
+        private EditorSetting EditorSetting => BroEditorUtility.EditorSetting;
+        private RuntimeSetting RuntimeSetting => BroEditorUtility.RuntimeSetting;
+
         private float TabLabelHeight => EditorGUIUtility.singleLineHeight * 2f;
 
         private AudioMixer AudioMixer
@@ -94,12 +94,29 @@ namespace Ami.BroAudio.Editor.Setting
             return window as PreferencesEditorWindow;
         }
 
+        private void OnEnable()
+        {
+            InitTabsLabel();
+            InitGUIContents();
+            _hasOutputAssetPath = Directory.Exists(BroEditorUtility.AssetOutputPath);
+            _runtimeSettingSO = new SerializedObject(RuntimeSetting);
+            _editorSettingSO = new SerializedObject(EditorSetting);
+
+            Undo.undoRedoPerformed += Repaint;
+        }
+
+        private void OnDisable()
+        {
+            ResetTracksAndAudioVoices();
+            Undo.undoRedoPerformed -= Repaint;
+        }
+
         private void InitGUIContents()
         {
-            _combFilteringGUIContent = new GUIContent("Time To Prevent Comb Filtering", _instruction.GetText(Instruction.CombFilteringTooltip));
             _pitchGUIContent = new GUIContent("Pitch Shift Using", _instruction.GetText(Instruction.PitchShiftingToolTip));
             _audioVoicesGUIContent = new GUIContent("Max Real Voices", _instruction.GetText(Instruction.AudioVoicesToolTip));
             _virtualTracksGUIContent = new GUIContent("Bro Virtual Tracks", _instruction.GetText(Instruction.BroVirtualToolTip));
+            _globalGroupGUIContent = new GUIContent("Global Playback Group", _instruction.GetText(Instruction.GlobalPlaybackGroup));
             _filterSlopeGUIContent = new GUIContent("Audio Filter Slope", _instruction.GetText(Instruction.AudioFilterSlope));
             _acceptAudioMixerGUIContent = new GUIContent("Accept BroAudioMixer Modification");
             _playMusicAsBgmGUIContent = new GUIContent("Always Play Music As BGM", _instruction.GetText(Instruction.AlwaysPlayMusicAsBGM));
@@ -107,35 +124,32 @@ namespace Ami.BroAudio.Editor.Setting
             _poolSizeCountGUIContent = new GUIContent("Audio Player Object Pool Size", _instruction.GetText(Instruction.AudioPlayerPoolSize));
             _dominatorTrackGUIContent = new GUIContent("Add Dominator Track", _instruction.GetText(Instruction.AddDominatorTrack));
             _regenerateUserDataGUIContent = new GUIContent("Regenerate User Data", _instruction.GetText(Instruction.RegenerateUserData));
+
+#if PACKAGE_ADDRESSABLES
+            string aaTooltip = _instruction.GetText(Instruction.LibraryManager_AddressableConversionTooltip);
+            _addressableConversionGUIContent = new GUIContent("Addressable References Conversion".ToWhiteBold(), aaTooltip);
+            _directToAddressableGUIContent = new GUIContent("Direct → Addressables", aaTooltip);
+            _addressableToDirectGUIContent = new GUIContent("Addressables → Direct", aaTooltip); 
+#endif
         }
 
         private ReorderableList InitSpectrumReorderableList()
         {
-            var list = new ReorderableList(EditorSetting.SpectrumBandColors, typeof(Color)) 
+            var spectrumColorsProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.SpectrumBandColors));
+            return new ReorderableList(spectrumColorsProp.serializedObject, spectrumColorsProp) 
             {
                 drawHeaderCallback = rect => EditorGUI.LabelField(rect, "Colors"),
                 drawElementCallback = OnDrawElement,
             };
 
-            return list;
-
             void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
             {
                 SplitRectHorizontal(rect, 0.1f, 0f, out Rect labelRect, out Rect colorRect);
                 EditorGUI.LabelField(labelRect, new GUIContent(index.ToString()));
-                EditorSetting.SpectrumBandColors[index] = EditorGUI.ColorField(colorRect, EditorSetting.SpectrumBandColors[index]);
+
+                var colorProp = _spectrumColorsList.serializedProperty.GetArrayElementAtIndex(index);
+                colorProp.colorValue = EditorGUI.ColorField(colorRect, colorProp.colorValue);
             }
-        }
-
-        private void OnDisable()
-        {
-            ResetTracksAndAudioVoices();
-        }
-
-        private void OnLostFocus()
-        {
-            EditorUtility.SetDirty(RuntimeSetting);
-            EditorUtility.SetDirty(EditorSetting);
         }
 
         private void ResetTracksAndAudioVoices()
@@ -157,13 +171,8 @@ namespace Ami.BroAudio.Editor.Setting
         {
             base.OnGUI();
 
-            if(!_isInit)
-            {
-                InitTabsLabel();
-                InitGUIContents();
-                _hasOutputAssetPath = Directory.Exists(AssetOutputPath);
-                _isInit = true;
-            }
+            _runtimeSettingSO.Update();
+            _editorSettingSO.Update();
 
             _spectrumColorsList ??= InitSpectrumReorderableList();
             Rect drawPosition = new Rect(Gap * 0.5f, 0f, position.width - Gap, position.height);
@@ -183,34 +192,34 @@ namespace Ami.BroAudio.Editor.Setting
                 Rect tabPageScrollRect = new Rect(tabWindowRect.x, tabWindowRect.y + TabLabelHeight, tabWindowRect.width, tabWindowRect.height - TabLabelHeight);
                 _scrollPos = BeginScrollView(tabPageScrollRect, _scrollPos);
                 DrawEmptyLine(1);
-                if (RuntimeSetting != null)
+                EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), _currSelectedTab.ToString().SetSize(18), GUIStyleHelper.MiddleCenterRichText);
+                DrawEmptyLine(1);
+                switch (_currSelectedTab)
                 {
-                    EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), _currSelectedTab.ToString().SetSize(18), GUIStyleHelper.MiddleCenterRichText);
-                    DrawEmptyLine(1);
-                    switch (_currSelectedTab)
-                    {
-                        case Tab.Audio:
-                            DrawAudioSetting(drawPosition);
-                            break;
-                        case Tab.GUI:
-                            DrawGUISetting(drawPosition);
-                            break;
-                        case Tab.Miscellaneous:
-                            DrawMiscellaneousSetting(drawPosition);
-                            break;
-                    }
+                    case Tab.Audio:
+                        DrawAudioSetting(drawPosition);
+                        break;
+                    case Tab.GUI:
+                        DrawGUISetting(drawPosition);
+                        break;
+                    case Tab.Miscellaneous:
+                        DrawMiscellaneousSetting(drawPosition);
+                        break;
                 }
                 EndScrollView();
             }
+
+            _runtimeSettingSO.ApplyModifiedProperties();
+            _editorSettingSO.ApplyModifiedProperties();
         }
 
         private void DrawAudioSetting(Rect drawPosition)
         {
             drawPosition.width -= Gap;
+            DrawGlobalPlaybackGroup();
             DrawAudioFilterSlope();
             DrawEmptyLine(1);
             DrawBGMSetting();
-            DrawCombFilteringSetting();
             // To make a room for other functions to use exposed parameters, we only use AudioSource.pitch for now
             //DrawPitchSetting();
             DrawEmptyLine(1);
@@ -223,84 +232,42 @@ namespace Ami.BroAudio.Editor.Setting
 
             void DrawBGMSetting()
             {
+                var alwaysBGMProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.AlwaysPlayMusicAsBGM));
+                var bgmTransitionProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.DefaultBGMTransition));
+                var bgmTransitionTimeProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.DefaultBGMTransitionTime));
                 EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), "BGM".ToWhiteBold(), GUIStyleHelper.RichText);
                 using (new EditorGUI.IndentLevelScope())
                 {
                     Rect toggleRect = GetRectAndIterateLine(drawPosition);
                     using (new LabelWidthScope(EditorGUIUtility.labelWidth * 1.3f))
                     {
-                        RuntimeSetting.AlwaysPlayMusicAsBGM = EditorGUI.Toggle(toggleRect, _playMusicAsBgmGUIContent, RuntimeSetting.AlwaysPlayMusicAsBGM);
+                        alwaysBGMProp.boolValue = EditorGUI.Toggle(toggleRect, _playMusicAsBgmGUIContent, alwaysBGMProp.boolValue);
 
-                        if (RuntimeSetting.AlwaysPlayMusicAsBGM)
+                        if (alwaysBGMProp.boolValue)
                         {
-                            RuntimeSetting.DefaultBGMTransition =
-                                (Transition)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Default Transition", RuntimeSetting.DefaultBGMTransition);
+                            bgmTransitionProp.enumValueIndex =
+                                (int)(Transition)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Default Transition", (Transition)bgmTransitionProp.enumValueIndex);
 
                             Rect timeRect = GetRectAndIterateLine(drawPosition);
                             timeRect.width = 250f;
-                            RuntimeSetting.DefaultBGMTransitionTime = 
-                                EditorGUI.FloatField(timeRect, "Default Transition Time", RuntimeSetting.DefaultBGMTransitionTime);
+                            bgmTransitionTimeProp.floatValue = 
+                                EditorGUI.FloatField(timeRect, "Default Transition Time", bgmTransitionTimeProp.floatValue);
                         }
                     }
                 }
             }
-
-            void DrawCombFilteringSetting()
-            {
-                DrawEmptyLine(1);
-                EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), "Comb Filtering".ToWhiteBold(), GUIStyleHelper.RichText);
-                using (new EditorGUI.IndentLevelScope())
-                {
-                    Rect combRect = GetRectAndIterateLine(drawPosition);
-                    EditorGUI.LabelField(combRect, _combFilteringGUIContent);
-
-                    Rect fieldRect = new Rect(combRect) { width = 80f, x = combRect.x + EditorGUIUtility.labelWidth + 50f };
-                    RuntimeSetting.CombFilteringPreventionInSeconds = EditorGUI.FloatField(fieldRect, RuntimeSetting.CombFilteringPreventionInSeconds);
-
-                    Rect defaultButtonRect = new Rect(fieldRect) { x = fieldRect.xMax + 10f, width = 60f };
-                    float defaultValue = Data.RuntimeSetting.FactorySettings.CombFilteringPreventionInSeconds;
-                    EditorGUI.BeginDisabledGroup(RuntimeSetting.CombFilteringPreventionInSeconds == defaultValue);
-                    if (GUI.Button(defaultButtonRect, "Default"))
-                    {
-                        RuntimeSetting.CombFilteringPreventionInSeconds = defaultValue;
-                    }
-                    EditorGUI.EndDisabledGroup();
-
-                    using (new LabelWidthScope(EditorGUIUtility.labelWidth * 1.3f))
-                    {
-                        RuntimeSetting.LogCombFilteringWarning = EditorGUI.Toggle(GetRectAndIterateLine(drawPosition), "Log Warning If Occurs", RuntimeSetting.LogCombFilteringWarning);
-                    }
-
-                    Rect docLinkRect = GetRectAndIterateLine(drawPosition);
-                    DrawUrlLink(docLinkRect, "Click for more information", CombFilteringDocUrl);
-                }	
-            }
-
-            //void DrawPitchSetting()
-            //{
-            //	Rect pitchRect = GetRectAndIterateLine(drawPosition);
-            //	bool isWebGL = EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL;
-            //	if(isWebGL)
-            //	{
-            //		EditorGUI.BeginDisabledGroup(isWebGL);
-            //		EditorGUI.EnumPopup(pitchRect, _pitchGUIContent, PitchShiftingSetting.AudioSource);
-            //		EditorGUI.EndDisabledGroup();
-            //	}
-            //	else
-            //	{
-            //		RuntimeSetting.PitchSetting = (PitchShiftingSetting)EditorGUI.EnumPopup(pitchRect, _pitchGUIContent, RuntimeSetting.PitchSetting);
-            //	}
-            //}
 
             void DrawDefaultEasing()
             {
                 EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), "Default Easing".ToWhiteBold(), GUIStyleHelper.RichText);
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    RuntimeSetting.DefaultFadeInEase =
-                    (Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade In", RuntimeSetting.DefaultFadeInEase);
-                    RuntimeSetting.DefaultFadeOutEase =
-                        (Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade Out", RuntimeSetting.DefaultFadeOutEase);
+                    var fadeInProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.DefaultFadeInEase));
+                    var fadeOutProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.DefaultFadeOutEase));
+                    fadeInProp.enumValueIndex =
+                        (int)(Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade In", (Ease)fadeInProp.enumValueIndex);
+                    fadeOutProp.enumValueIndex =
+                        (int)(Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade Out", (Ease)fadeOutProp.enumValueIndex);
                 }
             }
 
@@ -309,16 +276,25 @@ namespace Ami.BroAudio.Editor.Setting
                 EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), "Seamless Loop Easing".ToWhiteBold(), GUIStyleHelper.RichText);
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    RuntimeSetting.SeamlessFadeInEase =
-                    (Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade In", RuntimeSetting.SeamlessFadeInEase);
-                    RuntimeSetting.SeamlessFadeOutEase =
-                        (Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade Out", RuntimeSetting.SeamlessFadeOutEase);
+                    var fadeInProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.SeamlessFadeInEase));
+                    var fadeOutProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.SeamlessFadeOutEase));
+                    fadeInProp.enumValueIndex =
+                        (int)(Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade In", (Ease)fadeInProp.enumValueIndex);
+                    fadeOutProp.enumValueIndex =
+                        (int)(Ease)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), "Fade Out", (Ease)fadeOutProp.enumValueIndex);
                 }
+            }
+
+            void DrawGlobalPlaybackGroup()
+            {
+                var playbackGroupProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.GlobalPlaybackGroup));
+                playbackGroupProp.objectReferenceValue = (PlaybackGroup)EditorGUI.ObjectField(GetRectAndIterateLine(drawPosition), _globalGroupGUIContent, playbackGroupProp.objectReferenceValue, typeof(PlaybackGroup), false);
             }
 
             void DrawAudioFilterSlope()
             {
-                RuntimeSetting.AudioFilterSlope = (FilterSlope)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), _filterSlopeGUIContent, RuntimeSetting.AudioFilterSlope);
+                var filterSlopeProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.AudioFilterSlope));
+                filterSlopeProp.enumValueIndex = (int)(FilterSlope)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), _filterSlopeGUIContent, (FilterSlope)filterSlopeProp.enumValueIndex);
             }
 
             void DrawAudioPlayerSetting()
@@ -328,13 +304,15 @@ namespace Ami.BroAudio.Editor.Setting
                 {
                     using (new LabelWidthScope(EditorGUIUtility.labelWidth * 1.65f))
                     {
+                        var logProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.LogAccessRecycledPlayerWarning));
                         Rect accessRecycledWarnRect = GetRectAndIterateLine(drawPosition);
-                        RuntimeSetting.LogAccessRecycledPlayerWarning = EditorGUI.Toggle(accessRecycledWarnRect, _logAccessRecycledWarningGUIContent, RuntimeSetting.LogAccessRecycledPlayerWarning);
+                        logProp.boolValue = EditorGUI.Toggle(accessRecycledWarnRect, _logAccessRecycledWarningGUIContent, logProp.boolValue);
 
+                        var poolSizeProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.DefaultAudioPlayerPoolSize));
                         Rect maxPoolSizeRect = GetRectAndIterateLine(drawPosition);
                         float fieldWidth = maxPoolSizeRect.width - EditorGUIUtility.labelWidth;
                         maxPoolSizeRect.width -= fieldWidth - 50f;
-                        RuntimeSetting.DefaultAudioPlayerPoolSize = EditorGUI.IntField(maxPoolSizeRect, _poolSizeCountGUIContent, RuntimeSetting.DefaultAudioPlayerPoolSize);
+                        poolSizeProp.intValue = EditorGUI.IntField(maxPoolSizeRect, _poolSizeCountGUIContent, poolSizeProp.intValue);
                     }
                 }
             }
@@ -373,7 +351,7 @@ namespace Ami.BroAudio.Editor.Setting
                         RichTextHelpBox(warningBoxRect, text, MessageType.Warning);
                         if (GUI.Button(warningBoxRect, GUIContent.none, GUIStyle.none))
                         {
-                            SettingsService.OpenProjectSettings(AudioSettingPath);
+                            SettingsService.OpenProjectSettings(BroEditorUtility.AudioSettingPath);
                         }
                         EditorGUIUtility.AddCursorRect(warningBoxRect, MouseCursor.Link);
 
@@ -435,7 +413,7 @@ namespace Ami.BroAudio.Editor.Setting
             if (_currProjectSettingVoiceCount < 0)
             {
                 _currProjectSettingVoiceCount = 0; // if it's still 0 after the following search. then just skip for the rest of the time.
-                _currProjectSettingVoiceCount = GetProjectSettingRealAudioVoices();
+                _currProjectSettingVoiceCount = BroEditorUtility.GetProjectSettingRealAudioVoices();
             }
             return _currProjectSettingVoiceCount > 0;
         }
@@ -452,32 +430,34 @@ namespace Ami.BroAudio.Editor.Setting
                     _duplicateTrackSource = tracks != null ? tracks.Last() : null;
                 }
             }
-
             return _currentMixerTracksCount > 0;
         }
 
         private void DrawGUISetting(Rect drawPosition)
         {
             drawPosition.width -= 15f;
-            EditorSetting.ShowVUColorOnVolumeSlider = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), VUColorToggleLabel, EditorSetting.ShowVUColorOnVolumeSlider);
+            var showVuProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowVUColorOnVolumeSlider));
+            var showMasterProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowMasterVolumeOnClipListHeader));
+            var showAudioTypeProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowAudioTypeOnSoundID));
+            showVuProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), VUColorToggleLabel, showVuProp.boolValue);
             DemonstrateSlider();
 
-            EditorSetting.ShowMasterVolumeOnClipListHeader = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowMasterVolumeLabel, EditorSetting.ShowMasterVolumeOnClipListHeader);
-            EditorSetting.ShowAudioTypeOnSoundID = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowAudioTypeToggleLabel, EditorSetting.ShowAudioTypeOnSoundID);
-            if (EditorSetting.ShowAudioTypeOnSoundID)
+            showMasterProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowMasterVolumeLabel, showMasterProp.boolValue);
+            showAudioTypeProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowAudioTypeToggleLabel, showAudioTypeProp.boolValue);
+            if (showAudioTypeProp.boolValue)
             {
                 EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), AudioTypeColorLabel.ToWhiteBold(), GUIStyleHelper.RichText);
                 using (new EditorGUI.IndentLevelScope())
                 {
                     Rect colorRect = GetRectAndIterateLine(drawPosition);
-                    DrawTwoColumnAudioType(colorRect, SetAudioTypeLabelColor);
+                    DrawTwoColumnAudioType(colorRect, DrawAudioTypeLabelColorField);
                 }
             }
 
             EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), AudioTypeDrawedProperties.ToWhiteBold(), GUIStyleHelper.RichText);
             using (new EditorGUI.IndentLevelScope())
             {
-                DrawTwoColumnAudioType(GetRectAndIterateLine(drawPosition), SetAudioTypeDrawedProperties);
+                DrawTwoColumnAudioType(GetRectAndIterateLine(drawPosition), DrawAudioTypeDrawedPropertiesField);
             }
 
             EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), SpectrumBandColors.ToWhiteBold(), GUIStyleHelper.RichText);
@@ -494,7 +474,7 @@ namespace Ami.BroAudio.Editor.Setting
                 Rect sliderRect = GetRectAndIterateLine(drawPosition);
                 sliderRect.width = drawPosition.width * 0.5f;
                 sliderRect.x += Gap;
-                if (EditorSetting.ShowVUColorOnVolumeSlider)
+                if (showVuProp.boolValue)
                 {
                     Rect vuRect = new Rect(sliderRect);
                     vuRect.height *= 0.5f;
@@ -521,30 +501,42 @@ namespace Ami.BroAudio.Editor.Setting
                 });
             }
 
-            void SetAudioTypeLabelColor(Rect fieldRect, BroAudioType audioType)
+            void DrawAudioTypeLabelColorField(Rect fieldRect, BroAudioType audioType)
             {
                 if(EditorSetting.TryGetAudioTypeSetting(audioType,out var setting))
                 {
+                    EditorGUI.BeginChangeCheck();
                     setting.Color = EditorGUI.ColorField(fieldRect, audioType.ToString(), setting.Color);
-                    EditorSetting.WriteAudioTypeSetting(audioType, setting);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        EditorSetting.WriteAudioTypeSetting(audioType, setting);
+                    }
                 }
             }
 
-            void SetAudioTypeDrawedProperties(Rect fieldRect, BroAudioType audioType)
+            void DrawAudioTypeDrawedPropertiesField(Rect fieldRect, BroAudioType audioType)
             {
                 if (EditorSetting.TryGetAudioTypeSetting(audioType, out var setting))
                 {
+                    EditorGUI.BeginChangeCheck();
                     setting.DrawedProperty = (DrawedProperty)EditorGUI.EnumFlagsField(fieldRect, audioType.ToString(), setting.DrawedProperty);
-                    EditorSetting.WriteAudioTypeSetting(audioType, setting);
+                    if(EditorGUI.EndChangeCheck())
+                    {
+                        EditorSetting.WriteAudioTypeSetting(audioType, setting);
+                    }                  
                 }
             }
         }
 
         private void DrawMiscellaneousSetting(Rect drawPosition)
         {
-            DrawEmptyLine(1);
             DrawAssetOutputPath(drawPosition);
             DrawEmptyLine(1);
+
+#if PACKAGE_ADDRESSABLES
+            DrawAddressableNeverAskOptions(drawPosition);
+            DrawEmptyLine(1);
+#endif
 
             if (Button(_dominatorTrackGUIContent))
             {
@@ -552,15 +544,16 @@ namespace Ami.BroAudio.Editor.Setting
             }
             DrawEmptyLine(1);
 
+
             if (Button(_regenerateUserDataGUIContent))
             {
-                RuntimeSetting.ResetToFactorySettings();
-                EditorSetting.ResetToFactorySettings();
+                BroUserDataGenerator.CheckAndGenerateUserData();
             }
             DrawEmptyLine(1);
 
             if (Button(new GUIContent(ResetSettingButtonText)))
             {
+                Undo.RecordObjects(new UnityEngine.Object[] { RuntimeSetting, EditorSetting }, "Reset BroAudio Preference Settings");
                 RuntimeSetting.ResetToFactorySettings();
                 EditorSetting.ResetToFactorySettings();
             }
@@ -572,6 +565,28 @@ namespace Ami.BroAudio.Editor.Setting
                 return GUI.Button(buttonRect, label);
             }
         }
+
+#if PACKAGE_ADDRESSABLES
+        private void DrawAddressableNeverAskOptions(Rect drawPosition)
+        {
+            drawPosition.xMax -= Gap;
+            EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), _addressableConversionGUIContent, GUIStyleHelper.RichText);
+            using (new EditorGUI.IndentLevelScope())
+            {
+                var directDecisionProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.DirectReferenceDecision));
+                var addressableDecisionProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.AddressableDecision));
+                DrawOption(GetRectAndIterateLine(drawPosition), _directToAddressableGUIContent, directDecisionProp);
+                DrawOption(GetRectAndIterateLine(drawPosition), _addressableToDirectGUIContent, addressableDecisionProp);
+            }
+
+            void DrawOption(Rect rect, GUIContent label, SerializedProperty property)
+            {
+                SplitRectHorizontal(rect, 0.4f, 10f, out Rect labelRect, out Rect popupRect);
+                EditorGUI.LabelField(labelRect, label);
+                property.enumValueIndex = (int)(EditorSetting.ReferenceConversionDecision)EditorGUI.EnumPopup(popupRect, (EditorSetting.ReferenceConversionDecision)property.enumValueIndex);
+            }
+        } 
+#endif
 
         private void DrawAssetOutputPath(Rect drawPosition)
         {

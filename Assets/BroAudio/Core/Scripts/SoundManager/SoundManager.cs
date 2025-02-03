@@ -18,24 +18,27 @@ namespace Ami.BroAudio.Runtime
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Init()
         {
-            GameObject prefab = Instantiate(Resources.Load(nameof(SoundManager))) as GameObject;
-
+            var prefab = Resources.Load(nameof(SoundManager)) as GameObject;
             if (prefab == null)
             {
                 Debug.LogError(LogTitle + $"Initialize failed ,please check {nameof(SoundManager)}.prefab in your Resources folder!");
                 return;
             }
 
-            if (prefab.TryGetComponent(out SoundManager soundSystem))
+            prefab.SetActive(false);
+            GameObject objectInstance = Instantiate(prefab);
+            if (objectInstance.TryGetComponent(out SoundManager manager))
             {
-                _instance = soundSystem;
+                _instance = manager;
             }
             else
             {
                 Debug.LogError(LogTitle + $"Initialize failed ,please add {nameof(SoundManager)} component to {nameof(SoundManager)}.prefab");
+                return;
             }
 
-            DontDestroyOnLoad(prefab);
+            DontDestroyOnLoad(objectInstance);
+            objectInstance.SetActive(true);
         }
 
         private static SoundManager _instance;
@@ -73,6 +76,7 @@ namespace Ami.BroAudio.Runtime
 #endif
 
         public AudioMixer Mixer => _broAudioMixer;
+        public IReadOnlyDictionary<SoundID, AudioPlayer> CombFilteringPreventer => _combFilteringPreventer;
 
         private void Awake()
         {
@@ -100,6 +104,13 @@ namespace Ami.BroAudio.Runtime
             _dominatorAutomationHelper = new EffectAutomationHelper(this, _broAudioMixer);
         }
 
+        private void OnDestroy()
+        {
+            AudioPlayer.ResumablePlayers?.Clear();
+            MusicPlayer.CleanUp();
+            ResetClipSequencer();
+        }
+
         #region InitBank
         private void InitBank()
         {
@@ -108,14 +119,18 @@ namespace Ami.BroAudio.Runtime
                 if (asset == null)
                     continue;
 
-                foreach(var entity in asset.GetAllAudioEntities())
+                asset.Group = LinkPlaybackGroup(asset.Group, Setting.GlobalPlaybackGroup);
+
+                foreach(var identity in asset.GetAllAudioEntities())
                 {
-                    if (!entity.Validate())
+                    if (!identity.Validate())
                         continue;
 
-                    if (!_audioBank.ContainsKey(entity.ID))
+                    if (!_audioBank.ContainsKey(identity.ID))
                     {
-                        _audioBank.Add(entity.ID, entity as IAudioEntity);
+                        var entity = identity as IAudioEntity;
+                        entity.Group = LinkPlaybackGroup(entity.Group, asset.Group);
+                        _audioBank.Add(identity.ID, entity);
                     }
                 }
             }
@@ -152,11 +167,15 @@ namespace Ami.BroAudio.Runtime
         private void SetMasterVolume(float targetVol, float fadeTime)
         {
 #if UNITY_WEBGL
-            if (WebGLMasterVolume != targetVol)
+            if (Mathf.Approximately(WebGLMasterVolume, targetVol))
             {
-                if (fadeTime != 0f)
+                if (fadeTime > 0f)
                 {
                     this.StartCoroutineAndReassign(SetMasterVolume(WebGLMasterVolume, targetVol, fadeTime, OnSetMaster), ref _masterVolumeCoroutine);
+                }
+                else
+                {
+                    OnSetMaster(targetVol);
                 }
             }
             

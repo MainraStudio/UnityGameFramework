@@ -5,19 +5,21 @@ namespace Ami.BroAudio.Tools
 		public const string TempAssetName = "Temp";
         public const string AudioPlayerPrefabName = "AudioPlayer";
 
-		#region File Path
-		public const string InstructionFileName = "BroInstruction";
-		public const string RuntimeSettingFileName = "BroRuntimeSetting";
-		public const string EditorSettingPath = EditorResourcePath + "BroEditorSetting";
-		public const string MainLogoPath = EditorResourcePath + "Logo_Editor";
-		public const string TransparentLogoPath = EditorResourcePath + "Logo_Transparent";
-		public const string EditorResourcePath = "Editor/";
+        #region File Path
+        public const string ResourcesFolder = "Resources";
+        public const string EditorFolder = "Editor";
+        public const string CoreDataName = "BroAudioData";
+        public const string InstructionFileName = "BroInstruction";
+		public const string RuntimeSettingName = "BroRuntimeSetting";
+        public const string EditorSettingName = "BroEditorSetting";
+        public const string GlobalPlaybackGroupName = "GlobalPlaybackGroup";
 		public const string EditorAudioMixerName = "EditorBroAudioMixer";
-		public const string EditorAudioMixerPath = EditorResourcePath + EditorAudioMixerName;
-		#endregion
+        #endregion
 
-		#region MenuItem
-		public const string MenuItem_BroAudio = "Tools/BroAudio/";
+        public const string CombFilteringTimeName = "Time To Prevent Comb Filtering";
+
+        #region MenuItem
+        public const string MenuItem_BroAudio = "Tools/BroAudio/";
 		public const string MenuItem_LibraryManager = "Library Manager";
 		public const string MenuItem_ClipEditor = "Audio Clip Editor";
 		public const string MenuItem_EffectEditor = "Audio Effect Editor";

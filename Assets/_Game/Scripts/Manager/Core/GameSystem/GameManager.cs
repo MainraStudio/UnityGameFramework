@@ -33,7 +33,6 @@ namespace MainraFramework
 
 		private void Start()
 		{
-			SaveDataManager.
 			SetState(new MainMenuState()); // Set initial state
 			
 		}

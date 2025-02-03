@@ -201,7 +201,7 @@ public class UIManager : PersistentSingleton<UIManager>
         var type = typeof(T);
         if (persistentUI.Contains(type))
         {
-            persistentUI.Remove(type);
+            persistentUI.Remove(type);  
         }
     }
 }

@@ -9,12 +9,14 @@ namespace MainraFramework
 		private GameState currentState;
 		
 		public SceneManager SceneManager { get; private set; }
+		public SaveDataManager SaveDataManager { get; private set; }
 		//TODO: Add more manager here
 
 		protected override void Awake()
 		{
 			base.Awake();
 			SceneManager = new SceneManager(this);
+			SaveDataManager = new SaveDataManager(this);
 			//TODO: Initialize more manager here
 		}
 
@@ -31,6 +33,7 @@ namespace MainraFramework
 
 		private void Start()
 		{
+			SaveDataManager.
 			SetState(new MainMenuState()); // Set initial state
 			
 		}

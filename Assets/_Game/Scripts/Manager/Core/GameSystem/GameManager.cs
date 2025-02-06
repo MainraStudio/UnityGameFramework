@@ -19,6 +19,10 @@ namespace MainraFramework
 			SaveDataManager = new SaveDataManager(this);
 			//TODO: Initialize more manager here
 		}
+		public void Initialize()
+		{
+			SceneManager = new SceneManager(this);
+			SaveDataManager = new SaveDataManager(this);
 
 		public void SetState(GameState newState)
 		{
@@ -43,6 +47,12 @@ namespace MainraFramework
 			{
 				currentState.UpdateState(); // Update the current state
 			}
+		}
+		
+		public void QuitGame()
+		{
+			Application.Quit();
+			ServiceLocator.Clear();
 		}
 	}
 }

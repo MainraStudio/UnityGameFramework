@@ -20,7 +20,7 @@ namespace MainraFramework
             _gameManager = gameManager ?? throw new ArgumentNullException(nameof(gameManager));
         }
 
-        public void LoadScene<T>(T sceneIdentifier, bool showLoadingScene = false, float fakeLoadingTime = 3f, Action<string> onSceneLoaded = null, Action<string> onSceneUnloaded = null, Action<string> onActiveSceneChanged = null)
+        public void LoadScene<T>(T sceneIdentifier, bool showLoadingScene = false, float fakeLoadingTime = 3f, Action onSceneLoaded = null, Action<string> onSceneUnloaded = null, Action<string> onActiveSceneChanged = null)
         {
             if (sceneIdentifier == null)
             {
@@ -63,7 +63,7 @@ namespace MainraFramework
             return false;
         }
 
-        private void LoadSceneDirectly<T>(T sceneIdentifier, Action<string> onSceneLoaded, Action<string> onActiveSceneChanged)
+        private void LoadSceneDirectly<T>(T sceneIdentifier, Action onSceneLoaded, Action<string> onActiveSceneChanged)
         {
             string sceneName = null;
 
@@ -82,11 +82,11 @@ namespace MainraFramework
                     return;
             }
 
-            onSceneLoaded?.Invoke(sceneName);
+            onSceneLoaded?.Invoke();
             onActiveSceneChanged?.Invoke(sceneName);
         }
 
-        private IEnumerator LoadSceneWithProgress<T>(T sceneIdentifier, float fakeLoadingTime, Action<string> onSceneLoaded, Action<string> onActiveSceneChanged)
+        private IEnumerator LoadSceneWithProgress<T>(T sceneIdentifier, float fakeLoadingTime, Action onSceneLoaded, Action<string> onActiveSceneChanged)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(Parameter.Scenes.LOADING);
             yield return null;
@@ -118,7 +118,7 @@ namespace MainraFramework
             }
 
             string loadedSceneName = sceneIdentifier is string name ? name : UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex((int)(object)sceneIdentifier).name;
-            onSceneLoaded?.Invoke(loadedSceneName);
+            onSceneLoaded?.Invoke();
             onActiveSceneChanged?.Invoke(loadedSceneName);
         }
 

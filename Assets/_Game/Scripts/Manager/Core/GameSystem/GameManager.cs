@@ -23,7 +23,7 @@ namespace MainraFramework
 		{
 			SceneManager = new SceneManager(this);
 			SaveDataManager = new SaveDataManager(this);
-
+		}
 		public void SetState(GameState newState)
 		{
 			if (currentState != null)

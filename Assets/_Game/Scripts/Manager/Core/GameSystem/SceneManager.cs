@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MainraFramework
 {
@@ -13,6 +14,8 @@ namespace MainraFramework
         private Stack<string> sceneStack = new Stack<string>();
 
         public event Action<float> OnProgressUpdated;
+        public event Action<string> OnSceneLoadStart;
+        public event Action<string> OnSceneLoadComplete;
         public float LoadingProgress { get; private set; }
 
         public SceneManager(GameManager gameManager)
@@ -20,7 +23,7 @@ namespace MainraFramework
             _gameManager = gameManager ?? throw new ArgumentNullException(nameof(gameManager));
         }
 
-        public void LoadScene<T>(T sceneIdentifier, bool showLoadingScene = false, float fakeLoadingTime = 3f, Action onSceneLoaded = null, Action<string> onSceneUnloaded = null, Action<string> onActiveSceneChanged = null)
+        public async void LoadScene<T>(T sceneIdentifier, bool showLoadingScene = false, float fakeLoadingTime = 3f, Action onSceneLoaded = null, Action<string> onSceneUnloaded = null, Action<string> onActiveSceneChanged = null)
         {
             if (sceneIdentifier == null)
             {
@@ -34,9 +37,11 @@ namespace MainraFramework
                 return;
             }
 
+            OnSceneLoadStart?.Invoke(sceneIdentifier.ToString());
+
             if (showLoadingScene)
             {
-                _gameManager.StartCoroutine(LoadSceneWithProgress(sceneIdentifier, fakeLoadingTime, onSceneLoaded, onActiveSceneChanged));
+                await LoadSceneWithProgress(sceneIdentifier, fakeLoadingTime, onSceneLoaded, onActiveSceneChanged);
             }
             else
             {
@@ -46,50 +51,33 @@ namespace MainraFramework
 
         private bool SceneExists<T>(T sceneIdentifier)
         {
-            if (sceneIdentifier is string sceneName)
+            return sceneIdentifier switch
             {
-                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings; i++)
-                {
-                    if (SceneUtility.GetScenePathByBuildIndex(i).Contains(sceneName))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (sceneIdentifier is int sceneIndex)
-            {
-                return sceneIndex >= 0 && sceneIndex < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
-            }
-            return false;
+                string sceneName => SceneUtility.GetScenePathByBuildIndex(UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneName).buildIndex) != null,
+                int sceneIndex => sceneIndex >= 0 && sceneIndex < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings,
+                _ => false
+            };
         }
 
         private void LoadSceneDirectly<T>(T sceneIdentifier, Action onSceneLoaded, Action<string> onActiveSceneChanged)
         {
-            string sceneName = null;
-
-            switch (sceneIdentifier)
+            string sceneName = sceneIdentifier switch
             {
-                case string name:
-                    sceneName = name;
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(name);
-                    break;
-                case int index:
-                    sceneName = UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(index).name;
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(index);
-                    break;
-                default:
-                    Debug.LogError("Unsupported scene identifier type.");
-                    return;
-            }
+                string name => name,
+                int index => UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(index).name,
+                _ => throw new ArgumentException("Unsupported scene identifier type.")
+            };
 
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
             onSceneLoaded?.Invoke();
             onActiveSceneChanged?.Invoke(sceneName);
+            OnSceneLoadComplete?.Invoke(sceneName);
         }
 
-        private IEnumerator LoadSceneWithProgress<T>(T sceneIdentifier, float fakeLoadingTime, Action onSceneLoaded, Action<string> onActiveSceneChanged)
+        private async Task LoadSceneWithProgress<T>(T sceneIdentifier, float fakeLoadingTime, Action onSceneLoaded, Action<string> onActiveSceneChanged)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(Parameter.Scenes.LOADING);
-            yield return null;
+            await Task.Yield();
 
             AsyncOperation operation = sceneIdentifier switch
             {
@@ -109,17 +97,18 @@ namespace MainraFramework
 
                 if (LoadingProgress >= 0.999f && elapsedTime >= fakeLoadingTime)
                 {
-                    yield return new WaitForSeconds(1f);
+                    await Task.Delay(1000);
                     operation.allowSceneActivation = true;
                 }
 
                 elapsedTime += Time.deltaTime;
-                yield return null;
+                await Task.Yield();
             }
 
             string loadedSceneName = sceneIdentifier is string name ? name : UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex((int)(object)sceneIdentifier).name;
             onSceneLoaded?.Invoke();
             onActiveSceneChanged?.Invoke(loadedSceneName);
+            OnSceneLoadComplete?.Invoke(loadedSceneName);
         }
 
         public void PushScene(string sceneName)
@@ -143,6 +132,38 @@ namespace MainraFramework
             {
                 Debug.LogWarning("Scene stack is empty. Cannot pop scene.");
             }
+        }
+
+        public void ReloadCurrentScene()
+        {
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            LoadScene(currentScene);
+        }
+
+        public void UnloadScene(string sceneName)
+        {
+            if (SceneExists(sceneName))
+            {
+                UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneName);
+            }
+            else
+            {
+                Debug.LogError($"Scene '{sceneName}' does not exist.");
+            }
+        }
+
+        public void NextScene()
+        {
+            int currentIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+            int nextIndex = (currentIndex + 1) % UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
+            LoadScene(nextIndex);
+        }
+
+        public void PreviousScene()
+        {
+            int currentIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+            int previousIndex = (currentIndex - 1 + UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings) % UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
+            LoadScene(previousIndex);
         }
     }
 }

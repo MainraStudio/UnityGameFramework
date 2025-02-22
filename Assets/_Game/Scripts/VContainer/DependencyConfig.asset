@@ -12,13 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0649e233a39b4933bff8f91f49fc3f7a, type: 3}
   m_Name: DependencyConfig
   m_EditorClassIdentifier: 
-  Registrations:
-  - InterfaceType: {fileID: 0}
-    ImplementationType: {fileID: 0}
-    Lifetime: 0
-  - InterfaceType: {fileID: 0}
-    ImplementationType: {fileID: 0}
-    Lifetime: 1
-  - InterfaceType: {fileID: 0}
-    ImplementationType: {fileID: 0}
-    Lifetime: 1
+  Registrations: []

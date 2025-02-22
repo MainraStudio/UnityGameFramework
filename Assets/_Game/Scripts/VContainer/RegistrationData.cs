@@ -1,7 +1,19 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum RegistrationLifetime
+public enum RegistrationType
+{
+	Class,
+	Interface,
+	ComponentInScene,
+	Instance,
+	ComponentInPrefab,
+	Factory,
+	EntryPoint
+}
+
+public enum RegistrationLifetimeScope
 {
 	Transient,
 	Scoped,
@@ -11,7 +23,12 @@ public enum RegistrationLifetime
 [System.Serializable]
 public class RegistrationData
 {
-	public MonoScript InterfaceType; // Ganti nama dari RegisteredType
+	public RegistrationType RegistrationType;
+	public MonoScript InterfaceType;
 	public MonoScript ImplementationType;
-	public RegistrationLifetime Lifetime; // Gunakan enum yang sudah di-rename
+	public GameObject SceneObject;
+	public UnityEngine.Object Instance;
+	public GameObject Prefab;
+	public MonoScript FactoryType;
+	[FormerlySerializedAs("Lifetime")] public RegistrationLifetimeScope registrationLifetime;
 }

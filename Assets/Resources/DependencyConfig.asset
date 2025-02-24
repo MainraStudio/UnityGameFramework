@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0649e233a39b4933bff8f91f49fc3f7a, type: 3}
+  m_Name: DependencyConfig
+  m_EditorClassIdentifier: 
+  Registrations:
+  - RegistrationType: 0
+    InterfaceType: {fileID: 0}
+    ImplementationType: {fileID: 11500000, guid: 8907a315f050940419ef5df62a0e712e, type: 3}
+    SceneObject: {fileID: 0}
+    Instance: {fileID: 0}
+    Prefab: {fileID: 0}
+    FactoryType: {fileID: 0}
+    registrationLifetime: 2
+  - RegistrationType: 0
+    InterfaceType: {fileID: 0}
+    ImplementationType: {fileID: 11500000, guid: 93dad00f405bb674f8fadd06dfbe9062, type: 3}
+    SceneObject: {fileID: 0}
+    Instance: {fileID: 0}
+    Prefab: {fileID: 0}
+    FactoryType: {fileID: 0}
+    registrationLifetime: 2

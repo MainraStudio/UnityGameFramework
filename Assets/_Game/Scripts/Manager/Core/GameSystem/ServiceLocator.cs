@@ -4,49 +4,77 @@ using UnityEngine;
 
 public static class ServiceLocator
 {
-	private static Dictionary<Type, object> services = new Dictionary<Type, object>();
+    private static readonly object _lock = new object();
+    private static Dictionary<Type, object> services = new Dictionary<Type, object>();
 
-	public static void Register<T>(T service) where T : class
-	{
-		Type type = typeof(T);
-		if (!services.ContainsKey(type))
-		{
-			services[type] = service;
-			Debug.Log($"[ServiceLocator] {type.Name} terdaftar.");
-		}
-		else
-		{
-			Debug.LogWarning($"[ServiceLocator] {type.Name} sudah terdaftar sebelumnya.");
-		}
-	}
+    public static void Register<T>(T service, bool allowOverride = false) where T : class
+    {
+        lock (_lock)
+        {
+            Type type = typeof(T);
+            if (!services.ContainsKey(type))
+            {
+                services[type] = service;
+                Log($"[ServiceLocator] {type.Name} terdaftar.");
+            }
+            else if (allowOverride)
+            {
+                services[type] = service;
+                Log($"[ServiceLocator] {type.Name} di-override.");
+            }
+            else
+            {
+                LogWarning($"[ServiceLocator] {type.Name} sudah terdaftar.");
+            }
+        }
+    }
 
-	public static T Get<T>() where T : class
-	{
-		Type type = typeof(T);
-		if (services.TryGetValue(type, out var service))
-		{
-			return service as T;
-		}
-		else
-		{
-			Debug.LogError($"[ServiceLocator] {type.Name} belum terdaftar!");
-			return null;
-		}
-	}
+    public static T Get<T>() where T : class
+    {
+        lock (_lock)
+        {
+            Type type = typeof(T);
+            if (services.TryGetValue(type, out var service))
+            {
+                return service as T;
+            }
+            throw new InvalidOperationException($"[ServiceLocator] {type.Name} belum terdaftar!");
+        }
+    }
 
-	public static void Unregister<T>() where T : class
-	{
-		Type type = typeof(T);
-		if (services.ContainsKey(type))
-		{
-			services.Remove(type);
-			Debug.Log($"[ServiceLocator] {type.Name} dihapus.");
-		}
-	}
+    public static void Unregister<T>() where T : class
+    {
+        lock (_lock)
+        {
+            Type type = typeof(T);
+            if (services.Remove(type))
+            {
+                Log($"[ServiceLocator] {type.Name} dihapus.");
+            }
+        }
+    }
 
-	public static void Clear()
-	{
-		services.Clear();
-		Debug.Log("[ServiceLocator] Semua service dihapus.");
-	}
+    public static void Clear()
+    {
+        lock (_lock)
+        {
+            services.Clear();
+            Log("[ServiceLocator] Semua service dihapus.");
+        }
+    }
+
+    // Helper untuk logging yang aman di production
+    private static void Log(string message)
+    {
+        #if UNITY_EDITOR
+            Debug.Log(message);
+        #endif
+    }
+
+    private static void LogWarning(string message)
+    {
+        #if UNITY_EDITOR
+            Debug.LogWarning(message);
+        #endif
+    }
 }

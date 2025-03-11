@@ -1,7 +1,8 @@
-using Ami.BroAudio;
-using BroAudio.Demo.Scripts.InteractiveComponents;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts
+
+namespace Ami.BroAudio.Demo
 {
     public class SparkleObject : InteractiveComponent
     {
@@ -12,7 +13,7 @@ namespace BroAudio.Demo.Scripts
         public override void OnInZoneChanged(bool isInZone)
         {
             base.OnInZoneChanged(isInZone);
-            Ami.BroAudio.BroAudio.Play(_sound);
+            BroAudio.Play(_sound);
             Destroy(gameObject);
         }
     } 

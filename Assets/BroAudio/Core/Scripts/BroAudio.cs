@@ -19,7 +19,7 @@ namespace Ami.BroAudio
 
         #region Play
         /// <summary>
-        /// Plays an audio
+        /// Plays audio globally (2D)
         /// </summary>
         public static IAudioPlayer Play(SoundID id) 
             => Play(id, (IPlayableValidator)null);
@@ -29,7 +29,7 @@ namespace Ami.BroAudio
             => SoundManager.Instance.Play(id, customValidator);
 
         /// <summary>
-        /// Plays an audio as 3D sound at the given position
+        /// Plays audio in 3D space at the given position
         /// </summary>
         public static IAudioPlayer Play(SoundID id, Vector3 position)
             => Play(id, position, null);
@@ -39,7 +39,7 @@ namespace Ami.BroAudio
             => SoundManager.Instance.Play(id, position, customValidator);
 
         /// <summary>
-        /// Plays an audio as 3D sound and keeps it continuously following the target
+        /// Plays audio in 3D space and keeps it following the target continuously
         /// </summary>
         public static IAudioPlayer Play(SoundID id, Transform followTarget)
             => SoundManager.Instance.Play(id, followTarget, null);
@@ -54,55 +54,81 @@ namespace Ami.BroAudio
         /// Stop playing all audio that match the given audio type
         /// </summary>
         public static void Stop(BroAudioType audioType) 
-            => SoundManager.Instance.Stop(audioType.ConvertEverything());
+            => SoundManager.Instance.Stop(audioType);
 
         /// <summary>
         /// Stop playing all audio that match the given audio type
         /// </summary>
         /// <param name="fadeOut">Set this value to override the LibraryManager's setting</param>
-        public static void Stop(BroAudioType audioType,float fadeOut)
-            => SoundManager.Instance.Stop(audioType.ConvertEverything(), fadeOut);
+        public static void Stop(BroAudioType audioType, float fadeOut)
+            => SoundManager.Instance.Stop(audioType, fadeOut);
 
         /// <summary>
-        /// Stop playing an audio
+        /// Stop playing audio
         /// </summary>
         public static void Stop(SoundID id) 
             => SoundManager.Instance.Stop(id);
 
         /// <summary>
-        /// Stop playing an audio
+        /// Stop playing audio
         /// </summary>
         /// <param name="fadeOut">Set this value to override the LibraryManager's setting</param>
-        public static void Stop(SoundID id,float fadeOut)
+        public static void Stop(SoundID id, float fadeOut)
             => SoundManager.Instance.Stop(id,fadeOut);
         #endregion
 
         #region Pause
         /// <summary>
-        /// Pause a sound
+        /// Pause audio
         /// </summary>
         public static void Pause(SoundID id) 
             => SoundManager.Instance.Pause(id, true);
 
         /// <summary>
-        /// Pause a sound
+        /// Pause audio
         /// </summary>
         /// <param name="fadeOut">Set this value to override the LibraryManager's setting</param>
         public static void Pause(SoundID id, float fadeOut)
-            => SoundManager.Instance.Pause(id, true, fadeOut);
+            => SoundManager.Instance.Pause(id, fadeOut, true);
 
         /// <summary>
-        /// Resume a paused sound
+        /// Resume paused audio
         /// </summary>
         public static void UnPause(SoundID id)
             => SoundManager.Instance.Pause(id, false);
 
         /// <summary>
-        /// Resume a paused sound
+        /// Resume paused audio
+        /// </summary>
+        /// <param name="fadeIn">Set this value to override the LibraryManager's setting</param>
+        public static void UnPause(SoundID id, float fadeIn)
+            => SoundManager.Instance.Pause(id, fadeIn, false);
+
+        /// <summary>
+        /// Pause all audio that matches the given audio type
+        /// </summary>
+        public static void Pause(BroAudioType audioType)
+            => SoundManager.Instance.Pause(audioType, true);
+
+        /// <summary>
+        /// Pause all audio that matches the given audio type
         /// </summary>
         /// <param name="fadeOut">Set this value to override the LibraryManager's setting</param>
-        public static void UnPause(SoundID id, float fadeOut)
-            => SoundManager.Instance.Pause(id, false, fadeOut);
+        public static void Pause(BroAudioType audioType, float fadeOut)
+            => SoundManager.Instance.Pause(audioType, fadeOut, true);
+
+        /// <summary>
+        /// Resume all audio that matches the given audio type
+        /// </summary>
+        public static void UnPause(BroAudioType audioType)
+            => SoundManager.Instance.Pause(audioType, false);
+
+        /// <summary>
+        /// Resume all audio that matches the given audio type
+        /// </summary>
+        /// <param name="fadeIn">Set this value to override the LibraryManager's setting</param>
+        public static void UnPause(BroAudioType audioType, float fadeIn)
+            => SoundManager.Instance.Pause(audioType, fadeIn, false);
 
         #endregion
 
@@ -120,17 +146,17 @@ namespace Ami.BroAudio
         /// <param name="vol">Accepts values from 0 to 10, default is 1</param>
         /// <param name="fadeTime">Set this value to override the LibraryManager's setting</param>
         public static void SetVolume(BroAudioType audioType, float vol, float fadeTime = BroAdvice.FadeTime_Immediate) 
-            => SoundManager.Instance.SetVolume(vol, audioType.ConvertEverything(), fadeTime);
+            => SoundManager.Instance.SetVolume(vol, audioType, fadeTime);
 
         /// <summary>
-        /// Set the volume of an audio
+        /// Set the audio volume
         /// </summary>
         /// <param name="vol">Accepts values from 0 to 10, default is 1</param>
         public static void SetVolume(SoundID id, float vol) 
             => SetVolume(id, vol, BroAdvice.FadeTime_Immediate);
 
         /// <summary>
-        /// Set the volume of an audio
+        /// Set the audio volume
         /// </summary>
         /// <param name="vol">Accepts values from 0 to 10, default is 1</param>
         /// <param name="fadeTime">Set this value to override the LibraryManager's setting</param>
@@ -140,7 +166,7 @@ namespace Ami.BroAudio
 
         #region Pitch
         /// <summary>
-        /// Set all audio's pitch immediately
+        /// Set the pitch of all audio immediately
         /// </summary>
         /// <param name="pitch">values between -3 to 3, default is 1</param>
         public static void SetPitch(float pitch)
@@ -151,7 +177,7 @@ namespace Ami.BroAudio
         /// </summary>
         [Obsolete]
         public static void SetPitch(float pitch, BroAudioType audioType)
-            => SoundManager.Instance.SetPitch(pitch, audioType.ConvertEverything(), BroAdvice.FadeTime_Immediate);
+            => SoundManager.Instance.SetPitch(pitch, audioType, BroAdvice.FadeTime_Immediate);
 
 
         /// <summary>
@@ -159,10 +185,10 @@ namespace Ami.BroAudio
         /// </summary>
         /// <param name="pitch">values between -3 to 3, default is 1</param>
         public static void SetPitch(BroAudioType audioType, float pitch)
-    => SoundManager.Instance.SetPitch(pitch, audioType.ConvertEverything(), BroAdvice.FadeTime_Immediate);
+            => SoundManager.Instance.SetPitch(pitch, audioType, BroAdvice.FadeTime_Immediate);
 
         /// <summary>
-        /// Set all audio's pitch
+        /// Set the pitch of all audio
         /// </summary>
         /// <param name="pitch">values between -3 to 3, default is 1</param>
         public static void SetPitch(float pitch, float fadeTime)
@@ -173,14 +199,14 @@ namespace Ami.BroAudio
         /// </summary>
         [Obsolete]
         public static void SetPitch(float pitch, BroAudioType audioType, float fadeTime)
-            => SoundManager.Instance.SetPitch(pitch, audioType.ConvertEverything(), fadeTime);
+            => SoundManager.Instance.SetPitch(pitch, audioType, fadeTime);
 
         /// <summary>
         /// Set the pitch of the given audio type
         /// </summary>
         /// <param name="pitch">values between -3 to 3, default is 1</param>
         public static void SetPitch(BroAudioType audioType, float pitch, float fadeTime)
-            => SoundManager.Instance.SetPitch(pitch, audioType.ConvertEverything(), fadeTime);
+            => SoundManager.Instance.SetPitch(pitch, audioType, fadeTime);
         #endregion
 
         #region Reset MultiClips Data
@@ -214,10 +240,10 @@ namespace Ami.BroAudio
             => SoundManager.Instance.SetEffect(effect);
 
         /// <summary>
-        /// Set effect for all audio that mathch the given audio type
+        /// Set effect for all audio that matches the given audio type
         /// </summary>
         public static IAutoResetWaitable SetEffect(Effect effect, BroAudioType audioType)
-            => SoundManager.Instance.SetEffect(audioType.ConvertEverything(),effect);
+            => SoundManager.Instance.SetEffect(audioType,effect);
         #endregion
 #endif
 
@@ -231,7 +257,7 @@ namespace Ami.BroAudio
             => SoundManager.Instance.LoadAllAssetsAsync(id);
 
         /// <summary>
-        /// Loads the first audio clips in the entity
+        /// Loads the first audio clip in the entity
         /// </summary>
         public static AsyncOperationHandle<AudioClip> LoadAssetAsync(SoundID id)
             => LoadAssetAsync(id, 0);
@@ -250,7 +276,7 @@ namespace Ami.BroAudio
             => SoundManager.Instance.ReleaseAllAssets(id);
 
         /// <summary>
-        /// Releases the first audio clips in the entity
+        /// Releases the first audio clip in the entity
         /// </summary>
         /// <param name="id"></param>
         public static void ReleaseAsset(SoundID id)

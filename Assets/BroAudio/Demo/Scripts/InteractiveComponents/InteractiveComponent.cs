@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.InteractiveComponents
+
+namespace Ami.BroAudio.Demo
 {
 	public abstract class InteractiveComponent : MonoBehaviour
 	{

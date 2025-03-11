@@ -1,5 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.UI
+using UnityEngine.UI;
+
+namespace Ami.BroAudio.Demo
 {
 	public class LetterBoxSetter : MonoBehaviour
 	{

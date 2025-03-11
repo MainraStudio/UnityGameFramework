@@ -1,8 +1,9 @@
 using System.Collections;
-using Ami.BroAudio;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-namespace BroAudio.Demo.Scripts.InteractiveComponents
+
+namespace Ami.BroAudio.Demo
 {
 	public class ThemeChangeZone : InteractiveComponent
 	{
@@ -41,7 +42,7 @@ namespace BroAudio.Demo.Scripts.InteractiveComponents
 				_lightAnimator.SetBool(_ligghtAnimParameterName, _isNightTime);
 
 				// The BGM is set to PlaybackMode.Sequence
-				Ami.BroAudio.BroAudio.Play(_bgm).AsBGM().SetTransition(_transition, _transitionTime);
+				BroAudio.Play(_bgm).AsBGM().SetTransition(_transition, _transitionTime);
 				StartCoroutine(PreventChangePeriod());
 			}
             _reloadSceneRoad.SetActive(_isNightTime);
@@ -56,7 +57,7 @@ namespace BroAudio.Demo.Scripts.InteractiveComponents
 
         private void OnSceneChanged(Scene arg0, Scene arg1)
         {
-            Ami.BroAudio.BroAudio.Stop(_bgm, _sceneFadeOutTime);
+            BroAudio.Stop(_bgm, _sceneFadeOutTime);
         }
     }
 }

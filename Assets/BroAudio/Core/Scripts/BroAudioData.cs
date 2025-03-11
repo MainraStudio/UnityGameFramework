@@ -12,12 +12,12 @@ namespace Ami.BroAudio.Data
 #endif
 	public class BroAudioData : ScriptableObject
 	{
-        public const string CodeBaseVersion = "2.0.0";
+        public const string CodeBaseVersion = "2.0.2";
 
         [SerializeField, ReadOnly] string _version;
         [SerializeField] List<AudioAsset> _assets = new List<AudioAsset>();
         
-		public IReadOnlyList<AudioAsset> Assets => _assets;
+		public IReadOnlyList<IAudioAsset> Assets => _assets;
         // 1.15 is the last version without this version control mechanic
         public Version Version => string.IsNullOrEmpty(_version) ? new Version(1,15) : new Version(_version);
 

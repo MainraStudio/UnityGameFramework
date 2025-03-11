@@ -10,6 +10,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 257362
   packageName: Bro Audio
-  packageVersion: 2.0.0
-  assetPath: Assets/BroAudio/Core/Resources/Editor/BroInstruction.asset
-  uploadId: 728900
+  packageVersion: 2.0.2
+  assetPath: Assets/BroAudio/Core/Editor/Resources/BroInstruction.asset
+  uploadId: 737049

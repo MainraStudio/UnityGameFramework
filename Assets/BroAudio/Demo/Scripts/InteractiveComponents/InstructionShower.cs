@@ -1,12 +1,16 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.InteractiveComponents
+
+namespace Ami.BroAudio.Demo
 {
     public class InstructionShower : InteractiveComponent
     {
         [SerializeField] CanvasGroup _instruction = null;
         [SerializeField] float _showingTime = default;
         [SerializeField] bool _lookAtPlayer = false;
+        [SerializeField] SoundSource _reminderSound = null;
 
         private Transform _instTransform = null;
         private Coroutine _coroutine = null;
@@ -36,6 +40,11 @@ namespace BroAudio.Demo.Scripts.InteractiveComponents
                 StopCoroutine(_coroutine);
             }
             _coroutine = StartCoroutine(AnimateCanvasGroup(isInZone));
+
+            if(isInZone && _reminderSound)
+            {
+                _reminderSound.Play();
+            }
         }
 
         private IEnumerator AnimateCanvasGroup(bool isOpening)

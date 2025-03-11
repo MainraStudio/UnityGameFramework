@@ -27,9 +27,46 @@ namespace Ami.BroAudio
         public IAudioPlayer CurrentPlayer { get; private set; }
         public bool IsPlaying => CurrentPlayer != null && CurrentPlayer.IsPlaying;
 
-        public void Play() => CurrentPlayer = BroAudio.Play(_sound, _overrideGroup);
-        public void Play(Transform followTarget) => CurrentPlayer = BroAudio.Play(_sound, followTarget, _overrideGroup);
-        public void Play(Vector3 positon) => CurrentPlayer = BroAudio.Play(_sound, positon, _overrideGroup);
+        /// <summary>
+        /// Plays the audio base on the current PositionMode 
+        /// </summary>
+        public void Play()
+        {
+            switch (_positionMode)
+            {
+                case PositionMode.Global:
+                    PlayGlobally();
+                    break;
+                case PositionMode.FollowGameObject:
+                    Play(transform);
+                    break;
+                case PositionMode.StayHere:
+                    Play(transform.position);
+                    break;
+            }
+        }
+
+        ///<inheritdoc cref="BroAudio.Play(SoundID)"/>
+        public void PlayGlobally()
+        {
+            Stop();
+            CurrentPlayer = BroAudio.Play(_sound, _overrideGroup);
+        }
+
+        ///<inheritdoc cref="BroAudio.Play(SoundID, Transform)"/>
+        public void Play(Transform followTarget)
+        {
+            Stop();
+            CurrentPlayer = BroAudio.Play(_sound, followTarget, _overrideGroup);
+        }
+
+        ///<inheritdoc cref="Play(SoundID, Vector3)"/>
+        public void Play(Vector3 positon)
+        {
+            Stop();
+            CurrentPlayer = BroAudio.Play(_sound, positon, _overrideGroup);
+        }
+
         public void Stop() => Stop(AudioPlayer.UseEntitySetting);
         public void Stop(float fadeTime)
         {
@@ -64,18 +101,7 @@ namespace Ami.BroAudio
                 return;
             }
 
-            switch (_positionMode)
-            {
-                case PositionMode.Global:
-                    Play();
-                    break;
-                case PositionMode.FollowGameObject:
-                    Play(transform);
-                    break;
-                case PositionMode.StayHere:
-                    Play(transform.position);
-                    break;
-            }
+            Play();
 
             if (_onlyPlayOnce)
             {
@@ -100,6 +126,7 @@ namespace Ami.BroAudio
             public const string OverrideFadeOut = nameof(_overrideFadeOut);
             public const string SoundID = nameof(_sound);
             public const string PositionMode = nameof(_positionMode);
+            public const string OverrideGroup = nameof(_overrideGroup);
         } 
 #endif
     }

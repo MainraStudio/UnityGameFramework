@@ -1,7 +1,11 @@
-using Ami.BroAudio;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Ami.Extension;
 using UnityEditor;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.UI
+
+namespace Ami.BroAudio.Demo
 {
 	public interface IPauseMenu
 	{
@@ -58,13 +62,13 @@ namespace BroAudio.Demo.Scripts.UI
 			if(IsOpen)
 			{
 #if !UNITY_WEBGL
-				Ami.BroAudio.BroAudio.SetEffect(Effect.LowPass(_othersLowPasFreq, _fadeTime)); 
+				BroAudio.SetEffect(Effect.LowPass(_othersLowPasFreq, _fadeTime)); 
 #endif
 			}
 			else
 			{
 #if !UNITY_WEBGL
-				Ami.BroAudio.BroAudio.SetEffect(Effect.LowPass(Effect.Defaults.LowPass, _fadeTime)); 
+				BroAudio.SetEffect(Effect.LowPass(Effect.Defaults.LowPass, _fadeTime)); 
 #endif
 			}
             Cursor.visible = IsOpen;

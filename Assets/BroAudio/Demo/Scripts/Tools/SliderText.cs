@@ -1,6 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace BroAudio.Demo.Scripts.Tools
+
+namespace Ami.BroAudio.Demo
 {
 	[RequireComponent(typeof(Slider))]
 	public class SliderText : MonoBehaviour

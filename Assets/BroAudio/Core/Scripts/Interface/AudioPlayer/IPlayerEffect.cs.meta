@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 257362
   packageName: Bro Audio
-  packageVersion: 2.0.0
+  packageVersion: 2.0.2
   assetPath: Assets/BroAudio/Core/Scripts/Interface/AudioPlayer/IPlayerEffect.cs
-  uploadId: 728900
+  uploadId: 737049

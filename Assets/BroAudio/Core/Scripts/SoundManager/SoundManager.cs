@@ -119,7 +119,7 @@ namespace Ami.BroAudio.Runtime
                 if (asset == null)
                     continue;
 
-                asset.Group = LinkPlaybackGroup(asset.Group, Setting.GlobalPlaybackGroup);
+                asset.LinkPlaybackGroup(Setting.GlobalPlaybackGroup);
 
                 foreach(var identity in asset.GetAllAudioEntities())
                 {
@@ -129,7 +129,7 @@ namespace Ami.BroAudio.Runtime
                     if (!_audioBank.ContainsKey(identity.ID))
                     {
                         var entity = identity as IAudioEntity;
-                        entity.Group = LinkPlaybackGroup(entity.Group, asset.Group);
+                        entity.LinkPlaybackGroup(asset.PlaybackGroup);
                         _audioBank.Add(identity.ID, entity);
                     }
                 }
@@ -142,6 +142,7 @@ namespace Ami.BroAudio.Runtime
         #region Volume
         public void SetVolume(float vol, BroAudioType targetType, float fadeTime)
         {
+            targetType = targetType.ConvertEverythingFlag();
             if (targetType == BroAudioType.None)
             {
                 Debug.LogWarning(LogTitle + $"SetVolume with {targetType} is meaningless");
@@ -243,6 +244,7 @@ namespace Ami.BroAudio.Runtime
 
         public IAutoResetWaitable SetEffect(BroAudioType targetType, Effect effect)
         {
+            targetType = targetType.ConvertEverythingFlag();
             SetEffectMode mode = SetEffectMode.Add;
             if(effect.Type == EffectType.None)
             {
@@ -294,6 +296,7 @@ namespace Ami.BroAudio.Runtime
 
         public void SetPitch(float pitch, BroAudioType targetType, float fadeTime)
         {
+            targetType = targetType.ConvertEverythingFlag();
             if (targetType == BroAudioType.None)
             {
                 Debug.LogWarning(LogTitle + $"SetPitch with {targetType} is meaningless");

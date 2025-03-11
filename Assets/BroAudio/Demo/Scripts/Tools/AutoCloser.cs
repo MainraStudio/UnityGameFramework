@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.Tools
+
+namespace Ami.BroAudio.Demo
 {
 	public class AutoCloser : MonoBehaviour
 	{

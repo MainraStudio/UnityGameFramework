@@ -1,7 +1,8 @@
-using Ami.BroAudio;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-namespace BroAudio.Demo.Scripts.UI
+
+namespace Ami.BroAudio.Demo
 {
     public class SongNameUI : MonoBehaviour
     {
@@ -9,12 +10,12 @@ namespace BroAudio.Demo.Scripts.UI
 
         void Start()
         {
-            Ami.BroAudio.BroAudio.OnBGMChanged += OnBGMChanged;
+            BroAudio.OnBGMChanged += OnBGMChanged;
         }
 
         private void OnDestroy()
         {
-            Ami.BroAudio.BroAudio.OnBGMChanged -= OnBGMChanged;
+            BroAudio.OnBGMChanged -= OnBGMChanged;
         }
 
         private void OnBGMChanged(IAudioPlayer player)

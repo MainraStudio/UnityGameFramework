@@ -24,7 +24,7 @@ namespace Ami.BroAudio
         }
         #endregion
 
-        public static BroAudioType ConvertEverything(this BroAudioType audioType)
+        public static BroAudioType ConvertEverythingFlag(this BroAudioType audioType)
         {
             if((int)audioType == UnityEverythingFlag)
             {
@@ -36,19 +36,6 @@ namespace Ami.BroAudio
         public static int GetSample(int sampleRate, float seconds)
         {
             return (int)(sampleRate * seconds);
-        }
-
-        public static PlaybackGroup LinkPlaybackGroup(PlaybackGroup group, PlaybackGroup parent)
-        {
-            if(group == null)
-            {
-                group = parent;
-            }
-            else
-            {
-                group.SetParent(parent);
-            }
-            return group;
         }
 
         public static bool IsDefaultCurve(this AnimationCurve curve , float defaultValue)

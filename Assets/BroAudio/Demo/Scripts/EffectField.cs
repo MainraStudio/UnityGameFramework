@@ -1,7 +1,9 @@
-using Ami.BroAudio;
-using BroAudio.Demo.Scripts.InteractiveComponents;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts
+
+namespace Ami.BroAudio.Demo
 {
 	public class EffectField : InteractiveComponent
 	{
@@ -12,16 +14,16 @@ namespace BroAudio.Demo.Scripts
 #pragma warning restore 414
         public override void OnInZoneChanged(bool isInZone)
 		{
-			Ami.BroAudio.BroAudio.Play(_enterExitSound);
+			BroAudio.Play(_enterExitSound);
 
 #if !UNITY_WEBGL
 			if (isInZone)
 			{
-				Ami.BroAudio.BroAudio.SetEffect(Effect.LowPass(_lowPassFreq, _fadeTime));
+				BroAudio.SetEffect(Effect.LowPass(_lowPassFreq, _fadeTime));
 			}
 			else
 			{
-                Ami.BroAudio.BroAudio.SetEffect(Effect.ResetLowPass(_fadeTime));
+                BroAudio.SetEffect(Effect.ResetLowPass(_fadeTime));
 			} 
 #endif
 		}

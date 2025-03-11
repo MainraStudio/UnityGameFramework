@@ -40,6 +40,9 @@ namespace Ami.BroAudio.Editor
         public bool ShowAudioTypeOnSoundID;
 		public bool ShowVUColorOnVolumeSlider;
 		public bool ShowMasterVolumeOnClipListHeader;
+        public bool ShowPlayButtonWhenEntityCollapsed;
+        public bool OpenLastEditAudioAsset;
+        public string LastEditAudioAsset;
         public ReferenceConversionDecision DirectReferenceDecision = FactorySettings.DirectReferenceDecision;
         public ReferenceConversionDecision AddressableDecision = FactorySettings.AddressableDecision;
 
@@ -128,6 +131,8 @@ namespace Ami.BroAudio.Editor
             AddressableDecision = FactorySettings.AddressableDecision;
             EditTheNewClipAfterSaveAs = FactorySettings.EditTheNewClipAfterSaveAs;
             PingTheNewClipAfterSaveAs = FactorySettings.PingTheNewClipAfterSaveAs;
+            ShowPlayButtonWhenEntityCollapsed = FactorySettings.ShowPlayButtonWhenEntityIsFolded;
+            OpenLastEditAudioAsset = FactorySettings.OpenLastEditAudioAsset;
             CreateNewAudioTypeSettings();
             CreateDefaultSpectrumColors();
 		}
@@ -165,8 +170,10 @@ namespace Ami.BroAudio.Editor
 			public const bool ShowAudioTypeOnSoundID = true;
 			public const bool ShowVUColorOnVolumeSlider = true;
 			public const bool ShowMasterVolumeOnClipListHeader = false;
+            public const bool OpenLastEditAudioAsset = false;
+            public const bool ShowPlayButtonWhenEntityIsFolded = false;
 
-			public const string MusicColor = "#012F874C";
+            public const string MusicColor = "#012F874C";
 			public const string UIColor = "#0E9C884C";
 			public const string AmbienceColor = "#00B0284C";
 			public const string SFXColor = "#FD803D96";
@@ -175,10 +182,10 @@ namespace Ami.BroAudio.Editor
 			public const DrawedProperty BasicDrawedProperty = DrawedProperty.Volume | DrawedProperty.PlaybackPosition | DrawedProperty.Fade | DrawedProperty.ClipPreview | DrawedProperty.MasterVolume;
 
 			public const DrawedProperty MusicDrawedProperties = BasicDrawedProperty | DrawedProperty.Loop;
-			public const DrawedProperty UIDrawedProperties = BasicDrawedProperty;
+			public const DrawedProperty UIDrawedProperties = BasicDrawedProperty | DrawedProperty.PlaybackGroup;
 			public const DrawedProperty AmbienceDrawedProperties = BasicDrawedProperty | DrawedProperty.Loop | DrawedProperty.SpatialSettings;
-			public const DrawedProperty SFXDrawedProperties = BasicDrawedProperty | DrawedProperty.Loop | DrawedProperty.SpatialSettings | DrawedProperty.Pitch;
-			public const DrawedProperty VoiceOverDrawedProperties = BasicDrawedProperty;
+			public const DrawedProperty SFXDrawedProperties = BasicDrawedProperty | DrawedProperty.Loop | DrawedProperty.SpatialSettings | DrawedProperty.Pitch | DrawedProperty.PlaybackGroup;
+			public const DrawedProperty VoiceOverDrawedProperties = BasicDrawedProperty | DrawedProperty.PlaybackGroup;
 
             public const ReferenceConversionDecision DirectReferenceDecision = ReferenceConversionDecision.AlwaysAsk;
             public const ReferenceConversionDecision AddressableDecision = ReferenceConversionDecision.AlwaysAsk;

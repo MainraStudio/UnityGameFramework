@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace BroAudio.Demo.Scripts.Cannon
+
+namespace Ami.BroAudio.Demo
 {
     public class CannonUI : MonoBehaviour
     {

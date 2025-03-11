@@ -1,9 +1,10 @@
 using System.Collections;
-using Ami.Extension;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-namespace BroAudio.Demo.Scripts
+using Ami.Extension;
+
+namespace Ami.BroAudio.Demo
 {
     public class SceneReloader : MonoBehaviour
     {

@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-namespace BroAudio.Demo.Scripts.InteractiveComponents
+
+namespace Ami.BroAudio.Demo
 {
 	[RequireComponent(typeof(Collider))]
 	public class InteractiveZone : MonoBehaviour

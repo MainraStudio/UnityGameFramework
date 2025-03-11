@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using Ami.BroAudio;
 using UnityEngine;
 using static Ami.BroAudio.SpectrumAnalyzer;
 
-namespace BroAudio.Demo.Scripts.UI
+namespace Ami.BroAudio.Demo
 {
     [AddComponentMenu("")]
     public class SpectrumDisplayer : MonoBehaviour
@@ -15,7 +14,7 @@ namespace BroAudio.Demo.Scripts.UI
 
         private void Start()
         {
-            Ami.BroAudio.BroAudio.OnBGMChanged += OnBGMChanged;
+            BroAudio.OnBGMChanged += OnBGMChanged;
             if(_analyzer)
             {
                 _analyzer.OnUpdate += OnSpectrumUpdate;
@@ -24,7 +23,7 @@ namespace BroAudio.Demo.Scripts.UI
 
         private void OnDestroy()
         {
-            Ami.BroAudio.BroAudio.OnBGMChanged -= OnBGMChanged;
+            BroAudio.OnBGMChanged -= OnBGMChanged;
             if (_analyzer)
             {
                 _analyzer.OnUpdate -= OnSpectrumUpdate;

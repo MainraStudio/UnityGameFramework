@@ -1,7 +1,8 @@
+using Ami.BroAudio;
+using BroAudio.Demo.Scripts.InteractiveComponents;
 using UnityEngine;
 using UnityEngine.Playables;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts
 {
 	public class CutScenePlayer : InteractiveComponent
 	{
@@ -17,7 +18,7 @@ namespace Ami.BroAudio.Demo
 
 			_director.Play();
 			_director.stopped += OnCutSceneStopped;
-            BroAudio.Play(_backgroundMusic)
+            Ami.BroAudio.BroAudio.Play(_backgroundMusic)
                 .AsBGM()
                 .SetVolume(_maxBgmVolumeDuringCutScene);
 		}
@@ -25,7 +26,7 @@ namespace Ami.BroAudio.Demo
         private void OnCutSceneStopped(PlayableDirector director)
 		{
 			_director.stopped -= OnCutSceneStopped;
-			BroAudio.SetVolume(_backgroundMusic,1f,2f);
+			Ami.BroAudio.BroAudio.SetVolume(_backgroundMusic,1f,2f);
 		}
 	}
 }

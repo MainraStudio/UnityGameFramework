@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using Ami.BroAudio;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts.UI
 {
     public class UIHoverTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {

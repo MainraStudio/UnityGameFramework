@@ -1,8 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
+using Ami.BroAudio;
+using BroAudio.Demo.Scripts.InteractiveComponents;
 using UnityEngine;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts
 {
 	public class ExplosionDominator : InteractiveComponent
 	{
@@ -19,7 +19,7 @@ namespace Ami.BroAudio.Demo
 
         private void PlayAudio()
         {
-            _explosionPlayer = BroAudio.Play(_explosion);
+            _explosionPlayer = Ami.BroAudio.BroAudio.Play(_explosion);
 #if !UNITY_WEBGL
             _explosionPlayer.AsDominator().LowPassOthers(_lowPassFrequency, new Fading(BroAdvice.FadeTime_Quick, dominateFadeOut, EffectType.LowPass)); 
 #endif

@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using Ami.BroAudio;
+using BroAudio.Demo.Scripts.InteractiveComponents;
 using UnityEngine;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts.Cannon
 {
     public class Cannon : InteractiveComponent
     {
@@ -145,12 +144,12 @@ namespace Ami.BroAudio.Demo
         #region Audio
         private void PlayFireSound(int velocity)
         {
-            BroAudio.Play(_fireSound).SetVelocity(velocity);
+            Ami.BroAudio.BroAudio.Play(_fireSound).SetVelocity(velocity);
         }
 
         private void PlayChargingSound()
         {
-            _chargingSoundPlayer = BroAudio.Play(_chargingSound);
+            _chargingSoundPlayer = Ami.BroAudio.BroAudio.Play(_chargingSound);
             _chargingSoundPlayer.OnEnd(_ => _chargingSoundPlayer = null);
         }
         #endregion

@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Ami.Extension;
-
-namespace Ami.BroAudio.Demo
+using BroAudio.Demo.Scripts.UI;
+using UnityEngine;
+namespace BroAudio.Demo.Scripts.Player
 {
     public class PlayerMoverment : MonoBehaviour
     {

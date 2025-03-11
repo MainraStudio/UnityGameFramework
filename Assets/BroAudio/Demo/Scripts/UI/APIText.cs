@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using Ami.Extension;
 using System;
 using System.Text;
-
-namespace Ami.BroAudio.Demo
+using Ami.Extension;
+using UnityEngine;
+using UnityEngine.UI;
+namespace BroAudio.Demo.Scripts.UI
 {
 	public class APIText : MonoBehaviour
 	{

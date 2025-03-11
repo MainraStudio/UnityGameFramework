@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts
 {
 	public class MaterialOffsetMover : MonoBehaviour
 	{

@@ -1,7 +1,7 @@
-using UnityEngine;
+using Ami.BroAudio;
 using Ami.Extension;
-
-namespace Ami.BroAudio.Demo
+using UnityEngine;
+namespace BroAudio.Demo.Scripts.Player
 {
     public class PlayerSoundController : MonoBehaviour
     { 
@@ -22,17 +22,17 @@ namespace Ami.BroAudio.Demo
 
                 if(baseGroundVol > AudioConstant.MinVolume)
                 {
-                    BroAudio.Play(_footstep, playerPos).SetVolume(baseGroundVol);
+                    Ami.BroAudio.BroAudio.Play(_footstep, playerPos).SetVolume(baseGroundVol);
                 }
 
                 if(sandVol > AudioConstant.MinVolume)
                 {
-                    BroAudio.Play(_sandFootstep, playerPos).SetVolume(sandVol);
+                    Ami.BroAudio.BroAudio.Play(_sandFootstep, playerPos).SetVolume(sandVol);
                 }
             }
             else
             {
-                BroAudio.Play(_footstep, playerPos);
+                Ami.BroAudio.BroAudio.Play(_footstep, playerPos);
             }
         }
 

@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using Ami.BroAudio;
 using UnityEngine;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts
 {
 	public class PitchChanger : MonoBehaviour
 	{
@@ -13,7 +11,7 @@ namespace Ami.BroAudio.Demo
         {
             if(other.gameObject.CompareTag("Player"))
             {
-                BroAudio.SetPitch(_targetAudioType, _pitch);
+                Ami.BroAudio.BroAudio.SetPitch(_targetAudioType, _pitch);
             }
         }
     }

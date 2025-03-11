@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using Ami.BroAudio;
+using BroAudio.Demo.Scripts.InteractiveComponents;
 using UnityEngine;
-
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts
 {
     public class TunnelSoundModifier : InteractiveComponent
     {
@@ -16,12 +15,12 @@ namespace Ami.BroAudio.Demo
         {
             if(isInZone)
             {
-                BroAudio.SetVolume(_targetType, _absorbedvolume, _hasStarted ? _transitionTime : 0f);
+                Ami.BroAudio.BroAudio.SetVolume(_targetType, _absorbedvolume, _hasStarted ? _transitionTime : 0f);
                 _hasStarted = true;
             }
             else
             {
-                BroAudio.SetVolume(_targetType, Extension.AudioConstant.FullVolume, _transitionTime);
+                Ami.BroAudio.BroAudio.SetVolume(_targetType, Ami.Extension.AudioConstant.FullVolume, _transitionTime);
 			}
         }
     } 

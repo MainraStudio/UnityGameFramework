@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using BroAudio.Demo.Scripts.UI;
 using UnityEditor;
-
+using UnityEngine;
 #if UNITY_EDITOR
-namespace Ami.BroAudio.Demo
+namespace BroAudio.Demo.Scripts.InteractiveComponents
 {
 	public class HierarchyLocator : InteractiveComponent
 	{

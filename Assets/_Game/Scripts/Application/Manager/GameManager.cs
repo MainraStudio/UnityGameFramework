@@ -1,8 +1,6 @@
-using System;
-using MainraFramework.States;
-using UnityEngine;
-
-namespace MainraFramework
+using _Game.Scripts.Application.Manager.Core.GameSystem.Interfaces;
+using _Game.Scripts.Application.Manager.Core.States;
+namespace _Game.Scripts.Application.Manager.Core.GameSystem
 {
 	public class GameManager : PersistentSingleton<GameManager>
 	{
@@ -51,7 +49,7 @@ namespace MainraFramework
 		
 		public void QuitGame()
 		{
-			Application.Quit();
+			UnityEngine.Application.Quit();
 			ServiceLocator.Clear();
 		}
 	}

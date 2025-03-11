@@ -1,6 +1,6 @@
+using _Game.Scripts.Application.Manager.Core.GameSystem.Interfaces;
 using UnityEngine;
-
-namespace MainraFramework.States
+namespace _Game.Scripts.Application.Manager.Core.States
 {
     public class GameplayState : GameState
     {

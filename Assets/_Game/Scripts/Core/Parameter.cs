@@ -1,4 +1,4 @@
-namespace MainraFramework
+namespace _Game.Scripts.Application.Manager.Core
 {
     public static class Parameter
     {

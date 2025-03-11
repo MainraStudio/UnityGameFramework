@@ -1,10 +1,9 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-namespace MainraFramework
+using UnityEngine;
+using UnityEngine.SceneManagement;
+namespace _Game.Scripts.Application.Manager.Core.GameSystem
 {
     public class SceneManager
     {

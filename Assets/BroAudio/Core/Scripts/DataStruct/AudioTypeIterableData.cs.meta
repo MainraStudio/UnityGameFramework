@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e6aa78ded72f05044861c9b1bac2b7be
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.5
+  assetPath: Assets/BroAudio/Core/Scripts/DataStruct/AudioTypeIterableData.cs
+  uploadId: 749482

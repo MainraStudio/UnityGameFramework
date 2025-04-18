@@ -1,46 +1,26 @@
-using System;
 using UnityEngine;
 
 namespace Ami.Extension
 {
-	public abstract class InstanceWrapper<T> where T : UnityEngine.Object, IRecyclable<T>
-	{
-		private T _instance = null;
-		protected T Instance
-		{
-			get
-			{
+    public abstract class InstanceWrapper<T> : IRecyclable<InstanceWrapper<T>> where T : UnityEngine.Object
+    {
+        private T _instance = null;
+        protected T Instance
+        {
+            get
+            {
                 if (IsAvailable())
                 {
                     return _instance;
                 }
-				return null;
-            }
-		}
-
-        public event Action<T> OnRecycle
-        {
-            add
-            {
-                if(_instance)
-                {
-                    _instance.OnRecycle += value;
-                }
-            }
-            remove
-            {
-                if (_instance)
-                {
-                    _instance.OnRecycle -= value;
-                }
+                return null;
             }
         }
 
         protected InstanceWrapper(T instance)
-		{
+        {
             _instance = instance;
-			_instance.OnRecycle += Recycle;
-		}
+        }
 
         protected bool IsAvailable(bool logWarning = true)
         {
@@ -58,28 +38,17 @@ namespace Ami.Extension
 
         public virtual void UpdateInstance(T newInstance)
         {
-            ClearEvent();
             _instance = newInstance;
-            _instance.OnRecycle += Recycle;
         }
 
-        protected virtual void Recycle(T t)
+        public virtual void Recycle()
         {
-            ClearEvent();
             _instance = null;
         }
 
-		private void ClearEvent()
-		{
-            if (_instance)
-            {
-                _instance.OnRecycle -= Recycle;
-            }
+        protected virtual void LogInstanceIsNull()
+        {
+            Debug.LogError(BroAudio.Utility.LogTitle +  "The object that you are refering to is null.");
         }
-
-		protected virtual void LogInstanceIsNull()
-		{
-			Debug.LogError(BroAudio.Utility.LogTitle +  "The object that you are refering to is null.");
-		}
-	}
+    }
 }

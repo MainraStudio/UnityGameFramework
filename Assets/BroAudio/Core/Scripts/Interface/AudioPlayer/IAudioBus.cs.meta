@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 37a22bb64e1384540816c1f0699d79c4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.5
+  assetPath: Assets/BroAudio/Core/Scripts/Interface/AudioPlayer/IAudioBus.cs
+  uploadId: 749482

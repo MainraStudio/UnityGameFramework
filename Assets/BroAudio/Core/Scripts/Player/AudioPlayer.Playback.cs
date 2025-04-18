@@ -8,13 +8,11 @@ using static Ami.BroAudio.Utility;
 namespace Ami.BroAudio.Runtime
 {
     [RequireComponent(typeof(AudioSource))]
-	public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>
+    public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>
     {
-        public delegate void SeamlessLoopReplay(int id, PlaybackPreference pref, EffectType effectType, float trackVolume, float pitch);
+        public delegate void SeamlessLoopReplay(int id, InstanceWrapper<AudioPlayer> wrapper, PlaybackPreference pref, EffectType effectType, float trackVolume, float pitch);
 
-        public static Dictionary<int, AudioPlayer> ResumablePlayers = null;
-
-        public event SeamlessLoopReplay OnSeamlessLoopReplay;
+        public SeamlessLoopReplay OnSeamlessLoopReplay;
         [Obsolete]
         public event Action<SoundID> OnEndPlaying
         {
@@ -49,14 +47,14 @@ namespace Ami.BroAudio.Runtime
             {
                 PlaybackStartingTime = TimeExtension.UnscaledCurrentFrameBeganTime;
             }
-			
-			if (_stopMode == StopMode.Stop)
+            
+            if (_stopMode == StopMode.Stop)
             {
                 _clip = _pref.PickNewClip();
             }
 
-			this.StartCoroutineAndReassign(PlayControl(), ref _playbackControlCoroutine);
-		}
+            this.StartCoroutineAndReassign(PlayControl(), ref _playbackControlCoroutine);
+        }
 
         private IEnumerator PlayControl()
         {
@@ -71,11 +69,10 @@ namespace Ami.BroAudio.Runtime
                 _audioTypeVolume.Complete(audioTypePref.Volume, false);
             }
             _clipVolume.Complete(0f, false);
-            UpdateMixerVolume();
             int sampleRate = _clip.GetAudioClip().frequency;
             bool hasScheduled = false;
 
-            if (!RemoveFromResumablePlayer()) // if is not resumable (not paused)
+            if (_stopMode == StopMode.Stop) // we only do this process when it's fresh
             {
                 AudioSource.clip = _clip.GetAudioClip();
                 AudioSource.priority = _pref.Entity.Priority;
@@ -109,7 +106,9 @@ namespace Ami.BroAudio.Runtime
                         yield return null;
                     }
                 }
-                AudioTrack = _getAudioTrack?.Invoke(TrackType);
+#if !UNITY_WEBGL
+                AudioTrack = MixerPool.GetTrack(TrackType); 
+#endif
             }
 
             do
@@ -141,10 +140,10 @@ namespace Ami.BroAudio.Runtime
                 #endregion
 
                 if (_pref.Entity.SeamlessLoop)
-				{
+                {
                     _pref.ScheduledStartTime = 0d;
                     _pref.ApplySeamlessFade();
-				}
+                }
 
                 #region FadeOut
                 int endSample = AudioSource.clip.samples - GetSample(sampleRate, _clip.EndPosition);
@@ -159,10 +158,10 @@ namespace Ami.BroAudio.Runtime
                         }
                     }
 
-                    IsFadingOut = true;
                     TriggerSeamlessLoopReplay();
                     _clipVolume.SetTarget(0f);
                     elapsedTime = 0f;
+                    IsFadingOut = true;
                     while (_clipVolume.Update(ref elapsedTime, fadeOut, _pref.FadeOutEase))
                     {
                         yield return null;
@@ -196,7 +195,7 @@ namespace Ami.BroAudio.Runtime
             } while (_pref.Entity.Loop);
 
             EndPlaying();
-		}
+        }
 
         private void StartPlaying(int sampleRate)
         {
@@ -248,9 +247,13 @@ namespace Ami.BroAudio.Runtime
 
         private void TriggerSeamlessLoopReplay()
         {
-            ClearScheduleEndEvents(); // it should be rescheduled in the new player
-            OnSeamlessLoopReplay?.Invoke(ID, _pref, CurrentActiveEffects, _trackVolume.Target, StaticPitch);
-            OnSeamlessLoopReplay = null;
+            if(_pref.Entity.SeamlessLoop)
+            {
+                ClearScheduleEndEvents(); // it should be rescheduled in the new player
+                OnSeamlessLoopReplay?.Invoke(ID, _instanceWrapper, _pref, CurrentActiveEffects, _trackVolume.Target, StaticPitch);
+                OnSeamlessLoopReplay = null;
+                _instanceWrapper = null; // the instance has been transferred to the new player
+            }
         }
 
         #region Stop Overloads
@@ -282,22 +285,22 @@ namespace Ami.BroAudio.Runtime
             }
 
             if (ID <= 0 || !AudioSource.isPlaying)
-			{
+            {
                 onFinished?.Invoke();
                 EndPlaying();
                 return;
-			}
+            }
 
             this.StartCoroutineAndReassign(StopControl(overrideFade, stopMode, onFinished), ref _playbackControlCoroutine);
         }
 
-		private IEnumerator StopControl(float overrideFade, StopMode stopMode, Action onFinished)
+        private IEnumerator StopControl(float overrideFade, StopMode stopMode, Action onFinished)
         {
-			_stopMode = stopMode;
-			IsStopping = true;
+            _stopMode = stopMode;
+            IsStopping = true;
 
-			#region FadeOut
-			if (HasFading(_clip.FadeOut,overrideFade,out float fadeTime))
+            #region FadeOut
+            if (HasFading(_clip.FadeOut,overrideFade,out float fadeTime))
             {
                 if (IsFadingOut)
                 {
@@ -329,22 +332,20 @@ namespace Ami.BroAudio.Runtime
             }
             #endregion
             switch (stopMode)
-			{
-				case StopMode.Stop:
+            {
+                case StopMode.Stop:
                     EndPlaying();
                     break;
-				case StopMode.Pause:
+                case StopMode.Pause:
                     AudioSource.Pause();
-                    AddResumablePlayer();
                     break;
-				case StopMode.Mute:
+                case StopMode.Mute:
                     this.SetVolume(0f, 0f);
-                    AddResumablePlayer();
                     break;
-			}
+            }
             IsStopping = false;
             onFinished?.Invoke();
-		}
+        }
 
         private bool HasFading(float clipFade, float overrideFade, out float fadeTime)
         {
@@ -354,17 +355,6 @@ namespace Ami.BroAudio.Runtime
                 fadeTime = overrideFade;
             }
             return fadeTime > Immediate;
-        }
-
-        private void AddResumablePlayer()
-		{
-            ResumablePlayers ??= new Dictionary<int, AudioPlayer>();
-            ResumablePlayers[ID] = this;
-        }
-
-        private bool RemoveFromResumablePlayer()
-		{
-            return ResumablePlayers != null && ResumablePlayers.Remove(ID);
         }
 
         private bool OnUpdate()
@@ -378,9 +368,11 @@ namespace Ami.BroAudio.Runtime
             PlaybackStartingTime = 0;
             _stopMode = default;
             _pref = default;
+            IsFadingOut = false;
+            IsStopping = false;
             ResetVolume();
             ResetPitch();
-
+            
             AudioSource.Stop();
             AudioSource.clip = null;
             _clip = null;
@@ -390,15 +382,12 @@ namespace Ami.BroAudio.Runtime
             // Don't add StopCoroutine(_playbackCoroutine) here, as this method is typically called within it, and further processing after this method cannot be guaranteed.
             _trackVolume.StopCoroutine();
             _audioTypeVolume.StopCoroutine();
-            RemoveFromResumablePlayer();
 
             _onEnd?.Invoke(ID);
             _onEnd = null;
 
-            OnSeamlessLoopReplay = null;
-            ID = -1;
             Recycle();
-		}
+        }
 
         public IAudioPlayer OnEnd(Action<SoundID> onEnd)
         {

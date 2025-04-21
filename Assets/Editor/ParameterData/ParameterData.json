@@ -57,9 +57,7 @@
             "Name": "AudioClips",
             "Items": [
                 "Gameplay",
-                "Gameplay2",
                 "ButtonClick",
-                "VictorySound",
                 "Coin",
                 "Win"
             ]

@@ -10,7 +10,7 @@ public class ParameterEditor : EditorWindow
 {
     // Constants for file paths
     private const string JsonFilePath = "Assets/Editor/ParameterData/ParameterData.json";
-    private const string ScriptFilePath = "Assets/_Game/Scripts/Manager/Core/Parameter.cs";
+    private const string ScriptFilePath = "Assets/Editor/Unity/Parameter.cs";
 
     // Core data structure
     private ParameterData parameterData;

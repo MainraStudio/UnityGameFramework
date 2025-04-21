@@ -1,4 +1,4 @@
-namespace _Game.Scripts.Application.Manager.Core
+namespace MainraFramework
 {
     public static class Parameter
     {
@@ -46,9 +46,7 @@ namespace _Game.Scripts.Application.Manager.Core
         public static class AudioClips
         {
             public const string GAMEPLAY = "Gameplay";
-            public const string GAMEPLAY2 = "Gameplay2";
             public const string BUTTONCLICK = "ButtonClick";
-            public const string VICTORYSOUND = "VictorySound";
             public const string COIN = "Coin";
             public const string WIN = "Win";
         }

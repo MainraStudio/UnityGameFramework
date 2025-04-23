@@ -23,12 +23,16 @@ namespace _Game.Scripts.Application
         private float _lastMemoryCheckTime;
         private List<string> _loadedScenes;
         private bool _autoMemoryManagement;
+        private readonly GameConfig _gameConfig;
 
-        public SceneLoader()
+        public SceneLoader(GameConfig gameConfig)
         {
             _loadedScenes = new List<string>();
             _autoMemoryManagement = true;
             _lastMemoryCheckTime = Time.time;
+            _gameConfig = gameConfig;
+            
+            Debug.Log($"{LOG_PREFIX} Initialized with game config: {_gameConfig.ProductName} v{_gameConfig.ProductVersion}");
         }
 
         #region Basic Scene Loading

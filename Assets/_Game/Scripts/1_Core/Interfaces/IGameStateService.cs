@@ -13,6 +13,7 @@ namespace _Game.Scripts.Core.Interfaces
     /// - Get the current game state
     /// - Change the game state with validation
     /// - Track state history
+    /// - Manage state context data
     /// - Notify subscribers of state changes (before and after)
     /// </remarks>
     public interface IGameStateService
@@ -51,14 +52,31 @@ namespace _Game.Scripts.Core.Interfaces
         /// Changes the current game state to the specified new state.
         /// </summary>
         /// <param name="newState">The new state to transition to.</param>
+        /// <param name="context">Optional context data for the new state.</param>
         /// <remarks>
         /// This method will:
-        /// 1. Validate the state transition
+        /// 1. Validate the state transition using attributes
         /// 2. Trigger the OnStateChanging event
         /// 3. Update the current state
         /// 4. Add to state history
-        /// 5. Trigger the OnStateChanged event
+        /// 5. Update state context
+        /// 6. Trigger the OnStateChanged event
         /// </remarks>
-        void SetState(GameState newState);
+        void SetState(GameState newState, object context = null);
+
+        /// <summary>
+        /// Gets the context data for the current state.
+        /// </summary>
+        /// <typeparam name="T">The type of the context data.</typeparam>
+        /// <returns>The context data if available, default(T) otherwise.</returns>
+        T GetCurrentStateContext<T>();
+
+        /// <summary>
+        /// Gets the context data for a specific state.
+        /// </summary>
+        /// <typeparam name="T">The type of the context data.</typeparam>
+        /// <param name="state">The state to get context for.</param>
+        /// <returns>The context data if available, default(T) otherwise.</returns>
+        T GetStateContext<T>(GameState state);
     }
 }

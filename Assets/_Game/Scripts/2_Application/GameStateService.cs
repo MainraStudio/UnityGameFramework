@@ -13,11 +13,13 @@ namespace _Game.Scripts.Application
     /// <remarks>
     /// The GameStateService is a central component that manages the game's state machine.
     /// It provides methods to change states and events to notify subscribers of state changes.
+    /// State transitions are validated using attributes defined on the GameState enum.
     /// </remarks>
     public class GameStateService : IGameStateService
     {
         private GameState _currentState = GameState.Menu;
         private readonly List<GameState> _stateHistory = new();
+        private readonly Dictionary<GameState, object> _stateContext = new();
         private const int MAX_HISTORY_SIZE = 10;
         
         /// <summary>
@@ -54,16 +56,17 @@ namespace _Game.Scripts.Application
         /// Changes the current game state to the specified new state.
         /// </summary>
         /// <param name="newState">The new state to transition to.</param>
+        /// <param name="context">Optional context data for the new state.</param>
         /// <remarks>
         /// This method will:
-        /// 1. Validate the state transition
+        /// 1. Validate the state transition using attributes
         /// 2. Trigger the OnStateChanging event
         /// 3. Update the current state
         /// 4. Add to state history
-        /// 5. Trigger the OnStateChanged event
-        /// 6. Log the state change for debugging purposes
+        /// 5. Update state context
+        /// 6. Trigger the OnStateChanged event
         /// </remarks>
-        public void SetState(GameState newState)
+        public void SetState(GameState newState, object context = null)
         {
             if (_currentState == newState)
             {
@@ -71,7 +74,7 @@ namespace _Game.Scripts.Application
                 return;
             }
 
-            if (!IsValidTransition(_currentState, newState))
+            if (!_currentState.IsValidTransition(newState))
             {
                 Debug.LogError($"Invalid state transition from {_currentState} to {newState}");
                 return;
@@ -91,39 +94,43 @@ namespace _Game.Scripts.Application
             
             _currentState = newState;
             
+            // Update context
+            if (context != null)
+            {
+                _stateContext[newState] = context;
+            }
+            
             // Notify subscribers after state change
             OnStateChanged?.Invoke(_currentState);
         }
 
         /// <summary>
-        /// Validates if a state transition is allowed.
+        /// Gets the context data for the current state.
         /// </summary>
-        /// <param name="currentState">The current state.</param>
-        /// <param name="newState">The state to transition to.</param>
-        /// <returns>True if the transition is valid, false otherwise.</returns>
-        private bool IsValidTransition(GameState currentState, GameState newState)
+        /// <typeparam name="T">The type of the context data.</typeparam>
+        /// <returns>The context data if available, default(T) otherwise.</returns>
+        public T GetCurrentStateContext<T>()
         {
-            // Define valid state transitions
-            switch (currentState)
+            if (_stateContext.TryGetValue(_currentState, out var context) && context is T typedContext)
             {
-                case GameState.Menu:
-                    return newState == GameState.Loading || newState == GameState.Playing;
-                
-                case GameState.Playing:
-                    return newState == GameState.Paused || newState == GameState.GameOver;
-                
-                case GameState.Paused:
-                    return newState == GameState.Playing || newState == GameState.Menu;
-                
-                case GameState.GameOver:
-                    return newState == GameState.Menu || newState == GameState.Loading;
-                
-                case GameState.Loading:
-                    return newState == GameState.Menu || newState == GameState.Playing;
-                
-                default:
-                    return false;
+                return typedContext;
             }
+            return default;
+        }
+
+        /// <summary>
+        /// Gets the context data for a specific state.
+        /// </summary>
+        /// <typeparam name="T">The type of the context data.</typeparam>
+        /// <param name="state">The state to get context for.</param>
+        /// <returns>The context data if available, default(T) otherwise.</returns>
+        public T GetStateContext<T>(GameState state)
+        {
+            if (_stateContext.TryGetValue(state, out var context) && context is T typedContext)
+            {
+                return typedContext;
+            }
+            return default;
         }
     }
 } 

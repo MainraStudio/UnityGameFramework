@@ -1649,7 +1649,6 @@ GameObject:
   - component: {fileID: 7876144253506167350}
   - component: {fileID: 2365212404894027278}
   - component: {fileID: 7428979239556830609}
-  - component: {fileID: 6181486244016048842}
   m_Layer: 5
   m_Name: MainMenuUI
   m_TagString: Untagged
@@ -1726,31 +1725,8 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 0
+  m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &6181486244016048842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3846040473772545314}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c74ebc0758575404099db6dbdf9e4407, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeDuration: 0.5
-  fadeEase: 4
-  disableInputDuringTransition: 1
-  play: {fileID: 8120278422904673031}
-  settings: {fileID: 4345252320846965994}
-  quit: {fileID: 3598082280073890520}
-  settingsPanel: {fileID: 4322045581535672331}
-  masterVolumeSlider: {fileID: 1370797401005712316}
-  musicVolumeSlider: {fileID: 1598162242852121389}
-  sfxVolumeSlider: {fileID: 1092374035419314718}
-  backButton: {fileID: 5440951464682888372}
 --- !u!1 &3918396356806445222
 GameObject:
   m_ObjectHideFlags: 0

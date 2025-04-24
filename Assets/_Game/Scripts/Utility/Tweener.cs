@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
-namespace _Game.Scripts.Utility
+namespace _Game.Scripts.Presentation.Scripts.Utility
 {
     public class Tweener : MonoBehaviour
     {

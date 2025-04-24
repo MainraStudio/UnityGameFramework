@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using DG.Tweening;
-using Tweener = _Game.Scripts.Utility.Tweener;
+using Tweener = _Game.Scripts.Presentation.Scripts.Utility.Tweener;
 
 [CustomEditor(typeof(Tweener))]
 public class TweenerEditor : Editor

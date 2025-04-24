@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-namespace _Game.Scripts.Utility.UI
+namespace _Game.Scripts.Presentation.Scripts.Utility.UI
 {
     [RequireComponent(typeof(Button), typeof(Image))]
     public class ButtonExtended : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler

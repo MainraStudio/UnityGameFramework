@@ -1,6 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
-namespace _Game.Scripts.Utility.UI
+namespace _Game.Scripts.Presentation.Scripts.Utility.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
     public class UIAnimator : MonoBehaviour

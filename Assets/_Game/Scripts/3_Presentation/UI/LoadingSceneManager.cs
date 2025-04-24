@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using _Game.Scripts.Core.Interfaces;
+using _Game.Scripts.Core.Enums;
 using VContainer;
 
 namespace _Game.Scripts.Presentation.UI
@@ -15,13 +16,15 @@ namespace _Game.Scripts.Presentation.UI
         [SerializeField] private float _minLoadingTime = 1f;
 
         private ISceneLoader _sceneLoader;
+        private IGameStateService _gameStateService;
         private float _loadingStartTime;
         private bool _isLoading;
 
         [Inject]
-        private void Construct(ISceneLoader sceneLoader)
+        private void Construct(ISceneLoader sceneLoader, IGameStateService gameStateService)
         {
             _sceneLoader = sceneLoader;
+            _gameStateService = gameStateService;
         }
 
         private void Start()
@@ -39,6 +42,7 @@ namespace _Game.Scripts.Presentation.UI
         private void StartLoading()
         {
             _isLoading = true;
+            _gameStateService.SetState(GameState.Loading);
             _loadingStartTime = Time.time;
             _loadingText.text = "Loading...";
             

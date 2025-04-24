@@ -15,6 +15,7 @@ public class GameLifetimeScope : LifetimeScope
 
         // Core Layer
         builder.Register<EventAggregator>(Lifetime.Singleton).As<IEventAggregator>();
+        builder.Register<IGameStateService, GameStateService>(Lifetime.Singleton);
         
         // Scene Management
         builder.Register<ISceneLoader, SceneLoader>(Lifetime.Singleton);

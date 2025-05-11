@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 06d6c556ae864c941baa3e1fa2bce9d4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309659
+  packageName: Clipboard Plus
+  packageVersion: 1.0
+  assetPath: Assets/ClipboardPlus/Editor/ClipPreviewRenderer.cs
+  uploadId: 730182

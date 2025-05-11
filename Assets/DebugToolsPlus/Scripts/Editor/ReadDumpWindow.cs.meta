@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 2e8fe6d36318cc843be6806afb1f82c1
+AssetOrigin:
+  serializedVersion: 1
+  productId: 316084
+  packageName: DebugToolsPlus
+  packageVersion: 1.1.0
+  assetPath: Assets/DebugToolsPlus/Scripts/Editor/ReadDumpWindow.cs
+  uploadId: 746189

@@ -10,6 +10,7 @@ namespace Ami.BroAudio.Editor
             OnReimportAsset(importedAssets);
             if(importedAssets.Length > 0 && importedAssets[0].Contains("BroAudio"))
             {
+                BroEditorUtility.FixDuplicateSoundIDs();
                 BroUserDataGenerator.CheckAndGenerateUserData();
             }
         }
@@ -18,7 +19,7 @@ namespace Ami.BroAudio.Editor
         {
             if (importedAssets.Length > 0 && EditorWindow.HasOpenInstances<ClipEditorWindow>())
             {
-                ClipEditorWindow window = EditorWindow.GetWindow(typeof(ClipEditorWindow)) as ClipEditorWindow;
+                ClipEditorWindow window = EditorWindow.GetWindow<ClipEditorWindow>(null, false);
                 window.OnPostprocessAllAssets();
             }
         }
@@ -34,7 +35,7 @@ namespace Ami.BroAudio.Editor
 
             if (EditorWindow.HasOpenInstances<LibraryManagerWindow>())
             {
-                LibraryManagerWindow editorWindow = EditorWindow.GetWindow(typeof(LibraryManagerWindow)) as LibraryManagerWindow;
+                var editorWindow = EditorWindow.GetWindow<LibraryManagerWindow>(null, false);
 
                 foreach (string path in deletedAssets)
                 {
@@ -46,5 +47,4 @@ namespace Ami.BroAudio.Editor
             }
         }
     }
-
 }

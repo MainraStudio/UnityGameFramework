@@ -31,7 +31,7 @@ namespace DebugToolsPlus.Editor
             EditorGUILayout.LabelField("Please input the date time of the dump file.");
             EditorGUILayout.HelpBox("You can see the date time in the title of the dump file.", MessageType.Info);
 
-            Object folder = AssetDatabase.LoadAssetAtPath<Object>(D.DUMP_PATH);
+            Object folder = AssetDatabase.LoadAssetAtPath<Object>(DebugTool.DUMP_PATH);
 
             if (folder != null)
             {
@@ -121,12 +121,12 @@ namespace DebugToolsPlus.Editor
 
         string GetPath()
         {
-            return $"{D.DUMP_PATH}/{D.DUMP_NAME}{day}_{hour}_{minute}_{second}.txt";
+            return $"{DebugTool.DUMP_PATH}/{DebugTool.DUMP_NAME}{day}_{hour}_{minute}_{second}.txt";
         }
 
         string GetPath(string title)
         {
-            return $"{D.DUMP_PATH}/{title}.txt";
+            return $"{DebugTool.DUMP_PATH}/{title}.txt";
         }
 
         string[] ReadDumpText()

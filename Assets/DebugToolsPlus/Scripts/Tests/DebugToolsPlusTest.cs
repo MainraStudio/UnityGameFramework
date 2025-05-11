@@ -6,23 +6,23 @@ namespace DebugToolsPlus.Tests
     {
         private void Start()
         {
-            D.StartRecording();
+            DebugTool.StartRecording();
 
-            D.Log("DEBUG TOOLS PLUS", $"{D.FormatText("Initialize", DColor.AQUAMARINE)} {D.FormatText("test", DColor.YELLOW)}.", DColor.PINK);
+            DebugTool.Log("DEBUG TOOLS PLUS", $"{DebugTool.FormatText("Initialize", DColor.AQUAMARINE)} {DebugTool.FormatText("test", DColor.YELLOW)}.", DColor.PINK);
 
             for (int i = 0; i < DColors.ColorLength; i++)
             {
-                D.Log("TEST", "TestMessage", i);
-                D.Log("TEST", "TestMessage", i, true);
-                D.LogWarning("TEST", "TestMessage", i);
-                D.LogWarning("TEST", "TestMessage", i, true);
-                D.LogError("TEST", "TestMessage", i);
-                D.LogError("TEST", "TestMessage", i, true);
+                DebugTool.Log("TEST", "TestMessage", i);
+                DebugTool.Log("TEST", "TestMessage", i, true);
+                DebugTool.LogWarning("TEST", "TestMessage", i);
+                DebugTool.LogWarning("TEST", "TestMessage", i, true);
+                DebugTool.LogError("TEST", "TestMessage", i);
+                DebugTool.LogError("TEST", "TestMessage", i, true);
             }
 
-            D.Log("DEBUG TOOLS PLUS", $"{D.FormatText("End", DColor.AQUAMARINE)} {D.FormatText("test", DColor.YELLOW)}.", DColor.PINK);
+            DebugTool.Log("DEBUG TOOLS PLUS", $"{DebugTool.FormatText("End", DColor.AQUAMARINE)} {DebugTool.FormatText("test", DColor.YELLOW)}.", DColor.PINK);
 
-            D.StopRecording();
+            DebugTool.StopRecording();
         }
     }
 }

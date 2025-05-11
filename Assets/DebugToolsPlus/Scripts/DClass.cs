@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace DebugToolsPlus
 {
-    public static class D
+    public static class DebugTool
     {
         /// <summary>
         /// Crea el formato del titulo.

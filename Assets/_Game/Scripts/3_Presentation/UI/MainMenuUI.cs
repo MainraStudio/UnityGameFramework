@@ -46,6 +46,7 @@ namespace _Game.Scripts.Presentation.UI
 			Debug.Log("Play button clicked");
 			_gameStateService.SetState(GameState.Playing);
 			_sceneLoader.LoadScene(Parameter.Scenes.GAMEPLAY);
+			_sceneLoader.LoadSceneThroughLoadingAsync(Parameter.Scenes.GAMEPLAY);
 		}
 
 		private void OnSettingsClicked()

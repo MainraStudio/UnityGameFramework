@@ -9,10 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0ec23025ec79b74facc4622f8d8980d, type: 3}
-  m_Name: GameConfig
+  m_Script: {fileID: 11500000, guid: 7f5ddadeb2ca491bb3b319b45388fc55, type: 3}
+  m_Name: GameSettings
   m_EditorClassIdentifier: 
-  _productName: MyAwesomeGame
-  _productVersion: 1.0.0
-  _companyName: M Mainra Games
-  _gameSettings: {fileID: 11400000, guid: 5be121770cf40c84aae0961e6cd73169, type: 2}
+  masterVolume: 1
+  musicVolume: 1
+  sfxVolume: 1
+  muteAudio: 0
+  qualityLevel: 2
+  fullScreen: 1
+  targetFrameRate: 60
+  vSync: 1
+  resolutionIndex: 0

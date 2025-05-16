@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b6c0825a9b87adb4ea5fe906325e62a3
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 316084
+  packageName: DebugToolsPlus
+  packageVersion: 1.1.0
+  assetPath: Assets/DebugToolsPlus/Documentation/Introduction to DebugToolsPlus.pdf
+  uploadId: 746189

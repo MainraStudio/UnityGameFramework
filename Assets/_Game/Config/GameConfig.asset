@@ -15,3 +15,4 @@ MonoBehaviour:
   _productName: MyAwesomeGame
   _productVersion: 1.0.0
   _companyName: M Mainra Games
+  _gameSettings: {fileID: 11400000, guid: 5be121770cf40c84aae0961e6cd73169, type: 2}

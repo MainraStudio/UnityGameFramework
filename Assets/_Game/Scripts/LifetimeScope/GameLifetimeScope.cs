@@ -1,5 +1,6 @@
 using _Game.Scripts.Application;
 using _Game.Scripts.Core.Interfaces;
+using _Game.Scripts.GameConfiguration;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;

@@ -3,6 +3,7 @@ using _Game.Scripts.Core.Interfaces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using _Game.Scripts.GameConfiguration;
 
 namespace _Game.Scripts.Application
 {

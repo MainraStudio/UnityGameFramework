@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 11e24dde66b60144797cc4db433f31e2
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309659
+  packageName: Clipboard Plus
+  packageVersion: 1.0
+  assetPath: Assets/ClipboardPlus/Editor/ASoliman.Utils.ClipboardPlus.asmdef
+  uploadId: 730182

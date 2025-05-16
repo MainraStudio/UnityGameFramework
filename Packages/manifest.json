@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.github.superunitybuild.buildtool": "https://github.com/superunitybuild/buildtool.git",
+    "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
     "com.unity.ai.navigation": "2.0.4",
     "com.unity.collab-proxy": "2.5.2",
     "com.unity.feature.2d": "2.0.1",

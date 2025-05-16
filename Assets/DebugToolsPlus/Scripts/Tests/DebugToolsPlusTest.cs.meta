@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: dc3ac2627b10faf4384fedc000e9cd85
+AssetOrigin:
+  serializedVersion: 1
+  productId: 316084
+  packageName: DebugToolsPlus
+  packageVersion: 1.1.0
+  assetPath: Assets/DebugToolsPlus/Scripts/Tests/DebugToolsPlusTest.cs
+  uploadId: 746189

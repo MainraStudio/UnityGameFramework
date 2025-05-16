@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 257362
   packageName: Bro Audio
-  packageVersion: 2.0.5
+  packageVersion: 2.0.6
   assetPath: Assets/BroAudio/Core/Scripts/Extension/Tools/ListElementName.cs
-  uploadId: 749482
+  uploadId: 754208

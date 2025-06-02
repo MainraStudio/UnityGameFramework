@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 866c14f3c6674d44d9d4cb8c13f2d575
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Scripts/MaterialOffsetMover.cs
+  uploadId: 759242

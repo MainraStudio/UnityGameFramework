@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bf88af72084132746823869f28b070f8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/ParticlePack/Materials/EnergyExplosion.mat
+  uploadId: 759242

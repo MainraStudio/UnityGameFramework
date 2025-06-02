@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 00a5a0f43527c3d4199835bd89873eb7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Environment/Art/Materials/Water02.mat
+  uploadId: 759242

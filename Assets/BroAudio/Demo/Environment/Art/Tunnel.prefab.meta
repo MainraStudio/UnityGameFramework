@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b952f0861cf9b6948b7862f5f984c6ec
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Environment/Art/Tunnel.prefab
+  uploadId: 759242

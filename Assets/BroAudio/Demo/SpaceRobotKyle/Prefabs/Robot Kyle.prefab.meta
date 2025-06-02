@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d079cd0e6137a44b58864c3a91ad119a
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/SpaceRobotKyle/Prefabs/Robot Kyle.prefab
+  uploadId: 759242

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b5cad421eeef5284cbe7217ce1accbab
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Scripts/PlaybackButtonController.cs
+  uploadId: 759242

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 42e6c1c0aef58cf41acdb2c3b8808949
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Environment/Art/House.prefab
+  uploadId: 759242

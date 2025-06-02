@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 40db3173a05ae3242b1c182a09b0a183
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Character/Animations/StarterAssetsThirdPerson.controller
+  uploadId: 759242

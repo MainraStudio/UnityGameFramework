@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 18dce1192c2c92042b1826f7cf9cd622
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Environment/Art/Materials/Neon_Green_Mat.mat
+  uploadId: 759242

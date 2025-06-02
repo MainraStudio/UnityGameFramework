@@ -27,7 +27,13 @@ public static class SceneSwitcherToolbar
     static SceneSwitcherToolbar()
     {
         RefreshSceneList();
-        SelectCurrentScene(); // Automatically select the open scene
+        SelectCurrentScene();
+
+
+        Debug.Log(
+            "<b><color=green>Thank you for using Scene Switcher Pro</color></b>\n" +
+            "If you find this tool helpful, please consider leaving a review on the Asset Store."
+        );
 
         // Hook into scene change events
         EditorSceneManager.activeSceneChangedInEditMode += (prev, current) => UpdateSceneSelection();
@@ -152,9 +158,20 @@ public static class SceneSwitcherToolbar
     {
         string currentScene = Path.GetFileNameWithoutExtension(EditorSceneManager.GetActiveScene().path);
         int index = System.Array.IndexOf(sceneNames, currentScene);
+
         if (index != -1)
         {
             selectedIndex = index;
+            lastActiveScene = currentScene;
+        }
+        else
+        {
+            // Append "(not in build index)" if the scene isn't listed
+            string notInBuildName = currentScene + " (not in build index)";
+
+            // Insert it at the beginning or replace first element
+            sceneNames = new[] { notInBuildName }.Concat(sceneNames).ToArray();
+            selectedIndex = 0;
             lastActiveScene = currentScene;
         }
     }
@@ -165,14 +182,18 @@ public static class SceneSwitcherToolbar
         if (currentScene != lastActiveScene)
         {
             lastActiveScene = currentScene;
+
+            // Remove any previous "(not in build index)" label to avoid duplicates
+            sceneNames = sceneNames.Where(name => !name.EndsWith(" (not in build index)")).ToArray();
+
             SelectCurrentScene();
         }
     }
 
+
     static void LoadScene(string sceneName)
     {
         string scenePath;
-        Debug.Log("<b><color=green>Thank you for using the package  -Ajay</color></b>");
 
         if (fetchAllScenes)
         {

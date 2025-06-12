@@ -34,7 +34,7 @@ namespace _Game.Scripts.Presentation.UI
 		protected override void Awake()
 		{
 			base.Awake();
-
+            _gameStateService.SetState(GameState.Menu);
 			play.onClick.AddListener(OnPlayClicked);
 			settings.onClick.AddListener(OnSettingsClicked);
 			quit.onClick.AddListener(OnQuitClicked);
@@ -44,9 +44,7 @@ namespace _Game.Scripts.Presentation.UI
 		private void OnPlayClicked()
 		{
 			Debug.Log("Play button clicked");
-			_gameStateService.SetState(GameState.Playing);
-			_sceneLoader.LoadScene(Parameter.Scenes.GAMEPLAY);
-			_sceneLoader.LoadSceneThroughLoadingAsync(Parameter.Scenes.GAMEPLAY);
+			_sceneLoader.LoadSceneThroughLoading(Parameter.Scenes.GAMEPLAY);
 		}
 
 		private void OnSettingsClicked()

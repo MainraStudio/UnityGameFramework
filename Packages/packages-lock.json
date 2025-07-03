@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.github.superunitybuild.buildtool": {
-      "version": "https://github.com/superunitybuild/buildtool.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "563204a4ccb2ca0eca5c79b72f7ad288fc1079ab"
-    },
     "com.kyrylokuzyk.primetween": {
       "version": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 9f17b6731ba5864479782c94d9148914
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304630
+  packageName: SOC - ScriptableObject Creator
+  packageVersion: 1.0
+  assetPath: Assets/Akiba/SOC - ScriptableObject Creator/Documentation/Editor/AkibaSOCDoc.cs
+  uploadId: 760834

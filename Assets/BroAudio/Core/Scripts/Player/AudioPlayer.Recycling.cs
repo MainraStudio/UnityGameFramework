@@ -4,19 +4,56 @@ using Ami.Extension;
 namespace Ami.BroAudio.Runtime
 {
     [RequireComponent(typeof(AudioSource))]
-	public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>
+    public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>
     {
-        private void Recycle()
+        private InstanceWrapper<AudioPlayer> _instanceWrapper;
+
+        internal void SetInstanceWrapper(InstanceWrapper<AudioPlayer> instance)
+        {
+            _instanceWrapper = instance;
+        }
+
+        internal IAudioPlayer GetInstanceWrapper()
+        {
+            return _instanceWrapper as IAudioPlayer;
+        }
+
+        public void Recycle()
         {
             ResetAudioSource();
             DestroyAudioFilterReader();
+            ClearEvents();
 
-            _onUpdate = null;
-            OnRecycle?.Invoke(this);
+            if (TryGetMixerAndTrack(out _, out var track))
+            {
+                MixerPool.ReturnTrack(TrackType, track);
+                TrackType = AudioTrackType.Generic;
+            }
+            MixerPool.ReturnPlayer(this);
 
-            TrackType = AudioTrackType.Generic;
-            AudioTrack = null;
+            if (_decorators != null)
+            {
+                foreach (var decorator in _decorators)
+                {
+                    decorator.Recycle();
+                }
+            }
             _decorators = null;
+
+            _instanceWrapper?.Recycle();
+            _instanceWrapper = null;
+
+            OnSeamlessLoopReplay = null;
+            AudioTrack = null;
+
+            ID = -1;
+        }
+
+        private void ClearEvents()
+        {
+            _onStart = null;
+            _onUpdate = null;
+            _onEnd = null;
         }
 
         private void ResetAudioSource()

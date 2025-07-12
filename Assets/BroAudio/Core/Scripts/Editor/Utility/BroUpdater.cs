@@ -8,6 +8,8 @@ using UnityEditor;
 using static Ami.BroAudio.Editor.BroEditorUtility;
 using static Ami.BroAudio.Tools.BroName;
 using System.Collections.Generic;
+using Ami.BroAudio.Tools;
+using Ami.BroAudio.Editor.Setting;
 
 public class BroUpdater
 {
@@ -54,7 +56,7 @@ public class BroUpdater
         RemoveDemoAssetsIfNotExist(corePath, coreData);
         coreData.UpdateVersion();
         EditorUtility.SetDirty(coreData);
-        SaveAssetIfDirty(coreData);
+        AssetDatabase.SaveAssetIfDirty(coreData);
         UnityEngine.Debug.Log(Utility.LogTitle + $"BroAudio has been successfully upgraded from {currentVersion} to {targetVersion}!");
     }
 
@@ -91,7 +93,9 @@ public class BroUpdater
             var combProp = serializeObj.FindProperty(DefaultPlaybackGroup.NameOf.CombFilteringTime)?.FindPropertyRelative(nameof(Rule<int>.Value));
             if (combProp != null)
             {
+#pragma warning disable CS0618
                 combProp.floatValue = runtimeSetting.CombFilteringPreventionInSeconds;
+#pragma warning restore CS0618
                 serializeObj.ApplyModifiedPropertiesWithoutUndo();
             }
             runtimeSetting.GlobalPlaybackGroup = globalPlaybackGroup;
@@ -136,4 +140,16 @@ public class BroUpdater
             }
         }
     }
+
+#if BroAudio_DevOnly
+    [MenuItem(BroName.MenuItem_BroAudio + "Update Version", priority = BroAudioGUISetting.DevToolsMenuIndex + 14)]
+    public static void UpdateVersion()
+    {
+        if (TryGetCoreData(out var coreData))
+        {
+            coreData.UpdateVersion();
+            EditorUtility.SetDirty(coreData);
+        }
+    } 
+#endif
 }

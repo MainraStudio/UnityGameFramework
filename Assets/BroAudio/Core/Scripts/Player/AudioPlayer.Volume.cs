@@ -1,16 +1,15 @@
 using UnityEngine;
 using Ami.Extension;
 using System.Collections;
-using System;
 
 namespace Ami.BroAudio.Runtime
 {
     [RequireComponent(typeof(AudioSource))]
-	public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>
-	{
+    public partial class AudioPlayer : MonoBehaviour, IAudioPlayer, IPlayable, IRecyclable<AudioPlayer>, IAudioBus
+    {
         public const float DefaultClipVolume = 0f;
         public const float DefaultTrackVolume = AudioConstant.FullVolume;
-        public const float DefaultMixerDecibelVolume = int.MinValue;
+        public const float UnSetMixerDecibelVolume = float.MinValue;
 
         /// <summary>
         /// The playback volume of an audio track, it will be set by SetVolume() function.
@@ -27,46 +26,52 @@ namespace Ami.BroAudio.Runtime
         /// </summary>
         private Fader _audioTypeVolume = null;
 
-        private float _mixerDecibelVolume = DefaultMixerDecibelVolume;
+        private float _mixerDecibelVolume = UnSetMixerDecibelVolume;
 
         /// <summary>
-        /// The final decibel volume that is set in the mixer.
+        /// Try get the final decibel volume that is set in the mixer.
         /// </summary>
-        public float MixerDecibelVolume
+        private bool TryGetMixerDecibelVolume(out float vol)
         {
-            get
+            if (_mixerDecibelVolume == UnSetMixerDecibelVolume && TryGetMixerAndTrack(out var mixer, out _) 
+                && mixer.SafeGetFloat(VolumeParaName, out float currentVol))
             {
-                if(_mixerDecibelVolume == DefaultMixerDecibelVolume)
-                {
-                    if (_audioMixer.SafeGetFloat(VolumeParaName, out float currentVol))
-                    {
-                        _mixerDecibelVolume = currentVol;
-                    }
-                }
-                
-                return _mixerDecibelVolume;
+                _mixerDecibelVolume = currentVol;
             }
-            private set
+            vol = _mixerDecibelVolume;
+            return vol > UnSetMixerDecibelVolume;
+        }
+
+        /// <summary>
+        /// Set the final decibel volume that is set in the mixer.
+        /// </summary>
+        private bool TrySetMixerDecibelVolume(float vol)
+        {
+            if(TryGetMixerAndTrack(out var mixer, out _))
             {
-                _mixerDecibelVolume = value.ClampDecibel(true);
-				_audioMixer.SafeSetFloat(VolumeParaName, _mixerDecibelVolume);
-			}
+                _mixerDecibelVolume = vol.ClampDecibel(true);  
+                return mixer.SafeSetFloat(VolumeParaName, _mixerDecibelVolume);
+            }
+            return false;
         }
 
         private void InitVolumeModule()
         {
-            Action updateMixer = UpdateMixerVolume;
-            _trackVolume = new Fader(DefaultTrackVolume, updateMixer);
-            _clipVolume = new Fader(DefaultClipVolume, updateMixer);
-            _audioTypeVolume = new Fader(DefaultTrackVolume, updateMixer);
+            _trackVolume = new Fader(DefaultTrackVolume, this);
+            _clipVolume = new Fader(DefaultClipVolume, this);
+            _audioTypeVolume = new Fader(DefaultTrackVolume, this);
         }
 
-        private void UpdateMixerVolume()
+        public void UpdateVolume()
         {
 #if UNITY_WEBGL
             UpdateWebGLVolume();
 #else
-            MixerDecibelVolume = (_clipVolume.Current * _trackVolume.Current * _audioTypeVolume.Current).ToDecibel();
+            float vol = _clipVolume.Current * _trackVolume.Current * _audioTypeVolume.Current;
+            if (!TrySetMixerDecibelVolume(vol.ToDecibel()) && IsPlaying)
+            {
+                AudioSource.volume = vol.ClampNormalize();
+            }
 #endif
         }
 
@@ -79,15 +84,6 @@ namespace Ami.BroAudio.Runtime
         public void SetAudioTypeVolume(float vol, float fadeTime)
         {
             SetVolumeInternal(_audioTypeVolume, vol, fadeTime);
-        }
-
-        private IEnumerator Fade(Fader volume, float fadeTime, Ease ease)
-        {
-            float elapsedTime = 0f;
-            while(volume.Update(ref elapsedTime, fadeTime, ease))
-            {
-                yield return null;
-            }
         }
 
         private void SetVolumeInternal(Fader module, float vol, float fadeTime)
@@ -104,12 +100,21 @@ namespace Ami.BroAudio.Runtime
             }
         }
 
+        private IEnumerator Fade(Fader volume, float fadeTime, Ease ease)
+        {
+            float elapsedTime = 0f;
+            while (volume.Update(ref elapsedTime, fadeTime, ease))
+            {
+                yield return null;
+            }
+        }
+
         private void ResetVolume()
         {
             _clipVolume.Complete(DefaultClipVolume, false);
             _trackVolume.Complete(DefaultTrackVolume, false);
             _audioTypeVolume.Complete(DefaultTrackVolume, false);
-            MixerDecibelVolume = AudioConstant.MinDecibelVolume;
+            UpdateVolume();
         }
 
 #if UNITY_WEBGL

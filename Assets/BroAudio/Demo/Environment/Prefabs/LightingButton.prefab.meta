@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 438a54545de0def4cb46d73c508bd51e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.0.8
+  assetPath: Assets/BroAudio/Demo/Environment/Prefabs/LightingButton.prefab
+  uploadId: 759242

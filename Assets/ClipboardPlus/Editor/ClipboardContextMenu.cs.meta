@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1fb74824321550a4488c85bc3a3fc4d4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309659
+  packageName: Clipboard Plus
+  packageVersion: 1.0
+  assetPath: Assets/ClipboardPlus/Editor/ClipboardContextMenu.cs
+  uploadId: 730182

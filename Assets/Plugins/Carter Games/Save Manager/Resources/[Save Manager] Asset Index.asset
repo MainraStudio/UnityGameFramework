@@ -23,9 +23,6 @@ MonoBehaviour:
     - key: CarterGames.Assets.SaveManager.SaveData
       value:
       - {fileID: 11400000, guid: bbaa2437a7fb862468da1770c0137811, type: 2}
-    - key: CarterGames.Assets.SaveManager.Editor.SaveProfilesStore
-      value:
-      - {fileID: 11400000, guid: 4e4e82bbce52a2d40ad85ba146843049, type: 2}
     - key: CarterGames.Assets.SaveManager.Demo.ExampleSaveObject
       value:
       - {fileID: 11400000, guid: 82e2e69aec1bee748b7a19fdff4d4e9a, type: 2}

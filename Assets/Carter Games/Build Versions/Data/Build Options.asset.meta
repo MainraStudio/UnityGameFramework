@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a645013dd1a372a45b357e6b5e6db801
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 205184
+  packageName: Build Versions | CG
+  packageVersion: 1.2.2
+  assetPath: Assets/Carter Games/Build Versions/Data/Build Options.asset
+  uploadId: 711247

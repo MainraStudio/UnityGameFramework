@@ -88,7 +88,10 @@ namespace Ami.BroAudio.Editor
             {
                 EditorGUI.LabelField(GetRectAndIterateLine(drawPosition), "Play The Demo!".ToWhiteBold().SetSize(20), middleCenterRichText);
                 Rect demoRect = GetRectAndIterateLine(drawPosition).GetHorizontalCenterRect(DemoReferenceFieldWidth, SingleLineSpace);
-                EditorGUI.ObjectField(demoRect, _instruction.DemoScene, typeof(UnityEngine.Object), false);
+                Rect demoURPRect = GetRectAndIterateLine(drawPosition).GetHorizontalCenterRect(DemoReferenceFieldWidth, SingleLineSpace);
+
+                EditorGUI.ObjectField(demoRect, _instruction.DemoScene, typeof(SceneAsset), false);
+                EditorGUI.ObjectField(demoURPRect, _instruction.URPDemoScene, typeof(SceneAsset), false);
                 DrawParagraph(drawPosition, "The demo not only shows all of the features, but also how to use the API and how they're implemented", 2);
             }
         }
@@ -96,12 +99,12 @@ namespace Ami.BroAudio.Editor
         private void RemoveDuckVolume()
         {
             GameObject managerObj = Resources.Load(nameof(SoundManager)) as GameObject;
-            if(managerObj && managerObj.TryGetComponent<SoundManager>(out var soundManager) && soundManager.Mixer)
+            if(managerObj && managerObj.TryGetComponent<SoundManager>(out var soundManager) && soundManager.AudioMixer)
             {
-                AudioMixerGroup masterGroup = soundManager.Mixer.FindMatchingGroups(MasterTrackName)?.FirstOrDefault();
+                AudioMixerGroup masterGroup = soundManager.AudioMixer.FindMatchingGroups(MasterTrackName)?.FirstOrDefault();
                 if(masterGroup)
                 {
-                    BroAudioReflection.RemoveAudioEffect(soundManager.Mixer, BroAudioReflection.DuckVolumeEffect, masterGroup);
+                    BroAudioReflection.RemoveAudioEffect(soundManager.AudioMixer, BroAudioReflection.DuckVolumeEffect, masterGroup);
                 }
             }
             else
@@ -126,7 +129,7 @@ namespace Ami.BroAudio.Editor
         {
             if (_creditsObjects == null)
             {
-                _creditsObjects = Resources.LoadAll("Editor", typeof(AssetCredits));
+                _creditsObjects = Resources.LoadAll(string.Empty, typeof(AssetCredits));
                 _creditsObjects ??= Array.Empty<UnityEngine.Object>();
             }
 

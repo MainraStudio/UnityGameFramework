@@ -8,7 +8,8 @@ namespace Ami.BroAudio.Runtime
 {
     public partial class SoundManager : MonoBehaviour
     {
-        private Queue<IPlayable> _playbackQueue = new Queue<IPlayable>();
+        private readonly Queue<IPlayable> _playbackQueue = new Queue<IPlayable>();
+        private AudioPlayer.SeamlessLoopReplay _seamlessLoopReplayDelegate;
 
         #region Play
         public IAudioPlayer Play(SoundID id, IPlayableValidator customValidator = null)
@@ -43,35 +44,32 @@ namespace Ami.BroAudio.Runtime
 
         private bool IsPlayable(SoundID id, IPlayableValidator customValidator, out IAudioEntity entity, out AudioPlayer player)
         {
-            entity = null;
             player = null;
 
-            if(id <= 0 || !_audioBank.TryGetValue(id, out entity))
+            if(!TryGetEntity(id, out entity))
             {
-#if UNITY_EDITOR
-                Debug.LogError(LogTitle + $"The sound is missing or it has never been assigned. No sound will be played. Object:{id.DebugObject?.name}", id.DebugObject); 
-#endif
                 return false;
             }
 
-            var validator = customValidator ?? entity.Group; // entity's group will be set in InitBank() if it's null
-
-            bool isValid = validator == null || validator.IsPlayable(id);
-            bool result = isValid && TryGetAvailablePlayer(id, out player);
-            if(validator != null && player != null)
+            var validator = customValidator ?? entity.PlaybackGroup; // entity's runtime group will be set in InitBank() if it's null
+            if (validator != null && !validator.IsPlayable(id))
             {
-                validator.OnGetPlayer(player);
+                return false;
             }
-            return result;
+
+            player = _audioPlayerPool.Extract();
+            validator?.OnGetPlayer(player);
+            return true;
         }
 
         private IAudioPlayer PlayerToPlay(int id, AudioPlayer player, PlaybackPreference pref)
         {
             BroAudioType audioType = GetAudioType(id);
+            var wrapper = new AudioPlayerInstanceWrapper(player);
+            player.SetInstanceWrapper(wrapper);
             player.SetPlaybackData(id, pref);
 
             _playbackQueue.Enqueue(player);
-            var wrapper = new AudioPlayerInstanceWrapper(player);
 
             if (Setting.AlwaysPlayMusicAsBGM && audioType == BroAudioType.Music)
             {
@@ -80,23 +78,48 @@ namespace Ami.BroAudio.Runtime
 
             // Whether there's any group implementing this or not, we're tracking it anyway
             _combFilteringPreventer ??= new Dictionary<SoundID, AudioPlayer>();
-            player.OnEnd(RemoveFromPreventer);
             _combFilteringPreventer[id] = player;
 
             if (pref.Entity.SeamlessLoop)
             {
-                var seamlessLoopHelper = new SeamlessLoopHelper(wrapper, GetNewAudioPlayer);
-                seamlessLoopHelper.AddReplayListener(player);
+                _seamlessLoopReplayDelegate ??= Replay;
+                player.OnSeamlessLoopReplay = _seamlessLoopReplayDelegate;
             }
 
             return wrapper;
         }
 
-        private void RemoveFromPreventer(SoundID id)
+        private void Replay(int id, InstanceWrapper<AudioPlayer> wrapper, PlaybackPreference pref, EffectType previousEffect, float trackVolume, float pitch)
         {
-            if(_combFilteringPreventer != null)
+            var newPlayer = _audioPlayerPool.Extract();
+            wrapper.UpdateInstance(newPlayer);
+            newPlayer.SetInstanceWrapper(wrapper);
+
+            newPlayer.SetVolume(trackVolume);
+            newPlayer.SetPitch(pitch);
+            newPlayer.SetPlaybackData(id, pref);
+            newPlayer.Play();
+            if (pref.ScheduledEndTime > 0d)
             {
-                _combFilteringPreventer.Remove(id);
+                newPlayer.SetScheduledEndTime(pref.ScheduledEndTime);
+            }
+#if !UNITY_WEBGL
+            newPlayer.SetEffect(previousEffect, SetEffectMode.Override);
+#endif
+
+            newPlayer.OnSeamlessLoopReplay = Replay;
+        }
+
+        private void RemoveFromPreventer(AudioPlayer target)
+        {
+            if(!target.IsActive)
+            {
+                throw new System.InvalidOperationException("Invalid target player");
+            }
+
+            if(_combFilteringPreventer.TryGetValue(target.ID, out var player) && player == target)
+            {
+                _combFilteringPreventer.Remove(target.ID);
             }
         }
 
@@ -122,15 +145,15 @@ namespace Ami.BroAudio.Runtime
 
         public void Stop(int id,float fadeTime)
         {
-            StopPlayer(fadeTime, id);
+            StopPlayer<int>(fadeTime, id);
         }
 
         public void Stop(BroAudioType targetType,float fadeTime)
         {
-            StopPlayer(fadeTime, targetType);
+            StopPlayer<BroAudioType>(fadeTime, (int)targetType.ConvertEverythingFlag());
         }            
 
-        private void StopPlayer<TParameter>(float fadeTime, TParameter parameter)
+        private void StopPlayer<T>(float fadeTime, int identity)
         {
             var players = GetCurrentAudioPlayers();
             for (int i = players.Count - 1; i >= 0; i--)
@@ -141,8 +164,9 @@ namespace Ami.BroAudio.Runtime
                     continue;
                 }
 
-                bool isIdAndMatch = parameter is int id && player.ID == id;
-                bool isAudioTypeAndMatch = parameter is BroAudioType audioType && audioType.Contains(player.ID.ToAudioType());
+                System.Type type = typeof(T);
+                bool isIdAndMatch = type == typeof(int) && player.ID == identity;
+                bool isAudioTypeAndMatch = type == typeof(BroAudioType) && ((BroAudioType)identity).Contains(player.ID.ToAudioType());
                 if (isIdAndMatch || isAudioTypeAndMatch)
                 {
                     player.Stop(fadeTime);
@@ -151,20 +175,21 @@ namespace Ami.BroAudio.Runtime
         }
         #endregion
 
+        #region Pause
         public void Pause(int id, bool isPause)
         {
-            Pause(id, isPause, AudioPlayer.UseEntitySetting);
+            Pause(id, AudioPlayer.UseEntitySetting, isPause);
         }
 
-        public void Pause(int id, bool isPause, float fadeTime)
+        public void Pause(int id, float fadeTime, bool isPause)
         {
-            foreach(var player in GetCurrentAudioPlayers())
+            foreach (var player in GetCurrentAudioPlayers())
             {
-                if(player.IsActive && player.ID == id)
+                if (player.IsActive && player.ID == id)
                 {
-                    if(isPause)
+                    if (isPause)
                     {
-                        player.Stop(fadeTime, StopMode.Pause, null);
+                        player.Pause(fadeTime);
                     }
                     else
                     {
@@ -174,8 +199,38 @@ namespace Ami.BroAudio.Runtime
             }
         }
 
+        public void Pause(BroAudioType targetType, bool isPause)
+        {
+            Pause(targetType, AudioPlayer.UseEntitySetting, isPause);
+        }
+
+        public void Pause(BroAudioType targetType, float fadeTime, bool isPause)
+        {
+            targetType = targetType.ConvertEverythingFlag();
+            foreach (var player in GetCurrentAudioPlayers())
+            {
+                if (player.IsActive && targetType.Contains(player.ID.ToAudioType()))
+                {
+                    if (isPause)
+                    {
+                        player.Pause(fadeTime);
+                    }
+                    else
+                    {
+                        player.UnPause(fadeTime);
+                    }
+                }
+            }
+        } 
+        #endregion
+
         public bool HasPassCombFilteringPreventionTime(SoundID id, float combFilteringTime, bool ignoreCombFilteringIfSameFrame)
         {
+            if(combFilteringTime <= 0f)
+            {
+                return true;
+            }
+
             if (_combFilteringPreventer != null && _combFilteringPreventer.TryGetValue(id, out var previousPlayer))
             {
                 int time = TimeExtension.UnscaledCurrentFrameBeganTime;

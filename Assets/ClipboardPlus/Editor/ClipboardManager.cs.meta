@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0ed2769374a623a408c5063cd8c54cf2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309659
+  packageName: Clipboard Plus
+  packageVersion: 1.0
+  assetPath: Assets/ClipboardPlus/Editor/ClipboardManager.cs
+  uploadId: 730182

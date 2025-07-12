@@ -1,11 +1,10 @@
 {
   "dependencies": {
-    "com.github.superunitybuild.buildtool": {
-      "version": "https://github.com/superunitybuild/buildtool.git",
+    "com.kyrylokuzyk.primetween": {
+      "version": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "563204a4ccb2ca0eca5c79b72f7ad288fc1079ab"
+      "source": "local-tarball",
+      "dependencies": {}
     },
     "com.unity.2d.animation": {
       "version": "10.1.4",
@@ -159,8 +158,17 @@
         "com.unity.2d.aseprite": "1.1.6"
       }
     },
+    "com.unity.ide.cursor": {
+      "version": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.9"
+      },
+      "hash": "2c0153a9bab1abc783e5599fa2d2cc3c69d5e389"
+    },
     "com.unity.ide.rider": {
-      "version": "3.0.34",
+      "version": "3.0.36",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -204,6 +212,13 @@
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.4",
       "depth": 3,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.1",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -332,6 +347,13 @@
       "source": "git",
       "dependencies": {},
       "hash": "48770e56d1003074d030e3661cb34e4f895cf852"
+    },
+    "jp.hadashikick.vcontainer": {
+      "version": "https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#1.16.8",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5e6f5cc14b6dc8b94251bf6c0d6c37025a6ecf77"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

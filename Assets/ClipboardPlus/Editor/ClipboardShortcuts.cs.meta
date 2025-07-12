@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 57e46bbd5e94ec644bb90f6bdd7b95ef
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309659
+  packageName: Clipboard Plus
+  packageVersion: 1.0
+  assetPath: Assets/ClipboardPlus/Editor/ClipboardShortcuts.cs
+  uploadId: 730182

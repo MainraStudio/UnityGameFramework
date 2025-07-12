@@ -10,7 +10,7 @@ public class ParameterEditor : EditorWindow
 {
     // Constants for file paths
     private const string JsonFilePath = "Assets/Editor/ParameterData/ParameterData.json";
-    private const string ScriptFilePath = "Assets/_Game/Scripts/Manager/Core/Parameter.cs";
+    private const string ScriptFilePath = "Assets/_Game/Scripts/Utility/Unity/Parameter.cs";
 
     // Core data structure
     private ParameterData parameterData;
@@ -339,7 +339,7 @@ public class ParameterEditor : EditorWindow
         {
             using (StreamWriter writer = new StreamWriter(ScriptFilePath))
             {
-                writer.WriteLine("namespace MainraFramework");
+                writer.WriteLine("namespace MainraFramework.Parameter");
                 writer.WriteLine("{");
                 writer.WriteLine("    public static class Parameter");
                 writer.WriteLine("    {");

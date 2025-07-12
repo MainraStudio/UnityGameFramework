@@ -27,6 +27,8 @@ namespace Ami.BroAudio.Editor.Setting
         public const string AutoMatchTracksButtonText = "Auto-adding tracks to match audio voices.";
         public const string AssetOutputPathLabel = "Asset Output Path";
         public const string AssetOutputPathMissing = "The current audio asset output path is missing. Please select a new location.";
+        public const string ShowPlayButtonWhenCollapsed = "Show play button when the entity is collapsed in Library Manager";
+        public const string OpenLastEditedAssetLabel = "Open last edited asset when Library Manager launches";
         public const string VUColorToggleLabel = "Show VU color on volume slider";
         public const string ShowAudioTypeToggleLabel = "Show audioType on SoundID";
         public const string ShowMasterVolumeLabel = "Show master volume on clip list header";
@@ -39,7 +41,8 @@ namespace Ami.BroAudio.Editor.Setting
         private readonly float[] _tabLabelRatios = new float[] { 0.33f,0.33f,0.34f};
 
         private GUIContent _pitchGUIContent, _audioVoicesGUIContent, _virtualTracksGUIContent, _filterSlopeGUIContent, _acceptAudioMixerGUIContent
-            ,_playMusicAsBgmGUIContent, _logAccessRecycledWarningGUIContent, _poolSizeCountGUIContent,_dominatorTrackGUIContent, _regenerateUserDataGUIContent, _globalGroupGUIContent;
+            ,_playMusicAsBgmGUIContent, _logAccessRecycledWarningGUIContent, _poolSizeCountGUIContent,_dominatorTrackGUIContent, _regenerateUserDataGUIContent
+            ,_globalGroupGUIContent, _updateModeGUIContent;
 
 #if PACKAGE_ADDRESSABLES
         private GUIContent _addressableConversionGUIContent, _directToAddressableGUIContent, _addressableToDirectGUIContent; 
@@ -124,6 +127,7 @@ namespace Ami.BroAudio.Editor.Setting
             _poolSizeCountGUIContent = new GUIContent("Audio Player Object Pool Size", _instruction.GetText(Instruction.AudioPlayerPoolSize));
             _dominatorTrackGUIContent = new GUIContent("Add Dominator Track", _instruction.GetText(Instruction.AddDominatorTrack));
             _regenerateUserDataGUIContent = new GUIContent("Regenerate User Data", _instruction.GetText(Instruction.RegenerateUserData));
+            _updateModeGUIContent = new GUIContent("Update Mode", _instruction.GetText(Instruction.UpdateMode));
 
 #if PACKAGE_ADDRESSABLES
             string aaTooltip = _instruction.GetText(Instruction.LibraryManager_AddressableConversionTooltip);
@@ -218,6 +222,7 @@ namespace Ami.BroAudio.Editor.Setting
             drawPosition.width -= Gap;
             DrawGlobalPlaybackGroup();
             DrawAudioFilterSlope();
+            DrawUpdateMode();
             DrawEmptyLine(1);
             DrawBGMSetting();
             // To make a room for other functions to use exposed parameters, we only use AudioSource.pitch for now
@@ -295,6 +300,12 @@ namespace Ami.BroAudio.Editor.Setting
             {
                 var filterSlopeProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.AudioFilterSlope));
                 filterSlopeProp.enumValueIndex = (int)(FilterSlope)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), _filterSlopeGUIContent, (FilterSlope)filterSlopeProp.enumValueIndex);
+            }
+
+            void DrawUpdateMode()
+            {
+                var updateModeProp = _runtimeSettingSO.FindProperty(nameof(Data.RuntimeSetting.UpdateMode));
+                updateModeProp.enumValueIndex = (int)(AudioMixerUpdateMode)EditorGUI.EnumPopup(GetRectAndIterateLine(drawPosition), _updateModeGUIContent, (AudioMixerUpdateMode)updateModeProp.enumValueIndex);
             }
 
             void DrawAudioPlayerSetting()
@@ -439,10 +450,15 @@ namespace Ami.BroAudio.Editor.Setting
             var showVuProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowVUColorOnVolumeSlider));
             var showMasterProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowMasterVolumeOnClipListHeader));
             var showAudioTypeProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowAudioTypeOnSoundID));
+            var showPlayButtonWhenCollapsed = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.ShowPlayButtonWhenEntityCollapsed));
+            var openLastEditedAssetProp = _editorSettingSO.FindProperty(nameof(Editor.EditorSetting.OpenLastEditAudioAsset));
+
             showVuProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), VUColorToggleLabel, showVuProp.boolValue);
             DemonstrateSlider();
 
             showMasterProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowMasterVolumeLabel, showMasterProp.boolValue);
+            showPlayButtonWhenCollapsed.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowPlayButtonWhenCollapsed, showPlayButtonWhenCollapsed.boolValue);
+            openLastEditedAssetProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), OpenLastEditedAssetLabel, openLastEditedAssetProp.boolValue);
             showAudioTypeProp.boolValue = EditorGUI.ToggleLeft(GetRectAndIterateLine(drawPosition), ShowAudioTypeToggleLabel, showAudioTypeProp.boolValue);
             if (showAudioTypeProp.boolValue)
             {

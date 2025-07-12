@@ -2,7 +2,6 @@ using UnityEngine;
 using Ami.BroAudio.Runtime;
 using Ami.Extension;
 using System;
-using System.Collections.Generic;
 using Ami.BroAudio.Data;
 
 namespace Ami.BroAudio
@@ -22,8 +21,6 @@ namespace Ami.BroAudio
             add { if (IsAvailable()) Instance.OnEndPlaying += value; }
             remove { if(IsAvailable()) Instance.OnEndPlaying -= value; }
         }
-
-        private List<AudioPlayerDecorator> _decorators = null;
 
         protected override void LogInstanceIsNull()
         {
@@ -121,14 +118,16 @@ namespace Ami.BroAudio
                     newInstance.OnEnd(onEnd as Action<SoundID>);
                 }
             }
-            
-            if(Instance.TransferDecorators(out var decorators))
+
+            if (Instance.TransferDecorators(out var decorators))
             {
-                _decorators ??= new List<AudioPlayerDecorator>();
-                _decorators.Clear();
-                _decorators.AddRange(decorators);
+                foreach (var decorator in decorators)
+                {
+                    decorator.UpdateInstance(newInstance);
+                }
+                newInstance.SetDecorators(decorators);
             }
-             
+
             base.UpdateInstance(newInstance);
         }
 
@@ -144,34 +143,23 @@ namespace Ami.BroAudio
 
         private IMusicPlayer Execute(IMusicPlayer musicPlayer)
         {
-            CacheDecoratorIfNeeded(musicPlayer as MusicPlayer);
             return this;
         }
 
         private IPlayerEffect Execute(IPlayerEffect dominator)
         {
-            CacheDecoratorIfNeeded(dominator as DominatorPlayer);
             return this;
-        }
-
-        private void CacheDecoratorIfNeeded<T>(T decorator) where T : AudioPlayerDecorator
-        {
-            _decorators ??= new List<AudioPlayerDecorator>();
-            if (!_decorators.TryGetDecorator<T>(out _))
-            {
-                _decorators.Add(decorator);
-            }
         }
 
         private T GetDecorator<T>() where T : AudioPlayerDecorator
         {
-            if (_decorators.TryGetDecorator<T>(out var result))
+            if (Instance.TryGetDecorator<T>(out var result))
             {
                 return result;
             }
             return null;
         }
 
-        public static implicit operator AudioPlayer(AudioPlayerInstanceWrapper wrapper) => wrapper.IsAvailable() ? wrapper.Instance : null;
+        public static explicit operator AudioPlayer(AudioPlayerInstanceWrapper wrapper) => wrapper.IsAvailable(false) ? wrapper.Instance : null;
     }
 }

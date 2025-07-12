@@ -1,6 +1,5 @@
 using UnityEngine;
 using Ami.Extension;
-using Ami.BroAudio.Runtime;
 
 namespace Ami.BroAudio.Data
 {
@@ -12,6 +11,8 @@ namespace Ami.BroAudio.Data
 
         [SerializeField] private MulticlipsPlayMode MulticlipsPlayMode = MulticlipsPlayMode.Single;
         [SerializeField] private PlaybackGroup _group;
+
+        private PlaybackGroup _upperGroup;
 
         public BroAudioClip[] Clips;
 
@@ -25,19 +26,7 @@ namespace Ami.BroAudio.Data
         [field: SerializeField] public float PitchRandomRange { get; private set; }
         [field: SerializeField] public float VolumeRandomRange { get; private set; }
         [field: SerializeField] public RandomFlag RandomFlags { get; private set; }
-
-        public PlaybackGroup Group
-        {
-            get
-            {
-                if(!_group)
-                {
-                    return SoundManager.Instance.Setting.GlobalPlaybackGroup;
-                }
-                return _group;
-            }
-            set => _group = value;
-        }
+        public PlaybackGroup PlaybackGroup => _group ? _group : _upperGroup;
 
         public IBroAudioClip PickNewClip() => Clips.PickNewOne(MulticlipsPlayMode, ID, out _);
         public IBroAudioClip PickNewClip(out int index) => Clips.PickNewOne(MulticlipsPlayMode, ID, out index);
@@ -81,6 +70,18 @@ namespace Ami.BroAudio.Data
             Clips.ResetIsUse();
         }
 
+        public void LinkPlaybackGroup(PlaybackGroup upperGroup)
+        {
+            if (_group != null)
+            {
+                _group.SetParent(upperGroup);
+            }
+            else
+            {
+                _upperGroup = upperGroup;
+            }
+        }
+
 #if UNITY_EDITOR
         public enum SeamlessType
         {
@@ -108,6 +109,11 @@ namespace Ami.BroAudio.Data
         [SerializeField] private SeamlessType SeamlessTransitionType = SeamlessType.ClipSetting;
         [SerializeField] private TempoTransition TransitionTempo = default;
         [SerializeField] private bool SnapToFullVolume = false;
+
+        public void ReassignID(int id)
+        {
+            ID = id;
+        }
 #endif
     }
 }

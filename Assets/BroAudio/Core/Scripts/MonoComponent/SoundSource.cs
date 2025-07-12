@@ -1,4 +1,3 @@
-using Ami.BroAudio.Runtime;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -6,7 +5,7 @@ namespace Ami.BroAudio
 {
     [HelpURL("https://man572142s-organization.gitbook.io/broaudio/core-features/no-code-components/sound-source")]
     [AddComponentMenu("BroAudio/" + nameof(SoundSource))]
-    public class SoundSource : MonoBehaviour
+    public partial class SoundSource : MonoBehaviour
     {
         public enum PositionMode
         {
@@ -25,37 +24,13 @@ namespace Ami.BroAudio
         [SerializeField] PositionMode _positionMode = default;
 
         public IAudioPlayer CurrentPlayer { get; private set; }
+
+        ///<inheritdoc cref="IAudioPlayer.IsPlaying()"/>
         public bool IsPlaying => CurrentPlayer != null && CurrentPlayer.IsPlaying;
 
-        public void Play() => CurrentPlayer = BroAudio.Play(_sound, _overrideGroup);
-        public void Play(Transform followTarget) => CurrentPlayer = BroAudio.Play(_sound, followTarget, _overrideGroup);
-        public void Play(Vector3 positon) => CurrentPlayer = BroAudio.Play(_sound, positon, _overrideGroup);
-        public void Stop() => Stop(AudioPlayer.UseEntitySetting);
-        public void Stop(float fadeTime)
-        {
-            if (IsPlaying)
-            {
-                CurrentPlayer.Stop(fadeTime);
-            }
-        }
+        ///<inheritdoc cref="IAudioPlayer.IsActive()"/>
+        public bool IsActive => CurrentPlayer != null && CurrentPlayer.IsActive;
 
-        public void SetVolume(float vol) => SetVolume(vol, BroAdvice.FadeTime_Immediate);
-        public void SetVolume(float vol, float fadeTime)
-        {
-            if (IsPlaying)
-            {
-                CurrentPlayer.SetVolume(vol, fadeTime);
-            }
-        }
-
-        public void SetPitch(float pitch) => SetPitch(pitch, BroAdvice.FadeTime_Immediate);
-        public void SetPitch(float pitch, float fadeTime)
-        {
-            if (IsPlaying)
-            {
-                CurrentPlayer.SetPitch(pitch, fadeTime);
-            }
-        }
 
         private void OnEnable()
         {
@@ -64,18 +39,7 @@ namespace Ami.BroAudio
                 return;
             }
 
-            switch (_positionMode)
-            {
-                case PositionMode.Global:
-                    Play();
-                    break;
-                case PositionMode.FollowGameObject:
-                    Play(transform);
-                    break;
-                case PositionMode.StayHere:
-                    Play(transform.position);
-                    break;
-            }
+            Play();
 
             if (_onlyPlayOnce)
             {
@@ -100,6 +64,7 @@ namespace Ami.BroAudio
             public const string OverrideFadeOut = nameof(_overrideFadeOut);
             public const string SoundID = nameof(_sound);
             public const string PositionMode = nameof(_positionMode);
+            public const string OverrideGroup = nameof(_overrideGroup);
         } 
 #endif
     }

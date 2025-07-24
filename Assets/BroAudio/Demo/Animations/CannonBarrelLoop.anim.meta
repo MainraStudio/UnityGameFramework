@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: be8678ca8007238429bdfd40b71d6dcd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Demo/Animations/CannonBarrelLoop.anim
+  uploadId: 774142

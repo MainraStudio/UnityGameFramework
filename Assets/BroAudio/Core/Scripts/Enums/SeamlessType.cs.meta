@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 07f014b29d554f56843fa1660187ad5a
+timeCreated: 1748677704
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Core/Scripts/Enums/SeamlessType.cs
+  uploadId: 774142

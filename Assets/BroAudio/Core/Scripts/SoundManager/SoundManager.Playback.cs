@@ -9,7 +9,7 @@ namespace Ami.BroAudio.Runtime
     public partial class SoundManager : MonoBehaviour
     {
         private readonly Queue<IPlayable> _playbackQueue = new Queue<IPlayable>();
-        private AudioPlayer.SeamlessLoopReplay _seamlessLoopReplayDelegate;
+        private AudioPlayer.PlaybackHandover _playbackHandoverDelegate;
 
         #region Play
         public IAudioPlayer Play(SoundID id, IPlayableValidator customValidator = null)
@@ -80,16 +80,15 @@ namespace Ami.BroAudio.Runtime
             _combFilteringPreventer ??= new Dictionary<SoundID, AudioPlayer>();
             _combFilteringPreventer[id] = player;
 
-            if (pref.Entity.SeamlessLoop)
+            if (pref.IsLoop(LoopType.SeamlessLoop) || pref.Entity.GetMulticlipsPlayMode() == MulticlipsPlayMode.Chained)
             {
-                _seamlessLoopReplayDelegate ??= Replay;
-                player.OnSeamlessLoopReplay = _seamlessLoopReplayDelegate;
+                _playbackHandoverDelegate ??= PlaybackHandover;
+                player.OnPlaybackHandover = _playbackHandoverDelegate;
             }
-
             return wrapper;
         }
 
-        private void Replay(int id, InstanceWrapper<AudioPlayer> wrapper, PlaybackPreference pref, EffectType previousEffect, float trackVolume, float pitch)
+        private void PlaybackHandover(int id, InstanceWrapper<AudioPlayer> wrapper, PlaybackPreference pref, EffectType previousEffect, float trackVolume, float pitch)
         {
             var newPlayer = _audioPlayerPool.Extract();
             wrapper.UpdateInstance(newPlayer);
@@ -107,7 +106,7 @@ namespace Ami.BroAudio.Runtime
             newPlayer.SetEffect(previousEffect, SetEffectMode.Override);
 #endif
 
-            newPlayer.OnSeamlessLoopReplay = Replay;
+            newPlayer.OnPlaybackHandover = PlaybackHandover;
         }
 
         private void RemoveFromPreventer(AudioPlayer target)
@@ -183,8 +182,10 @@ namespace Ami.BroAudio.Runtime
 
         public void Pause(int id, float fadeTime, bool isPause)
         {
-            foreach (var player in GetCurrentAudioPlayers())
+            var players = GetCurrentAudioPlayers();
+            for (int i = players.Count - 1; i >= 0; i--)
             {
+                var player = players[i];
                 if (player.IsActive && player.ID == id)
                 {
                     if (isPause)
@@ -207,8 +208,10 @@ namespace Ami.BroAudio.Runtime
         public void Pause(BroAudioType targetType, float fadeTime, bool isPause)
         {
             targetType = targetType.ConvertEverythingFlag();
-            foreach (var player in GetCurrentAudioPlayers())
+            var players = GetCurrentAudioPlayers();
+            for (int i = players.Count - 1; i >= 0; i--)
             {
+                var player = players[i];
                 if (player.IsActive && targetType.Contains(player.ID.ToAudioType()))
                 {
                     if (isPause)

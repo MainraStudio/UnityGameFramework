@@ -935,6 +935,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 257362
   packageName: Bro Audio
-  packageVersion: 2.0.8
+  packageVersion: 2.1.0
   assetPath: Assets/BroAudio/Demo/Character/Animations/Locomotion--Run_S.anim.fbx
-  uploadId: 759242
+  uploadId: 774142

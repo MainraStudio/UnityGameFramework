@@ -26,6 +26,7 @@ namespace Ami.BroAudio.Editor
         private const float LowVolumeSnappingThreshold = 0.05f;
         private const float HighVolumeSnappingThreshold = 0.2f;
         private const string DbValueStringFormat = "0.##";
+        private const int ArrayPropertyPathDotCount = 2;
 
         public const string AssetReferenceGUIDFieldName = "m_AssetGUID";
 
@@ -119,7 +120,7 @@ namespace Ami.BroAudio.Editor
             }
         }
 
-        private static float SliderFullScale => FullVolume / ((FullDecibelVolume - MinDecibelVolume) / DecibelVoulumeFullScale);
+        private static float SliderFullScale => FullVolume / ((FullDecibelVolume - MinDecibelVolume) / DecibelVolumeFullScale);
 
         private static void OnPlayModeStateChanged(PlayModeStateChange mode)
         {
@@ -522,6 +523,74 @@ namespace Ami.BroAudio.Editor
                     return DrawedProperty.Fade;
                 default:
                     throw new NotImplementedException();
+            }
+        }
+        
+        public static int GetMaxAcceptableClipCount(this MulticlipsPlayMode mode) => mode switch
+        {
+            MulticlipsPlayMode.Single => 1,
+            MulticlipsPlayMode.Chained => 3,
+            _ => Int32.MaxValue,
+        };
+
+        public static PreviewStrategyType GetPreviewStrategyType(this Event evt) => evt.button switch
+        {
+            0 => PreviewStrategyType.AudioSource,
+            _ => PreviewStrategyType.DirectPlayback,
+        };
+
+        public static string GetEntityPropertyPath(string clipPropPath)
+        {
+            int remainingDotCount = ArrayPropertyPathDotCount + 1;
+            int index = 0;
+            for (int i = clipPropPath.Length - 1; i >= 0; i--)
+            {
+                if (clipPropPath[i] == '.')
+                {
+                    remainingDotCount--;
+                }
+
+                if (remainingDotCount == 0)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            return clipPropPath.Remove(index);
+        }
+
+        public static void GetBaseAndRandomValue(RandomFlag target, SerializedProperty entityProp, out float baseValue, out float randomValue)
+        {
+            switch (target)
+            {
+                case RandomFlag.Pitch:
+                    baseValue = entityProp.FindBackingFieldProperty(nameof(AudioEntity.Pitch)).floatValue;
+                    randomValue = baseValue;
+                    if (IsRandom())
+                    {
+                        var pitchRandProp = entityProp.FindBackingFieldProperty(nameof(AudioEntity.PitchRandomRange));
+                        randomValue = AudioEntity.GetRandomValue(baseValue, pitchRandProp.floatValue);
+                    }
+                    break;
+                case RandomFlag.Volume:
+                    baseValue = entityProp.FindBackingFieldProperty(nameof(AudioEntity.MasterVolume)).floatValue;
+                    randomValue = baseValue;
+                    if (IsRandom())
+                    {
+                        var masterRandProp = entityProp.FindBackingFieldProperty(nameof(AudioEntity.VolumeRandomRange));
+                        randomValue = AudioEntity.GetRandomValue(baseValue, masterRandProp.floatValue);
+                    }
+                    break;
+                default:
+                    randomValue = 1f;
+                    baseValue = 1f;
+                    break;
+            }
+
+            bool IsRandom()
+            {
+                var flags = (RandomFlag)entityProp.FindBackingFieldProperty(nameof(AudioEntity.RandomFlags)).intValue;
+                return flags.Contains(target);
             }
         }
     }

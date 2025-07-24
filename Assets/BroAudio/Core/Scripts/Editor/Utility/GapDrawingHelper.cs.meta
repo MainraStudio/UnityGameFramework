@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 257362
   packageName: Bro Audio
-  packageVersion: 2.0.8
+  packageVersion: 2.1.0
   assetPath: Assets/BroAudio/Core/Scripts/Editor/Utility/GapDrawingHelper.cs
-  uploadId: 759242
+  uploadId: 774142

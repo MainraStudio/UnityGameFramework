@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: f8540ca8d02549e0ae4a88ebea237a0c
+timeCreated: 1752056505
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Core/Scripts/Utility/ClipSelection/LayeredClipStrategy.cs
+  uploadId: 774142

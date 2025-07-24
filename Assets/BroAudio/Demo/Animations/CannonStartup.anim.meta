@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 54ef9cbedfc062349864096864aa5e63
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Demo/Animations/CannonStartup.anim
+  uploadId: 774142

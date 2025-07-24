@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 5446889c451c46138b36da17392e0851
+timeCreated: 1748624602
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/ClipEditor/PropertyClipboardData.cs
+  uploadId: 774142

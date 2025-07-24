@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -13,14 +12,13 @@ using static Ami.BroAudio.Editor.BroEditorUtility;
 using static Ami.BroAudio.Editor.Setting.BroAudioGUISetting;
 using static Ami.Extension.EditorScriptingExtension;
 using static Ami.BroAudio.Editor.Setting.PreferencesEditorWindow;
-using Ami.BroAudio.Editor.Setting;
 
 namespace Ami.BroAudio.Editor
 {
     public partial class LibraryManagerWindow : EditorWindow, IHasCustomMenu
     {
-        public const int AssetNameFontSize = 16;
-        public const float BackButtonSize = 28f;
+        private const int AssetNameFontSize = 16;
+        private const float BackButtonSize = 28f;
         private const float EntitiesFactoryRatio = 0.65f;
 
         public static event Action OnCloseLibraryManagerWindow;
@@ -32,20 +30,20 @@ namespace Ami.BroAudio.Editor
         //private readonly EditorFlashingHelper _flasingHelper = new EditorFlashingHelper(Color.white, 1f, Ease.InCubic);
         private readonly IUniqueIDGenerator _idGenerator = new IdGenerator();
 
-        private List<string> _allAssetGUIDs = null;
-        private ReorderableList _assetReorderableList = null;
+        private List<string> _allAssetGUIDs;
+        private ReorderableList _assetReorderableList;
         private int _currSelectedAssetIndex = -1;
         private Dictionary<string, AudioAssetEditor> _assetEditorDict = new Dictionary<string, AudioAssetEditor>();
-        private bool _hasAssetListReordered = false;
-        private bool _isInEntitiesEditMode = false;
-        private bool _hasOutputAssetPath = false;
-        private bool _showSettings = false;
+        private bool _hasAssetListReordered;
+        private bool _isInEntitiesEditMode;
+        private bool _hasOutputAssetPath;
+        private bool _showSettings;
 
         private Vector2 _assetListScrollPos = Vector2.zero;
         private Vector2 _entitiesScrollPos = Vector2.zero;
 
-        public Vector2 EntitiesHeaderSize => new Vector2(200f, EditorGUIUtility.singleLineHeight * 2);
-        public float DefaultLayoutPadding => GUI.skin.box.padding.top;
+        private static Vector2 EntitiesHeaderSize => new Vector2(200f, EditorGUIUtility.singleLineHeight * 2);
+        private static float DefaultLayoutPadding => GUI.skin.box.padding.top;
         public IUniqueIDGenerator IDGenerator => _idGenerator;
         private EditorSetting EditorSetting => BroEditorUtility.EditorSetting;
 
@@ -88,13 +86,13 @@ namespace Ami.BroAudio.Editor
 
         private void OnFocus()
         {
-            EditorPlayAudioClip.Instance.AddPlaybackIndicatorListener(Repaint);
+            EditorAudioPreviewer.Instance.OnPlaybackIndicatorUpdate += Repaint;
         }
 
         private void OnLostFocus()
         {
-            EditorPlayAudioClip.Instance.StopAllClips();
-            EditorPlayAudioClip.Instance.RemovePlaybackIndicatorListener(Repaint);
+            EditorAudioPreviewer.Instance.StopAllClips();
+            EditorAudioPreviewer.Instance.OnPlaybackIndicatorUpdate -= Repaint;
             OnLostFocusEvent?.Invoke();
         }
 
@@ -160,14 +158,15 @@ namespace Ami.BroAudio.Editor
 
         private void InitReorderableList()
         {
-            _assetReorderableList = new ReorderableList(_allAssetGUIDs, typeof(string));
-
-            _assetReorderableList.drawHeaderCallback = OnDrawHeader;
-            _assetReorderableList.onAddCallback = OnAdd;
-            _assetReorderableList.onRemoveCallback = OnRemove;
-            _assetReorderableList.drawElementCallback = OnDrawElement;
-            _assetReorderableList.onSelectCallback = OnSelect;
-            _assetReorderableList.onReorderCallback = OnReordered;
+            _assetReorderableList = new ReorderableList(_allAssetGUIDs, typeof(string))
+            {
+                drawHeaderCallback = OnDrawHeader, 
+                onAddCallback = OnAdd, 
+                onRemoveCallback = OnRemove,
+                drawElementCallback = OnDrawElement,
+                onSelectCallback = OnSelect,
+                onReorderCallback = OnReordered
+            };
 
             void OnDrawHeader(Rect rect)
             {
@@ -202,11 +201,24 @@ namespace Ami.BroAudio.Editor
                 {
                     _isInEntitiesEditMode = true;
                 }
+
+                HandleContextMenu(rect, editor.Asset as AudioAsset);
             }
 
             void OnReordered(ReorderableList list)
             {
                 _hasAssetListReordered = true;
+            }
+        }
+
+        private void HandleContextMenu(Rect rect, AudioAsset editorAsset)
+        {
+            var evt = Event.current;
+            if (evt.type == EventType.ContextClick && editorAsset && rect.Contains(evt.mousePosition))
+            {
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Ping"), false,() => EditorGUIUtility.PingObject(editorAsset));
+                menu.ShowAsContext();
             }
         }
 
@@ -216,7 +228,7 @@ namespace Ami.BroAudio.Editor
             {
                 OnSelectAsset?.Invoke();
                 _currSelectedAssetIndex = list.index;
-                EditorPlayAudioClip.Instance.StopAllClips();
+                EditorAudioPreviewer.Instance.StopAllClips();
                 RefreshAssetEditors(list);
                 if(EditorSetting.OpenLastEditAudioAsset)
                 {
@@ -272,7 +284,7 @@ namespace Ami.BroAudio.Editor
         #region Asset Creation
         private void ShowCreateAssetAskName()
         {
-            // In the following case. List has better performance than IEnumerable , even with a ToList() method.
+            // In the following case. List has better performance than IEnumerable, even with a ToList() method.
             List<string> assetNames = _assetEditorDict.Values.Select(x => x.Asset.AssetName).ToList();
             AssetNameEditorWindow.ShowWindow(assetNames, assetName => CreateAsset(assetName));
         }
@@ -426,19 +438,19 @@ namespace Ami.BroAudio.Editor
                 {
                     DrawEntitiesHeader(editor.serializedObject, editor.SetAssetName);
                     editor.DrawEntitiesList(out float listHeight);
-                    float compenstateHeight = GetScrollPosCompenstateHeight(listHeight);
-                    if (compenstateHeight > 0f)
+                    float compensateHeight = GetScrollPosCompensateHeight(listHeight);
+                    if (compensateHeight > 0f)
                     {
-                        GUILayout.Space(compenstateHeight);
+                        GUILayout.Space(compensateHeight);
                     }
                 }
                 EditorGUILayout.EndScrollView();
-                DrawClipPropertiesHelper.DrawPlaybackIndicator(rect.Scoping(position, new Vector2(offsetX, offsetY)), -_entitiesScrollPos);
+                EditorAudioPreviewer.Instance.PlaybackIndicator?.Draw(rect.Scoping(position, new Vector2(offsetX, offsetY)), -_entitiesScrollPos);
             }
             EditorGUILayout.EndVertical();
         }
 
-        private float GetScrollPosCompenstateHeight(float listHeight)
+        private float GetScrollPosCompensateHeight(float listHeight)
         {
             float headerHeight = EntitiesHeaderSize.y + (DefaultLayoutPadding * 2) + ReorderableList.Defaults.padding;
             float scrollViewHeight = listHeight - (position.height - headerHeight);

@@ -1,145 +1,120 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using UnityEditor;
+using System;
 using Ami.Extension;
-using UnityEngine.Audio;
-using Ami.Extension.Reflection;
-using System.Reflection;
-using Ami.BroAudio.Tools;
 
 namespace Ami.BroAudio.Editor
 {
-    public class EditorAudioPreviewer : EditorUpdateHelper
+    // HISTORY NOTE:
+    // This class used to be called EditorPlayAudioClip.
+    // The original EditorAudioPreviewer has been moved to EditorVolumeTransporter.
+    public class EditorAudioPreviewer
     {
-        public const string VolumeParameterName = "PreviewVolume";
-        public const string DefaultSnapshotName = "Snapshot";
+        public const string IgnoreSettingTooltip = "Right-click to play the audio clip directly";
 
-        private AudioMixer _mixer = null;
-        private AudioMixerGroup _mixerGroup = null;
-        private AudioMixerSnapshot _snapshot = null;
-        private MethodInfo _method = null;
-        private object[] _parameters = null;
-
-        private EditorPlayAudioClip.Data _clipData = null;
-        private Ease _fadeInEase;
-        private Ease _fadeOutEase;
-
-        private float _elapsedTime = 0f;
-        private float _dbVolume = 0f;
-        private float _pitch = 1f;
-
-        private bool _isInitSuccessfully = false;
-
-        public float CurrentDecibelVolume => _dbVolume;
-
-        public EditorAudioPreviewer(AudioMixer mixer)
+        private static EditorAudioPreviewer _instance = null;
+        public static EditorAudioPreviewer Instance
         {
-            _mixer = mixer;
-            _snapshot = mixer.FindSnapshot(DefaultSnapshotName);
-            var tracks = mixer.FindMatchingGroups(BroName.MasterTrackName);
-            _mixerGroup = tracks != null && tracks.Length > 0 ? tracks[0] : null;
-            _fadeInEase = BroEditorUtility.RuntimeSetting.DefaultFadeInEase;
-            _fadeOutEase = BroEditorUtility.RuntimeSetting.DefaultFadeOutEase;
-            _isInitSuccessfully = _mixer && _snapshot && _mixerGroup;
-
-            if(_isInitSuccessfully)
+            get
             {
-                _parameters = new object[] { _mixer, _snapshot, 0f };
-            }
-            else
-            {
-                Debug.LogError($"EditorAudioPreviewer initializing fail! make sure you have " +
-                    $"{BroName.EditorAudioMixerName}.mixer in Resources/Editor folder, " +
-                    $"an AudioMixerGroup named:{BroName.MasterTrackName}, " +
-                    $"and a snapshot named:{DefaultSnapshotName}");
+                _instance ??= new EditorAudioPreviewer();
+                return _instance;
             }
         }
 
-        protected override float UpdateInterval => 1 / 30f;
+        public event Action OnPlaybackIndicatorUpdate;
 
-        public void SetData(EditorPlayAudioClip.Data clipData, float pitch = 1f)
+        private EditorPreviewStrategy _currentStrategy;
+        
+        public PlaybackIndicatorUpdater PlaybackIndicator => _currentStrategy?.PlaybackIndicator;
+
+        public Action OnFinished
         {
-            _clipData = clipData;
-            _pitch = pitch;
-
-            if (_isInitSuccessfully && _method == null)
+            get => _currentStrategy?.OnFinished;
+            set
             {
-                var reflection = new ClassReflectionHelper();
-                string methodName = BroAudioReflection.MethodName.SetValueForVolume.ToString();
-                _method = reflection.MixerGroupClass.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
+                if (_currentStrategy != null)
+                {
+                    _currentStrategy.OnFinished = value;
+                }
+            }
+        }
+
+        private EditorAudioPreviewer()
+        {
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        public void Play(PreviewRequest req, ReplayRequest replayRequest = null)
+        {
+            SwitchToStrategy(req.StrategyType);
+            _currentStrategy.Play(req, replayRequest);
+        }
+
+        public void StopAllClips()
+        {
+            StopAndDestroyStrategy();
+        }
+        
+        public void UpdatePreview()
+        {
+            _currentStrategy?.UpdatePreview();
+        }
+
+        private void SwitchToStrategy(PreviewStrategyType strategyType)
+        {
+            if (_currentStrategy != null && GetCurrentStrategyType() != strategyType)
+            {
+                StopAndDestroyStrategy();
             }
 
-            float startVol = GetStartVolume(clipData);
-            SetVolume(startVol, true);
+            _currentStrategy ??= CreateStrategy(strategyType);
+            _currentStrategy.AddPlaybackIndicatorListener(OnPlaybackIndicatorUpdate);
         }
 
-        private float GetStartVolume(EditorPlayAudioClip.Data clipData)
+        private EditorPreviewStrategy CreateStrategy(PreviewStrategyType strategyType)
         {
-            return clipData.FadeIn > 0f ? 0f : clipData.Volume; ;
+            return strategyType switch
+            {
+                PreviewStrategyType.AudioSource => new AudioSourcePreviewStrategy(),
+                PreviewStrategyType.DirectPlayback => new DirectPlaybackPreviewStrategy(),
+                _ => throw new ArgumentException($"Unknown strategy type: {strategyType}")
+            };
         }
 
-        public bool IsNewVolumeDifferentFromCurrent(EditorPlayAudioClip.Data clipData)
+        private PreviewStrategyType GetCurrentStrategyType() => _currentStrategy switch
         {
-            float startVol = GetStartVolume(clipData);
-            return !Mathf.Approximately(startVol.ToDecibel(), _dbVolume);
-        }
-
-        public override void Start()
+            AudioSourcePreviewStrategy _ => PreviewStrategyType.AudioSource,
+            _ => PreviewStrategyType.DirectPlayback
+        };
+        
+        private void StopAndDestroyStrategy()
         {
-            _elapsedTime = 0f;
-            base.Start();
-        }
-
-        public override void Dispose()
-        {
-            SetVolume(1f);
-            base.Dispose();
-        }
-
-        protected override void Update()
-        {
-            if (!_isInitSuccessfully)
+            if (_currentStrategy == null)
             {
                 return;
             }
-
-            float fadeOutPos = _clipData.Duration - _clipData.FadeOut;
-            bool hasFaddeOut = _clipData.FadeOut > 0f;
-
-            _elapsedTime += DeltaTime * _pitch;
-            if (_elapsedTime < _clipData.FadeIn)
-            {
-                float t = (_elapsedTime / _clipData.FadeIn).SetEase(_fadeInEase);
-                SetVolume(Mathf.Lerp(0f, _clipData.Volume, t));
-            }
-            else if (hasFaddeOut && _elapsedTime >= fadeOutPos && _elapsedTime < _clipData.Duration)
-            {
-                float t = ((_elapsedTime - fadeOutPos) / _clipData.FadeOut).SetEase(_fadeOutEase);
-                SetVolume(Mathf.Lerp(_clipData.Volume, 0f, t));
-            }
-            else
-            {
-                SetVolume(hasFaddeOut && _elapsedTime >= _clipData.Duration ? 0f : _clipData.Volume);
-            }
-            base.Update();
+            _currentStrategy.RemovePlaybackIndicatorListener(OnPlaybackIndicatorUpdate);
+            _currentStrategy.Stop();
+            _currentStrategy.Dispose();
+            _currentStrategy = null;
         }
 
-        private void SetVolume(float vol, bool forceSet = false)
+        private void Dispose()
         {
-            if (!_isInitSuccessfully)
-            {
-                return;
-            }
+            OnFinished = null;
+            _currentStrategy?.Dispose();
+            _currentStrategy = null;
+            _instance = null;
+        }
 
-            float db = vol.ToDecibel();
-            if (!forceSet && db == _dbVolume)
-            {
-                return;
-            }
+        private void OnPlayModeStateChanged(PlayModeStateChange mode)
+        {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 
-            _dbVolume = db;
-            _parameters[2] = db;
-            _method?.Invoke(_mixerGroup, _parameters);
+            if (mode == PlayModeStateChange.ExitingEditMode || mode == PlayModeStateChange.ExitingPlayMode)
+            {
+                Dispose();
+            }
         }
     }
 }

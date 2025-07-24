@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5d5e650980575ce46b6feadeba3691bc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Demo/Animations/Cannon.controller
+  uploadId: 774142

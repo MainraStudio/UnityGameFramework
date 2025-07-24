@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 3070d77cbc07466990cfc3eb9c818a82
+timeCreated: 1752056505
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.1.0
+  assetPath: Assets/BroAudio/Core/Scripts/Utility/ClipSelection/VelocityClipStrategy.cs
+  uploadId: 774142

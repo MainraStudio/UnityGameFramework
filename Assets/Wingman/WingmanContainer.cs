@@ -158,7 +158,7 @@ namespace WingmanInspector {
             if (Settings.TransOnlyDisable && OnlyHasTransform()) return;
 
             editorListVisual ??= InspectorWindow.rootVisualElement.Q(null, InspectorListClassName);
-            
+
             if (editorListVisual == null) return;
 
             if (performSearchFlag && EditorApplication.timeSinceStartup - timeOfLastSearchUpdate > TimeAfterLastKeyPressToSearch) {
@@ -227,7 +227,7 @@ namespace WingmanInspector {
         private void DrawWingmanGui() {
             if (!InspectingObjectIsValid()) return;
             
-            Rect reservedRect = GUILayoutUtility.GetRect(0f, 0f, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            Rect reservedRect = miniMapGuiContainer.contentRect;
 
             bool showCopyPasteOnly = Settings.TransOnlyKeepCopyPaste && OnlyHasTransform();
             if (!Settings.HideToolbar || showCopyPasteOnly) {
@@ -248,13 +248,14 @@ namespace WingmanInspector {
                 compFromIndex.Add(i, comps[i]);
                 validCompIds.Add(comps[i].GetInstanceID());
             }
+            
 
             // Check for resizing the container
             bool resizeRequired = newCompCount != lastCompCount || newRowCount != lastRowCount;
             if (resizeRequired) {
                 ResizeGuiContainer();
             }
-            
+
             // Remove component from selection if it was removed from gameobject
             if (newCompCount < lastCompCount) {
                 for (int i = selectedCompIds.Count - 1; i >= 0; i--) {
@@ -972,7 +973,7 @@ namespace WingmanInspector {
         }
 
         private bool OnlyHasTransform() {
-#if UNITY_2022 || UNITY_2022_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             return ((GameObject)inspectingObject).GetComponentCount() == 1;
 #else
             return ((GameObject)inspectingObject).GetComponents<Component>().Length == 1;
@@ -1299,8 +1300,10 @@ namespace WingmanInspector {
                     return false;
                 }
                 
-                return editorListVisual[compStartIndex].style.display ==  DisplayStyle.Flex;
+                return editorListVisual[compStartIndex].style.display !=  DisplayStyle.None;
             }
+
+            if (miniMapGuiContainer == null) return;
             
             if (ShowingTransform()) {
                 const float transformHeaderMissingHeight = 7f;

@@ -19,7 +19,7 @@ namespace PrimeTweenDemo {
             if (cameraProjectionMatrixAnimation.IsAnimating) {
                 return;
             }
-            if (InputController.touchSupported && !InputController.Get()) {
+            if (Application.isMobilePlatform && InputController.touchSupported && !InputController.Get()) {
                 SetCurrentHighlighted(null);
                 return;
             }

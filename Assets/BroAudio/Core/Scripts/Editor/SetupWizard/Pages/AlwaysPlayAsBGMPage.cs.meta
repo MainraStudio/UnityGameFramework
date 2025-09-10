@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: bdad4cc7546a2bc43b57de670b4b98d2
+timeCreated: 1753685395
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.2.0
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/SetupWizard/Pages/AlwaysPlayAsBGMPage.cs
+  uploadId: 783268

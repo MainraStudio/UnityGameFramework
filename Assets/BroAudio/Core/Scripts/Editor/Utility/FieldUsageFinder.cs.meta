@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7146a493361a8d749965467def8c5990
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.2.0
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/Utility/FieldUsageFinder.cs
+  uploadId: 783268

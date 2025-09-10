@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c21b1d9309aeaab4097730724fefa14d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.2.0
+  assetPath: Assets/BroAudio/Core/Scripts/Interface/IAudioEffectModifier.cs
+  uploadId: 783268

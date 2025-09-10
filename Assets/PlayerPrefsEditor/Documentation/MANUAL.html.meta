@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b76f3be76cdab1d4889825dff77b8f1c
+guid: 03d31859f447a4246befec42b62f5e6c
 TextScriptImporter:
   externalObjects: {}
   userData: 
@@ -9,6 +9,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 167903
   packageName: PlayerPrefs Editor
-  packageVersion: 1.2.3
+  packageVersion: 1.2.4
   assetPath: Assets/PlayerPrefsEditor/Documentation/MANUAL.html
-  uploadId: 739306
+  uploadId: 782444

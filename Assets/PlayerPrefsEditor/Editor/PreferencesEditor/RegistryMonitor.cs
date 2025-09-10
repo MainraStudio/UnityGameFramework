@@ -1,4 +1,6 @@
-﻿/*
+﻿// Copyright 2025 Cyber Chaos Games. All Rights Reserved.
+
+/*
  * Thanks to gr0ss for the inspiration.
  * 
  * https://github.com/gr0ss/RegistryMonitor
@@ -13,7 +15,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
-namespace BgTools.PlayerPrefsEditor
+namespace CCG.PlayerPrefsEditor
 {
     public class RegistryMonitor : IDisposable
     {

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 710184bab63356b4484966b06ee785b6
+timeCreated: 1753685395
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.2.0
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/SetupWizard/Pages/AudioFilterSlopePage.cs
+  uploadId: 783268

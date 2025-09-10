@@ -1,4 +1,6 @@
-﻿namespace BgTools.PlayerPrefsEditor
+﻿// Copyright 2025 Cyber Chaos Games. All Rights Reserved.
+
+namespace CCG.PlayerPrefsEditor
 {
     [System.Serializable]
     public class PreferenceEntry

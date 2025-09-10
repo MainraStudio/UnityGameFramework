@@ -75,7 +75,6 @@ namespace Ami.BroAudio.Runtime
 #endif
 
         public AudioMixer AudioMixer => _broAudioMixer;
-        public IReadOnlyDictionary<SoundID, AudioPlayer> CombFilteringPreventer => _combFilteringPreventer;
 
         private void Awake()
         {
@@ -299,7 +298,7 @@ namespace Ami.BroAudio.Runtime
             {
                 if (player.IsActive && targetType.Contains(GetAudioType(player.ID)) && !player.IsDominator)
                 {
-                    player.SetEffect(effectType, mode);
+                    player.SetTrackEffect(effectType, mode);
                 }
             }
         }

@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: f01f92f6a23cf154f800637a85a21973
+timeCreated: 1753685395
+AssetOrigin:
+  serializedVersion: 1
+  productId: 257362
+  packageName: Bro Audio
+  packageVersion: 2.2.0
+  assetPath: Assets/BroAudio/Core/Scripts/Editor/SetupWizard/Pages/DisplayedPropertiesPage.cs
+  uploadId: 783268

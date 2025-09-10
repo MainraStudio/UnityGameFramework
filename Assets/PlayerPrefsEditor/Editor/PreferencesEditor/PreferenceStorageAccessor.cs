@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright 2025 Cyber Chaos Games. All Rights Reserved.
+
+using System;
 using System.Linq;
 
 #if UNITY_EDITOR_WIN
@@ -14,7 +16,7 @@ using System.Xml;
 using System.Xml.Linq;
 #endif
 
-namespace BgTools.PlayerPrefsEditor
+namespace CCG.PlayerPrefsEditor
 {
     public abstract class PreferanceStorageAccessor
     {
